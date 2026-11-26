@@ -1,0 +1,55 @@
+id: constant-product-amm
+slug: constant-product-amm
+title: Constant Product AMM Pool (x * y = k)
+description: Implement a constant-product decentralized exchange pool supporting liquidity provisioning, LP share burning, and fee-adjusted swaps.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: defi-engineering
+tags:
+  - amm
+  - defi
+  - constant-product
+  - liquidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SimpleAMM.sol
+  editable_files:
+    - src/SimpleAMM.sol
+  readonly_files:
+    - test/SimpleAMM.t.sol
+tests:
+  public_suite: evaluation/public/SimpleAMM.t.sol
+  hidden_suite: evaluation/hidden/SimpleAMMHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 350000
+  weights:
+    functional_correctness: 55
+    security_invariants: 30
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Swap fee formula
+    content: "Apply a 0.3% fee by scaling amountIn by 997 / 1000: amountOut = (amountInWithFee * reserveOut) / (reserveIn * 1000 + amountInWithFee)."
+  - order: 2
+    title: Proportionality on subsequent deposits
+    content: When totalShares > 0, verify amount0 * reserve1 == amount1 * reserve0 or mint min(amount0 * totalShares / reserve0, amount1 * totalShares / reserve1).
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: Uniswap v2 Core Whitepaper
+    url: https://uniswap.org/whitepaper.pdf
+    source: Uniswap Labs
+    version: v2
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

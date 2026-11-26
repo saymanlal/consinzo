@@ -1,0 +1,55 @@
+id: erc20-token-vault
+slug: erc20-token-vault
+title: Implement a Production ERC-20 Token Contract
+description: Build a spec-compliant ERC-20 fungible token from scratch with minting, burning, infinite-approval handling, and zero-address safety checks.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: token-standards
+tags:
+  - erc20
+  - token-standards
+  - solidity
+  - allowances
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ConsinzoToken.sol
+  editable_files:
+    - src/ConsinzoToken.sol
+  readonly_files:
+    - test/ConsinzoToken.t.sol
+tests:
+  public_suite: evaluation/public/ConsinzoToken.t.sol
+  hidden_suite: evaluation/hidden/ConsinzoTokenHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 250000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Zero-address invariant
+    content: Reject transfers, mints, burns, and approvals involving address(0) unless explicitly specified by the ERC-20 spec.
+  - order: 2
+    title: Infinite approval optimization
+    content: In transferFrom, if allowance[from][msg.sender] == type(uint256).max, do not decrement the stored allowance.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-20 Token Standard
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

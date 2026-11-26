@@ -1,0 +1,52 @@
+id: flash-loan-arbitrage-guard
+slug: flash-loan-arbitrage-guard
+title: Defend a Vault Against Donation & Share Inflation Attacks
+description: Patch a share-based vault that relies on address(this).balance so an attacker cannot inflate share price via direct ETH donation to steal subsequent depositors' funds.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: security-engineering
+tags:
+  - inflation-attack
+  - security
+  - vaults
+  - donation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ShareVault.sol
+  editable_files:
+    - src/ShareVault.sol
+  readonly_files:
+    - test/ShareVault.t.sol
+tests:
+  public_suite: evaluation/public/ShareVault.t.sol
+  hidden_suite: evaluation/hidden/ShareVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Internal asset accounting
+    content: Track totalManagedAssets in a state variable instead of reading address(this).balance, so forced ETH transfers (selfdestruct or direct send) do not skew share pricing.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: ERC-4626 Inflation Attack Mitigation
+    url: https://docs.openzeppelin.com/contracts/5.x/erc4626
+    source: OpenZeppelin Docs
+    version: "5.x"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

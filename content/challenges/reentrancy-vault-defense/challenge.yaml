@@ -1,0 +1,55 @@
+id: reentrancy-vault-defense
+slug: reentrancy-vault-defense
+title: Patch Reentrancy in an ETH Savings Vault
+description: Audit and patch a vulnerable ETH vault that updates user balances after an external call, allowing a malicious receiver contract to drain the pool.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - reentrancy
+  - security
+  - cei-pattern
+  - audit
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/VulnerableVault.sol
+  editable_files:
+    - src/VulnerableVault.sol
+  readonly_files:
+    - test/VulnerableVault.t.sol
+tests:
+  public_suite: evaluation/public/VulnerableVault.t.sol
+  hidden_suite: evaluation/hidden/VulnerableVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Checks-Effects-Interactions
+    content: "Deduct balances[msg.sender] BEFORE calling msg.sender.call{value: bal}(\"\")."
+  - order: 2
+    title: Defense in depth
+    content: Add a nonReentrant mutex modifier to protect withdraw() against cross-function reentrancy.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: SWC-107 Reentrancy
+    url: https://swcregistry.io/docs/SWC-107/
+    source: SWC Registry
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

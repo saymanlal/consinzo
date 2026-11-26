@@ -1,0 +1,55 @@
+id: merkle-airdrop-claim
+slug: merkle-airdrop-claim
+title: Gas-Efficient Merkle Airdrop Distributor
+description: Implement a Merkle-tree airdrop claim contract using keccak256 sorted-pair hashing and bitmap/mapping double-claim protection.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: blockchain-infrastructure
+tags:
+  - merkle-tree
+  - cryptography
+  - airdrop
+  - gas-optimization
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MerkleAirdrop.sol
+  editable_files:
+    - src/MerkleAirdrop.sol
+  readonly_files:
+    - test/MerkleAirdrop.t.sol
+tests:
+  public_suite: evaluation/public/MerkleAirdrop.t.sol
+  hidden_suite: evaluation/hidden/MerkleAirdropHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Leaf preimage encoding
+    content: Hash keccak256(abi.encodePacked(index, account, amount)) to match the test Merkle builder.
+  - order: 2
+    title: Commutative pair hashing
+    content: "Sort each sibling pair (a <= b ? keccak256(abi.encodePacked(a, b)) : keccak256(abi.encodePacked(b, a)))."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: Merkle Proofs in Solidity
+    url: https://docs.openzeppelin.com/contracts/5.x/api/utils#MerkleProof
+    source: OpenZeppelin Docs
+    version: "5.x"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

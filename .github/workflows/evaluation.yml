@@ -1,0 +1,23 @@
+name: Restricted Remote Evaluation (Mode C)
+
+# SECURITY NOTICE:
+# Never trigger this workflow on pull_request_target or check out untrusted PR code
+# in a job with repository secrets or private hidden evaluation assets.
+on:
+  workflow_dispatch:
+    inputs:
+      submission_id:
+        description: "Validated submission identifier"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: ${{ false }} # Explicitly disabled until isolated microVM / external runner is provisioned
+    steps:
+      - run: echo "Remote isolated runner not yet provisioned."

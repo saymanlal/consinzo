@@ -1,0 +1,52 @@
+id: erc4626-tokenized-vault
+slug: erc4626-tokenized-vault
+title: ERC-4626 Tokenized Yield Vault
+description: Implement an ERC-4626 tokenized vault with proportional asset/share conversions, deposit, mint, withdraw, and redeem with vault-favorable rounding.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: defi-engineering
+tags:
+  - erc4626
+  - vault
+  - defi
+  - rounding
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TokenizedVault.sol
+  editable_files:
+    - src/TokenizedVault.sol
+  readonly_files:
+    - test/TokenizedVault.t.sol
+tests:
+  public_suite: evaluation/public/TokenizedVault.t.sol
+  hidden_suite: evaluation/hidden/TokenizedVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 350000
+  weights:
+    functional_correctness: 55
+    security_invariants: 30
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Rounding direction
+    content: Round down shares minted on deposit and assets returned on redeem; round up shares burned on withdraw.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-4626 Tokenized Vaults
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

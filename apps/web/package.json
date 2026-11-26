@@ -1,0 +1,45 @@
+{
+  "name": "@consinzo/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@consinzo/challenge-spec": "workspace:*",
+    "@consinzo/ecosystem-registry": "workspace:*",
+    "@consinzo/editor": "workspace:*",
+    "@consinzo/execution-sdk": "workspace:*",
+    "@consinzo/runner-common": "workspace:*",
+    "@consinzo/runner-evm": "workspace:*",
+    "@consinzo/scoring": "workspace:*",
+    "@consinzo/shared": "workspace:*",
+    "@consinzo/ui": "workspace:*",
+    "@consinzo/validators": "workspace:*",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.47.10",
+    "@tanstack/react-query": "^5.62.7",
+    "lucide-react": "^0.468.0",
+    "next": "^15.1.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
+    "@hookform/resolvers": "^3.9.1",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

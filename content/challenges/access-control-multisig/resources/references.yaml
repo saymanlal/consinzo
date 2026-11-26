@@ -1,0 +1,6 @@
+references:
+  - title: Solidity Security Considerations
+    url: https://docs.soliditylang.org/en/latest/security-considerations.html
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-26"

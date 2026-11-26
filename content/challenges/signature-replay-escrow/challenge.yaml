@@ -1,0 +1,52 @@
+id: signature-replay-escrow
+slug: signature-replay-escrow
+title: Fix Signature Replay Vulnerability in Payment Escrow
+description: Patch an off-chain signature-authorized escrow contract that lacks nonce tracking and domain binding, allowing attackers to replay valid vouchers repeatedly.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - ecdsa
+  - signature-replay
+  - security
+  - eip712
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SignedEscrow.sol
+  editable_files:
+    - src/SignedEscrow.sol
+  readonly_files:
+    - test/SignedEscrow.t.sol
+tests:
+  public_suite: evaluation/public/SignedEscrow.t.sol
+  hidden_suite: evaluation/hidden/SignedEscrowHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Bind digest to contract and nonce
+    content: Include address(this), block.chainid, and a monotonically increasing nonces[signer] in the signed message digest, and increment the nonce on redemption.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-712 Typed Structured Data Hashing
+    url: https://eips.ethereum.org/EIPS/eip-712
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

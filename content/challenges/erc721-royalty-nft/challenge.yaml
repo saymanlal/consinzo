@@ -1,0 +1,55 @@
+id: erc721-royalty-nft
+slug: erc721-royalty-nft
+title: ERC-721 NFT Collection with EIP-2981 Royalties
+description: Implement a supply-capped ERC-721 non-fungible token contract with approvals, operator permissions, and EIP-2981 royalty calculations.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: token-standards
+tags:
+  - erc721
+  - eip2981
+  - nft
+  - royalties
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ConsinzoNFT.sol
+  editable_files:
+    - src/ConsinzoNFT.sol
+  readonly_files:
+    - test/ConsinzoNFT.t.sol
+tests:
+  public_suite: evaluation/public/ConsinzoNFT.t.sol
+  hidden_suite: evaluation/hidden/ConsinzoNFTHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: EIP-2981 basis points
+    content: Royalty amount is (salePrice * royaltyBps) / 10_000. Cap royaltyBps <= 1000 (10%) in constructor.
+  - order: 2
+    title: Clear single-token approval on transfer
+    content: Delete getApproved[tokenId] whenever transferFrom transfers ownership.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-721 Non-Fungible Token Standard
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,6 @@
+references:
+  - title: OpenZeppelin ERC-4626 Inflation Mitigation
+    url: https://docs.openzeppelin.com/contracts/5.x/erc4626
+    source: OpenZeppelin Docs
+    version: "5.x"
+    verified_at: "2026-11-26"

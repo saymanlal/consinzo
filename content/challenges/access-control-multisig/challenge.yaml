@@ -1,0 +1,54 @@
+id: access-control-multisig
+slug: access-control-multisig
+title: Multi-Signature Treasury Wallet
+description: Engineer an M-of-N multi-signature wallet supporting proposal submission, confirmation, revocation, and atomic external execution.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: smart-contract-engineering
+tags:
+  - multisig
+  - access-control
+  - treasury
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MultisigWallet.sol
+  editable_files:
+    - src/MultisigWallet.sol
+  readonly_files:
+    - test/MultisigWallet.t.sol
+tests:
+  public_suite: evaluation/public/MultisigWallet.t.sol
+  hidden_suite: evaluation/hidden/MultisigWalletHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 350000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Prevent double confirmation
+    content: Track confirmed[txId][owner] so an owner cannot count twice toward the threshold.
+  - order: 2
+    title: Effects before external call
+    content: "Mark tx.executed = true before calling to.call{value: value}(data) to block reentrant execution."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: Solidity Call & Access Control Patterns
+    url: https://docs.soliditylang.org/en/latest/security-considerations.html
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false
