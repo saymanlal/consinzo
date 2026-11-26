@@ -1,0 +1,53 @@
+id: near-callback-rollback-guard
+slug: near-callback-rollback-guard
+title: Patch NEAR Cross-Contract Callback Double-Refund Vulnerability
+description: Secure an asynchronous NEAR payout router against unauthorized callback spoofing and duplicate failure rollback refunds across sharded promise execution.
+ecosystem: near
+language: TypeScript
+difficulty: advanced
+category: security-engineering
+tags:
+  - near
+  - patch
+  - callbacks
+  - async-security
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/AsyncRouter.ts
+  editable_files:
+    - src/AsyncRouter.ts
+  readonly_files:
+    - test/AsyncRouter.t.ts
+tests:
+  public_suite: evaluation/public/AsyncRouter.t.ts
+  hidden_suite: evaluation/hidden/AsyncRouterHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Self-callback authorization
+    content: On NEAR, promise callbacks must assert near.predecessorAccountId() === near.currentAccountId() so external accounts cannot invoke callback handlers directly.
+  - order: 2
+    title: Single-use pending transfer receipt
+    content: Delete or finalize the pending transfer record before crediting a failure refund in onTransferCallback() to block double-refunds.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: NEAR Cross-Contract Call Security
+    url: https://docs.near.org/build/smart-contracts/security/callbacks
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: true

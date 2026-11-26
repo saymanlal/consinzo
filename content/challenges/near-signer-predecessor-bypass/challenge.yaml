@@ -1,0 +1,53 @@
+id: near-signer-predecessor-bypass
+slug: near-signer-predecessor-bypass
+title: Patch NEAR Signer vs Predecessor Confused-Deputy Vault
+description: Fix an authentication bypass where a NEAR vault authenticates signerAccountId() instead of predecessorAccountId(), enabling malicious intermediary contracts to drain user deposits.
+ecosystem: near
+language: TypeScript
+difficulty: intermediate
+category: security-engineering
+tags:
+  - near
+  - patch
+  - predecessor
+  - access-control
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/SignerVault.ts
+  editable_files:
+    - src/SignerVault.ts
+  readonly_files:
+    - test/SignerVault.t.ts
+tests:
+  public_suite: evaluation/public/SignerVault.t.ts
+  hidden_suite: evaluation/hidden/SignerVaultHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Signer vs Predecessor on NEAR
+    content: near.signerAccountId() is the original transaction signer (analogous to tx.origin). Any intermediary contract called by that user inherits the same signerAccountId().
+  - order: 2
+    title: Authenticate immediate caller
+    content: Replace signerAccountId() with near.predecessorAccountId() for deposits, withdrawals, and owner-only pause controls.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: NEAR Security Best Practices — Predecessor vs Signer
+    url: https://docs.near.org/build/smart-contracts/security/welcome
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: true

@@ -10,7 +10,7 @@
    ```bash
    cp .env.example .env.local
    ```
-3. Validate all 38 EVM & NEAR challenges:
+3. Validate all 40 EVM & NEAR challenges:
    ```bash
    pnpm validate:challenges
    ```

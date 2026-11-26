@@ -9,6 +9,7 @@ import { Badge, Button, Card, Input, Textarea } from "@consinzo/ui";
 interface ChallengeSummary {
   slug: string;
   title: string;
+  ecosystem: string;
   description: string;
   difficulty: string;
   tags: string[];
@@ -166,7 +167,8 @@ export default function SecurityArenaPage() {
             <Card key={m.slug} className="p-5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Badge tone="neutral">{m.ecosystem}</Badge>
                     <Badge tone={m.tags.includes("exploit") ? "red" : "blue"}>
                       {m.tags.includes("exploit") ? "Red-Team Exploit" : "Blue-Team Patch"}
                     </Badge>

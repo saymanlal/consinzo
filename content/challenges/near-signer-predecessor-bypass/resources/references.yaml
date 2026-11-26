@@ -1,0 +1,6 @@
+references:
+  - title: NEAR Security Checklist
+    url: https://docs.near.org/build/smart-contracts/security/welcome
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"

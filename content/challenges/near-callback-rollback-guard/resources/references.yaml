@@ -1,0 +1,6 @@
+references:
+  - title: NEAR Callback Security
+    url: https://docs.near.org/build/smart-contracts/security/callbacks
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"

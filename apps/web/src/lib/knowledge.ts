@@ -145,7 +145,13 @@ export const KNOWLEDGE_ENTRIES: readonly KnowledgeEntry[] = [
           "Balances and deposits use bigint in yoctoNEAR (10^24 per NEAR). Store dynamic key/value records in LookupMap with explicit prefix strings so storage keys never collide across state fields.",
       },
     ],
-    relatedChallengeSlugs: ["near-counter-contract", "near-ft-escrow", "near-dao-voting"],
+    relatedChallengeSlugs: [
+      "near-counter-contract",
+      "near-ft-escrow",
+      "near-dao-voting",
+      "near-signer-predecessor-bypass",
+      "near-callback-rollback-guard",
+    ],
   },
   {
     slug: "solana-pda-signer-verification",
@@ -441,11 +447,17 @@ export const LEARNING_PATHS: readonly LearningPathSpec[] = [
   },
   {
     slug: "near-typescript-builder",
-    title: "NEAR Smart Contract Engineering (TypeScript)",
+    title: "NEAR Smart Contract & Security Engineering (TypeScript)",
     ecosystemId: "near",
-    difficulty: "beginner -> intermediate",
+    difficulty: "beginner -> advanced",
     description:
-      "Write and verify NEAR TypeScript contracts using predecessor attribution, LookupMap storage, yoctoNEAR deposits, and DAO quorum mechanics.",
-    challengeSlugs: ["near-counter-contract", "near-ft-escrow", "near-dao-voting"],
+      "Write and verify NEAR TypeScript contracts using predecessor attribution, LookupMap storage, DAO quorum mechanics, and async callback defense.",
+    challengeSlugs: [
+      "near-counter-contract",
+      "near-ft-escrow",
+      "near-dao-voting",
+      "near-signer-predecessor-bypass",
+      "near-callback-rollback-guard",
+    ],
   },
 ];
