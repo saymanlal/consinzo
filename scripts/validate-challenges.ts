@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { ProjectFile } from "../packages/shared/src/types";
+import { ECOSYSTEM_REGISTRY } from "../packages/ecosystem-registry/src/index";
+import { CHALLENGE_CATEGORIES, type ProjectFile } from "../packages/shared/src/index";
 import { validateChallengeDirectory } from "../packages/validators/src/index";
 import { EvmRunner } from "../runners/evm/src/index";
 
@@ -34,6 +35,10 @@ async function main() {
     .sort();
 
   const runner = new EvmRunner();
+  const seenIds = new Set<string>();
+  const seenSlugs = new Set<string>();
+  const validEcosystemIds = new Set(ECOSYSTEM_REGISTRY.map((e) => e.id));
+  const validCategoryIds = new Set(CHALLENGE_CATEGORIES.map((c) => c.id));
   let failures = 0;
 
   console.log(`Validating ${slugs.length} challenge packages...\n`);
@@ -46,6 +51,30 @@ async function main() {
       failures++;
       continue;
     }
+
+    const m = validation.manifest;
+    if (seenIds.has(m.id)) {
+      console.error(`[FAIL] ${slug} duplicate challenge id: ${m.id}`);
+      failures++;
+      continue;
+    }
+    if (seenSlugs.has(m.slug) || m.slug !== slug) {
+      console.error(`[FAIL] ${slug} duplicate or mismatched slug: ${m.slug}`);
+      failures++;
+      continue;
+    }
+    if (!validEcosystemIds.has(m.ecosystem)) {
+      console.error(`[FAIL] ${slug} invalid ecosystem reference: ${m.ecosystem}`);
+      failures++;
+      continue;
+    }
+    if (!validCategoryIds.has(m.category)) {
+      console.error(`[FAIL] ${slug} invalid category reference: ${m.category}`);
+      failures++;
+      continue;
+    }
+    seenIds.add(m.id);
+    seenSlugs.add(m.slug);
 
     // 1. Verify starter compiles cleanly
     const starterSrc = readSolFiles(path.join(dir, "starter/src"), "src/");

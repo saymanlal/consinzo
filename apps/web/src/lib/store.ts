@@ -117,6 +117,12 @@ interface LocalDatabase {
 
 function resolveDbPath(): string {
   const { dataDir } = getServerEnv();
+  // Vercel serverless filesystem (/var/task) is read-only; use /tmp for ephemeral local fallback
+  if (process.env.VERCEL === "1" || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const tmpDir = path.join("/tmp", "consinzo-data");
+    fs.mkdirSync(tmpDir, { recursive: true });
+    return path.join(tmpDir, "consinzo-db.json");
+  }
   const candidates = [
     path.resolve(process.cwd(), dataDir),
     path.resolve(process.cwd(), "../..", dataDir),

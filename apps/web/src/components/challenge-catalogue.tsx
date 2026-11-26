@@ -27,6 +27,7 @@ export function ChallengeCatalogueClient({
       if (category !== "all" && c.category !== category) return false;
       if (
         q &&
+        !c.slug.toLowerCase().includes(q) &&
         !c.title.toLowerCase().includes(q) &&
         !c.description.toLowerCase().includes(q) &&
         !c.tags.some((t) => t.toLowerCase().includes(q))

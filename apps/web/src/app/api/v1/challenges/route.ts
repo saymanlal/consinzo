@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
-import { listPublishedChallenges } from "@/lib/challenges";
+import { getPublishedChallengesResult } from "@/lib/challenges";
 
 export async function GET(req: Request) {
+  const result = getPublishedChallengesResult();
+  if (result.status === "error") {
+    return NextResponse.json(
+      { error: { code: "STORAGE_UNAVAILABLE", message: result.message } },
+      { status: 503 }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const ecosystem = searchParams.get("ecosystem");
   const difficulty = searchParams.get("difficulty");
@@ -9,7 +17,7 @@ export async function GET(req: Request) {
   const securityOnly = searchParams.get("security") === "true";
   const q = searchParams.get("q")?.trim().toLowerCase() ?? "";
 
-  let items = listPublishedChallenges();
+  let items = result.challenges;
 
   if (ecosystem && ecosystem !== "all") {
     items = items.filter((c) => c.ecosystem === ecosystem);
