@@ -199,7 +199,9 @@ export default async function ChallengeDetailPage({
               <span className="font-mono">{manifest.scoring.weights.security_invariants}%</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-500">Gas Efficiency</span>
+              <span className="text-zinc-500">
+                {manifest.ecosystem === "near" ? "Execution Efficiency" : "Gas Efficiency"}
+              </span>
               <span className="font-mono">{manifest.scoring.weights.efficiency}%</span>
             </div>
             <div className="flex justify-between">

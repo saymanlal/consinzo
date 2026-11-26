@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink } from "lucide-react";
 import { Button, Card, Input, Textarea } from "@consinzo/ui";
 
 export default function ProfilePage() {
@@ -44,19 +46,38 @@ export default function ProfilePage() {
 
   if (!data?.profile) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-16 text-center text-xs text-zinc-500">
-        Sign in to manage your developer profile and portfolio links.
+      <div className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
+        <p className="text-xs text-zinc-500">
+          Sign in to manage your developer profile and portfolio links.
+        </p>
+        <Link
+          href="/auth"
+          className="inline-flex rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white"
+        >
+          Sign In / Create Account
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-semibold text-zinc-950">Developer Profile & Portfolio</h1>
-      <p className="mt-1 text-xs text-zinc-500">
-        Username <span className="font-mono">@{data.profile.username}</span> · Verified Points:{" "}
-        <span className="font-mono font-semibold">{data.profile.totalPoints}</span>
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-zinc-950">Developer Profile & Portfolio</h1>
+          <p className="mt-1 text-xs text-zinc-500">
+            Username <span className="font-mono">@{data.profile.username}</span> · Verified Points:{" "}
+            <span className="font-mono font-semibold">{data.profile.totalPoints}</span>
+          </p>
+        </div>
+        <Link
+          href={`/u/${data.profile.username}`}
+          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50"
+        >
+          View Public Portfolio
+          <ExternalLink className="h-3.5 w-3.5" />
+        </Link>
+      </div>
 
       <Card className="mt-6 p-6">
         <form onSubmit={handleSave} className="space-y-4 text-xs">

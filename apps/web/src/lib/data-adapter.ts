@@ -1121,46 +1121,57 @@ export async function getContestDetailsAndStandings(contestSlug: string) {
         .eq("contest_id", c.id),
       supabase
         .from("contest_scores")
-        .select("total_score, last_accepted_at, profiles(username, display_name)")
+        .select("user_id, total_score, last_accepted_at, profiles(username, display_name)")
         .eq("contest_id", c.id)
         .order("total_score", { ascending: false })
         .order("last_accepted_at", { ascending: true }),
     ]);
 
-    const teams = (teamRows ?? []).map((t: Record<string, unknown>) => {
-      const tmRows =
-        (t.team_members as Array<{
-          user_id: string;
-          profiles?: { username?: string; display_name?: string } | Array<{ username?: string; display_name?: string }>;
-        }>) ?? [];
-      return {
-        id: String(t.id),
-        contestSlug,
-        name: String(t.name),
-        captainId: String(t.captain_id),
-        memberIds: tmRows.map((m) => String(m.user_id)),
-        createdAt: String(t.created_at),
-        members: tmRows.map((m) => {
-          const prof = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
-          return {
-            username: prof?.username ?? "developer",
-            displayName: prof?.display_name ?? "Developer",
-          };
-        }),
-      };
-    });
-
+    const scoreByUserId = new Map<string, number>();
     const standings = (scoreRows ?? []).map((cs: Record<string, unknown>) => {
+      const uid = String(cs.user_id ?? "");
+      const scoreVal = Number(cs.total_score ?? 0);
+      if (uid) scoreByUserId.set(uid, scoreVal);
       const prof = (Array.isArray(cs.profiles) ? cs.profiles[0] : cs.profiles) as
         | { username?: string; display_name?: string }
         | undefined;
       return {
         username: prof?.username ?? "developer",
         displayName: prof?.display_name ?? "Developer",
-        totalScore: Number(cs.total_score ?? 0),
+        totalScore: scoreVal,
         lastAcceptedAt: String(cs.last_accepted_at ?? ""),
       };
     });
+
+    const teams = (teamRows ?? [])
+      .map((t: Record<string, unknown>) => {
+        const tmRows =
+          (t.team_members as Array<{
+            user_id: string;
+            profiles?: { username?: string; display_name?: string } | Array<{ username?: string; display_name?: string }>;
+          }>) ?? [];
+        const memberIds = tmRows.map((m) => String(m.user_id));
+        const teamScore =
+          Math.round(memberIds.reduce((sum, uid) => sum + (scoreByUserId.get(uid) ?? 0), 0) * 100) /
+          100;
+        return {
+          id: String(t.id),
+          contestSlug,
+          name: String(t.name),
+          captainId: String(t.captain_id),
+          memberIds,
+          teamScore,
+          createdAt: String(t.created_at),
+          members: tmRows.map((m) => {
+            const prof = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+            return {
+              username: prof?.username ?? "developer",
+              displayName: prof?.display_name ?? "Developer",
+            };
+          }),
+        };
+      })
+      .sort((a, b) => b.teamScore - a.teamScore);
 
     return { contest, teams, standings };
   }
@@ -1169,18 +1180,24 @@ export async function getContestDetailsAndStandings(contestSlug: string) {
   const contest = db.contests.find((c) => c.slug === contestSlug);
   if (!contest) return null;
 
+  const contestScores = db.contestScores.filter((cs) => cs.contestSlug === contestSlug);
+  const scoreByUserId = new Map(contestScores.map((cs) => [cs.userId, cs.totalScore]));
+
   const teams = db.teams
     .filter((t) => t.contestSlug === contestSlug)
     .map((t) => ({
       ...t,
+      teamScore:
+        Math.round(t.memberIds.reduce((sum, uid) => sum + (scoreByUserId.get(uid) ?? 0), 0) * 100) /
+        100,
       members: t.memberIds.map((uid) => {
         const u = db.users.find((x) => x.id === uid);
         return { username: u?.username ?? "developer", displayName: u?.displayName ?? "Developer" };
       }),
-    }));
+    }))
+    .sort((a, b) => b.teamScore - a.teamScore);
 
-  const standings = db.contestScores
-    .filter((cs) => cs.contestSlug === contestSlug)
+  const standings = contestScores
     .map((cs) => {
       const u = db.users.find((x) => x.id === cs.userId);
       return {

@@ -242,6 +242,7 @@ describe("CONSINZO Phase 1 Security, Authorization & ERC-20 Workflow", () => {
     expect(details).not.toBeNull();
     expect(details!.teams).toHaveLength(1);
     expect(details!.teams[0]!.members).toHaveLength(2);
+    expect(details!.teams[0]!.teamScore).toBeGreaterThanOrEqual(150);
     expect(details!.standings.some((s) => s.username === "alice_dev" && s.totalScore >= 150)).toBe(true);
 
     const secLeaderboard = await getLeaderboardEntries("security");

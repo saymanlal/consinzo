@@ -1,8 +1,11 @@
 import type { MetadataRoute } from "next";
 import { listPublishedChallenges } from "@/lib/challenges";
+import { KNOWLEDGE_ENTRIES } from "@/lib/knowledge";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
   const staticRoutes = [
     "",
     "/challenges",
@@ -24,5 +27,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
   }));
 
-  return [...staticRoutes, ...challengeRoutes];
+  const knowledgeRoutes = KNOWLEDGE_ENTRIES.map((k) => ({
+    url: `${baseUrl}/knowledge/${k.slug}`,
+    lastModified: new Date(),
+  }));
+
+  return [...staticRoutes, ...challengeRoutes, ...knowledgeRoutes];
 }

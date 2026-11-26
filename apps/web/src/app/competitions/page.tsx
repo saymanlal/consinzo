@@ -23,6 +23,7 @@ interface ContestDetails {
   teams: Array<{
     id: string;
     name: string;
+    teamScore?: number;
     members: Array<{ username: string; displayName: string }>;
   }>;
   standings: Array<{
@@ -270,9 +271,14 @@ export default function CompetitionsPage() {
                             {t.members.map((m) => `@${m.username}`).join(", ")}
                           </div>
                         </div>
-                        <Button size="sm" variant="outline" onClick={() => joinTeam(t.id)}>
-                          Join
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-semibold text-zinc-900">
+                            {t.teamScore ?? 0} pts
+                          </span>
+                          <Button size="sm" variant="outline" onClick={() => joinTeam(t.id)}>
+                            Join
+                          </Button>
+                        </div>
                       </div>
                     ))
                   )}
