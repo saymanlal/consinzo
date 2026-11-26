@@ -1,0 +1,6 @@
+references:
+  - title: "Solidity State Machine Escrow"
+    url: https://docs.soliditylang.org/en/latest/common-patterns.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"

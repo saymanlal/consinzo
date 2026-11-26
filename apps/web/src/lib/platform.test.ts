@@ -22,6 +22,14 @@ vi.mock("next/headers", () => ({
 
 import { createUserAccount, signSessionToken } from "./auth";
 import { getPublicChallengeBySlug } from "./challenges";
+import {
+  createContestTeam,
+  getContestDetailsAndStandings,
+  getLeaderboardEntries,
+  getPublicDeveloperPortfolio,
+  joinContestTeam,
+  registerUserForContest,
+} from "./data-adapter";
 import { executeAndScoreSubmission } from "./evaluation-service";
 import { readDb, writeDb } from "./store";
 import { GET as getAdminOverview } from "../app/api/v1/admin/overview/route";
@@ -206,5 +214,46 @@ describe("CONSINZO Phase 1 Security, Authorization & ERC-20 Workflow", () => {
         files: challenge.starterFiles.map((f) => ({ path: f.path, content: f.content })),
       })
     ).rejects.toThrow(/quota|limit/i);
+  });
+
+  it("7. Supports Phase 3 competition teams, live contest scoring, multi-category leaderboards, and public portfolios", async () => {
+    // Register Alice and Bob in the seeded contest and form a team
+    await registerUserForContest("evm-security-sprint-01", aliceId);
+    const team = await createContestTeam("evm-security-sprint-01", aliceId, "ZeroDay Collective");
+    await joinContestTeam("evm-security-sprint-01", bobId, team.id);
+
+    // Alice passes a second challenge included in the contest (reentrancy-vault-defense)
+    const patchedVault = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "../../content/challenges/reentrancy-vault-defense/solution/reference/VulnerableVault.sol"
+      ),
+      "utf8"
+    );
+    const sub = await executeAndScoreSubmission({
+      userId: aliceId,
+      challengeSlug: "reentrancy-vault-defense",
+      mode: "local-cli",
+      files: [{ path: "src/VulnerableVault.sol", content: patchedVault }],
+    });
+    expect(sub.passed).toBe(true);
+
+    const details = await getContestDetailsAndStandings("evm-security-sprint-01");
+    expect(details).not.toBeNull();
+    expect(details!.teams).toHaveLength(1);
+    expect(details!.teams[0]!.members).toHaveLength(2);
+    expect(details!.standings.some((s) => s.username === "alice_dev" && s.totalScore >= 150)).toBe(true);
+
+    const secLeaderboard = await getLeaderboardEntries("security");
+    expect(secLeaderboard[0]?.username).toBe("alice_dev");
+    expect(secLeaderboard[0]?.securityMissionsCompleted).toBeGreaterThanOrEqual(1);
+
+    const portfolio = await getPublicDeveloperPortfolio("alice_dev");
+    expect(portfolio).not.toBeNull();
+    expect(portfolio!.completedChallenges.some((c) => c.slug === "erc20-token-vault")).toBe(true);
+    expect(portfolio!.completedChallenges.some((c) => c.slug === "reentrancy-vault-defense")).toBe(true);
+    expect(portfolio!.achievements.some((a) => a.achievementId === "contest-competitor")).toBe(true);
+    // Public portfolio must never leak email
+    expect(JSON.stringify(portfolio)).not.toContain("alice@consinzo.test");
   });
 });

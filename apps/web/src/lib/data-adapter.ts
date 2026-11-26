@@ -490,6 +490,57 @@ export async function saveEvaluatedSubmission(
       if (passedSlugs.has("erc20-token-vault") && passedSlugs.has("erc721-royalty-nft")) {
         award("evm-token-architect");
       }
+      if (passedSlugs.has("constant-product-amm") && passedSlugs.has("erc4626-tokenized-vault")) {
+        award("defi-protocol-builder");
+      }
+      if (user.securityMissionsCompleted >= 5) {
+        award("security-arena-specialist");
+      }
+    }
+
+    // Update active contest_scores if user is registered in an active contest containing this challenge
+    const nowIso = submission.createdAt;
+    for (const contest of db.contests) {
+      if (
+        contest.registeredUserIds.includes(user.id) &&
+        contest.challengeSlugs.includes(submission.challengeSlug) &&
+        nowIso >= contest.startsAt &&
+        nowIso <= contest.endsAt
+      ) {
+        const bestPerChallenge = contest.challengeSlugs.reduce((sum, cSlug) => {
+          const best = db.submissions
+            .filter((s) => s.userId === user.id && s.challengeSlug === cSlug)
+            .reduce((mx, s) => Math.max(mx, s.score), 0);
+          return sum + best;
+        }, 0);
+
+        const existingScore = db.contestScores.find(
+          (cs) => cs.contestSlug === contest.slug && cs.userId === user.id
+        );
+        if (existingScore) {
+          existingScore.totalScore = bestPerChallenge;
+          if (submission.passed) existingScore.lastAcceptedAt = nowIso;
+        } else {
+          db.contestScores.push({
+            contestSlug: contest.slug,
+            userId: user.id,
+            totalScore: bestPerChallenge,
+            lastAcceptedAt: nowIso,
+          });
+        }
+        if (
+          submission.score > 0 &&
+          !db.achievements.some(
+            (a) => a.userId === user.id && a.achievementId === "contest-competitor"
+          )
+        ) {
+          db.achievements.push({
+            userId: user.id,
+            achievementId: "contest-competitor",
+            awardedAt: nowIso,
+          });
+        }
+      }
     }
   }
 
@@ -625,15 +676,24 @@ export async function toggleBookmarkForUser(
   return true;
 }
 
-export async function getLeaderboardEntries() {
+export type LeaderboardCategory = "overall" | "security" | "coding" | "weekly" | "monthly";
+
+export async function getLeaderboardEntries(category: LeaderboardCategory = "overall") {
   const env = getServerEnv();
   const supabase = getSupabaseAdminClient();
   if (env.isSupabaseConfigured && supabase) {
+    const orderCol =
+      category === "security"
+        ? "security_missions_completed"
+        : category === "coding"
+          ? "challenges_completed"
+          : "total_points";
+
     const { data } = await supabase
       .from("profiles")
       .select("username, display_name, total_points, challenges_completed, security_missions_completed")
+      .order(orderCol, { ascending: false })
       .order("total_points", { ascending: false })
-      .order("challenges_completed", { ascending: false })
       .limit(50);
 
     return (data ?? []).map((u) => ({
@@ -646,16 +706,306 @@ export async function getLeaderboardEntries() {
   }
 
   const db = readDb();
+  const cutoffMs =
+    category === "weekly"
+      ? Date.now() - 7 * 24 * 60 * 60 * 1000
+      : category === "monthly"
+        ? Date.now() - 30 * 24 * 60 * 60 * 1000
+        : 0;
+
   return db.users
-    .map((u) => ({
-      username: u.username,
-      displayName: u.displayName,
-      totalPoints: u.totalPoints,
-      challengesCompleted: u.challengesCompleted,
-      securityMissionsCompleted: u.securityMissionsCompleted,
-    }))
-    .sort((a, b) => b.totalPoints - a.totalPoints || b.challengesCompleted - a.challengesCompleted)
+    .map((u) => {
+      if (cutoffMs > 0) {
+        const windowSubs = db.submissions.filter(
+          (s) => s.userId === u.id && s.passed && new Date(s.createdAt).getTime() >= cutoffMs
+        );
+        const bestBySlug = new Map<string, number>();
+        for (const s of windowSubs) {
+          bestBySlug.set(s.challengeSlug, Math.max(bestBySlug.get(s.challengeSlug) ?? 0, s.score));
+        }
+        const windowPoints = Array.from(bestBySlug.values()).reduce((a, b) => a + b, 0);
+        return {
+          username: u.username,
+          displayName: u.displayName,
+          totalPoints: windowPoints,
+          challengesCompleted: bestBySlug.size,
+          securityMissionsCompleted: u.securityMissionsCompleted,
+        };
+      }
+      return {
+        username: u.username,
+        displayName: u.displayName,
+        totalPoints: u.totalPoints,
+        challengesCompleted: u.challengesCompleted,
+        securityMissionsCompleted: u.securityMissionsCompleted,
+      };
+    })
+    .sort((a, b) => {
+      if (category === "security") {
+        return (
+          b.securityMissionsCompleted - a.securityMissionsCompleted ||
+          b.totalPoints - a.totalPoints
+        );
+      }
+      if (category === "coding") {
+        return b.challengesCompleted - a.challengesCompleted || b.totalPoints - a.totalPoints;
+      }
+      return b.totalPoints - a.totalPoints || b.challengesCompleted - a.challengesCompleted;
+    })
     .slice(0, 50);
+}
+
+export interface PublicDeveloperPortfolio {
+  username: string;
+  displayName: string;
+  bio: string;
+  githubUrl: string;
+  websiteUrl: string;
+  totalPoints: number;
+  challengesCompleted: number;
+  securityMissionsCompleted: number;
+  joinedAt: string;
+  completedChallenges: Array<{ slug: string; title: string; difficulty: string; category: string }>;
+  achievements: Array<{ achievementId: string; awardedAt: string }>;
+  contests: Array<{ slug: string; title: string }>;
+}
+
+export async function getPublicDeveloperPortfolio(
+  username: string
+): Promise<PublicDeveloperPortfolio | null> {
+  const norm = username.trim().toLowerCase();
+  if (!/^[a-z0-9_-]{3,32}$/.test(norm)) return null;
+
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("username", norm)
+      .maybeSingle();
+    if (!profile) return null;
+
+    const [{ data: unlockRows }, { data: achRows }, { data: entryRows }] = await Promise.all([
+      supabase
+        .from("challenge_unlocks")
+        .select("solution_unlocked, challenges(slug, title, difficulty, category_id)")
+        .eq("user_id", profile.id)
+        .eq("solution_unlocked", true),
+      supabase
+        .from("user_achievements")
+        .select("achievement_id, awarded_at")
+        .eq("user_id", profile.id),
+      supabase
+        .from("contest_entries")
+        .select("contests(slug, title)")
+        .eq("user_id", profile.id),
+    ]);
+
+    return {
+      username: profile.username,
+      displayName: profile.display_name,
+      bio: profile.bio ?? "",
+      githubUrl: profile.github_url ?? "",
+      websiteUrl: profile.website_url ?? "",
+      totalPoints: profile.total_points ?? 0,
+      challengesCompleted: profile.challenges_completed ?? 0,
+      securityMissionsCompleted: profile.security_missions_completed ?? 0,
+      joinedAt: profile.created_at,
+      completedChallenges: (unlockRows ?? []).map((r: Record<string, unknown>) => {
+        const ch = (Array.isArray(r.challenges) ? r.challenges[0] : r.challenges) as
+          | { slug?: string; title?: string; difficulty?: string; category_id?: string }
+          | undefined;
+        return {
+          slug: ch?.slug ?? "",
+          title: ch?.title ?? "",
+          difficulty: ch?.difficulty ?? "",
+          category: ch?.category_id ?? "",
+        };
+      }),
+      achievements: (achRows ?? []).map((a) => ({
+        achievementId: String(a.achievement_id),
+        awardedAt: String(a.awarded_at),
+      })),
+      contests: (entryRows ?? []).map((e: Record<string, unknown>) => {
+        const ct = (Array.isArray(e.contests) ? e.contests[0] : e.contests) as
+          | { slug?: string; title?: string }
+          | undefined;
+        return { slug: ct?.slug ?? "", title: ct?.title ?? "" };
+      }),
+    };
+  }
+
+  const db = readDb();
+  const user = db.users.find((u) => u.username === norm);
+  if (!user) return null;
+
+  const passedSlugs = db.unlocks
+    .filter((u) => u.userId === user.id && u.passed)
+    .map((u) => u.challengeSlug);
+
+  const completedChallenges = passedSlugs
+    .map((slug) => getPublicChallengeBySlug(slug))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c))
+    .map((c) => ({
+      slug: c.manifest.slug,
+      title: c.manifest.title,
+      difficulty: c.manifest.difficulty,
+      category: c.manifest.category,
+    }));
+
+  return {
+    username: user.username,
+    displayName: user.displayName,
+    bio: user.bio,
+    githubUrl: user.githubUrl,
+    websiteUrl: user.websiteUrl,
+    totalPoints: user.totalPoints,
+    challengesCompleted: user.challengesCompleted,
+    securityMissionsCompleted: user.securityMissionsCompleted,
+    joinedAt: user.createdAt,
+    completedChallenges,
+    achievements: db.achievements
+      .filter((a) => a.userId === user.id)
+      .map((a) => ({ achievementId: a.achievementId, awardedAt: a.awardedAt })),
+    contests: db.contests
+      .filter((c) => c.registeredUserIds.includes(user.id))
+      .map((c) => ({ slug: c.slug, title: c.title })),
+  };
+}
+
+export async function createContestTeam(
+  contestSlug: string,
+  userId: string,
+  name: string
+) {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: contest } = await supabase
+      .from("contests")
+      .select("id")
+      .eq("slug", contestSlug)
+      .maybeSingle();
+    if (!contest?.id) throw new ConsinzoError("NOT_FOUND", "Competition not found.", 404);
+
+    const { data: team, error } = await supabase
+      .from("teams")
+      .insert({ contest_id: contest.id, name, captain_id: userId })
+      .select("id, name, captain_id, created_at")
+      .single();
+    if (error || !team) {
+      throw new ConsinzoError("TEAM_CREATE_FAILED", error?.message ?? "Team already exists.", 409);
+    }
+    await supabase.from("team_members").insert({ team_id: team.id, user_id: userId });
+    await supabase
+      .from("contest_entries")
+      .upsert(
+        { contest_id: contest.id, user_id: userId, team_id: team.id },
+        { onConflict: "contest_id,user_id" }
+      );
+    return {
+      id: team.id,
+      contestSlug,
+      name: team.name,
+      captainId: team.captain_id,
+      memberIds: [userId],
+      createdAt: team.created_at,
+    };
+  }
+
+  const db = readDb();
+  const contest = db.contests.find((c) => c.slug === contestSlug);
+  if (!contest) throw new ConsinzoError("NOT_FOUND", "Competition not found.", 404);
+  if (db.teams.some((t) => t.contestSlug === contestSlug && t.name.toLowerCase() === name.toLowerCase())) {
+    throw new ConsinzoError("TEAM_EXISTS", "A team with this name already exists in this contest.", 409);
+  }
+  const team = {
+    id: crypto.randomUUID(),
+    contestSlug,
+    name,
+    captainId: userId,
+    memberIds: [userId],
+    createdAt: new Date().toISOString(),
+  };
+  db.teams.push(team);
+  if (!contest.registeredUserIds.includes(userId)) {
+    contest.registeredUserIds.push(userId);
+  }
+  writeDb(db);
+  return team;
+}
+
+export async function joinContestTeam(contestSlug: string, userId: string, teamId: string) {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: team } = await supabase
+      .from("teams")
+      .select("id, contest_id, name, captain_id, created_at")
+      .eq("id", teamId)
+      .maybeSingle();
+    if (!team) throw new ConsinzoError("NOT_FOUND", "Team not found.", 404);
+
+    await supabase
+      .from("team_members")
+      .upsert({ team_id: team.id, user_id: userId }, { onConflict: "team_id,user_id" });
+    await supabase
+      .from("contest_entries")
+      .upsert(
+        { contest_id: team.contest_id, user_id: userId, team_id: team.id },
+        { onConflict: "contest_id,user_id" }
+      );
+    return {
+      id: team.id,
+      contestSlug,
+      name: team.name,
+      captainId: team.captain_id,
+      memberIds: [userId],
+      createdAt: team.created_at,
+    };
+  }
+
+  const db = readDb();
+  const contest = db.contests.find((c) => c.slug === contestSlug);
+  if (!contest) throw new ConsinzoError("NOT_FOUND", "Competition not found.", 404);
+  const team = db.teams.find((t) => t.contestSlug === contestSlug && t.id === teamId);
+  if (!team) throw new ConsinzoError("NOT_FOUND", "Team not found.", 404);
+  if (!team.memberIds.includes(userId)) team.memberIds.push(userId);
+  if (!contest.registeredUserIds.includes(userId)) contest.registeredUserIds.push(userId);
+  writeDb(db);
+  return team;
+}
+
+export async function getContestDetailsAndStandings(contestSlug: string) {
+  const db = readDb();
+  const contest = db.contests.find((c) => c.slug === contestSlug);
+  if (!contest) return null;
+
+  const teams = db.teams
+    .filter((t) => t.contestSlug === contestSlug)
+    .map((t) => ({
+      ...t,
+      members: t.memberIds.map((uid) => {
+        const u = db.users.find((x) => x.id === uid);
+        return { username: u?.username ?? "developer", displayName: u?.displayName ?? "Developer" };
+      }),
+    }));
+
+  const standings = db.contestScores
+    .filter((cs) => cs.contestSlug === contestSlug)
+    .map((cs) => {
+      const u = db.users.find((x) => x.id === cs.userId);
+      return {
+        username: u?.username ?? "developer",
+        displayName: u?.displayName ?? "Developer",
+        totalScore: cs.totalScore,
+        lastAcceptedAt: cs.lastAcceptedAt,
+      };
+    })
+    .sort((a, b) => b.totalScore - a.totalScore || a.lastAcceptedAt.localeCompare(b.lastAcceptedAt));
+
+  return { contest, teams, standings };
 }
 
 async function resolveSupabaseSecurityMissionId(missionSlug: string): Promise<string | null> {

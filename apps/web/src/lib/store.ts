@@ -104,6 +104,22 @@ export interface StoredAuditLog {
   createdAt: string;
 }
 
+export interface StoredTeam {
+  id: string;
+  contestSlug: string;
+  name: string;
+  captainId: string;
+  memberIds: string[];
+  createdAt: string;
+}
+
+export interface StoredContestScore {
+  contestSlug: string;
+  userId: string;
+  totalScore: number;
+  lastAcceptedAt: string;
+}
+
 interface LocalDatabase {
   users: StoredUser[];
   submissions: StoredSubmission[];
@@ -112,6 +128,8 @@ interface LocalDatabase {
   achievements: Array<{ userId: string; achievementId: string; awardedAt: string }>;
   auditReports: StoredAuditReport[];
   contests: StoredContest[];
+  teams: StoredTeam[];
+  contestScores: StoredContestScore[];
   adminAuditLogs: StoredAuditLog[];
 }
 
@@ -161,6 +179,8 @@ function initialSeedDb(): LocalDatabase {
         registeredUserIds: [],
       },
     ],
+    teams: [],
+    contestScores: [],
     adminAuditLogs: [],
   };
 }
@@ -173,7 +193,13 @@ export function readDb(): LocalDatabase {
     return seed;
   }
   try {
-    return JSON.parse(fs.readFileSync(dbPath, "utf8")) as LocalDatabase;
+    const parsed = JSON.parse(fs.readFileSync(dbPath, "utf8")) as Partial<LocalDatabase>;
+    return {
+      ...initialSeedDb(),
+      ...parsed,
+      teams: parsed.teams ?? [],
+      contestScores: parsed.contestScores ?? [],
+    };
   } catch {
     const seed = initialSeedDb();
     fs.writeFileSync(dbPath, JSON.stringify(seed, null, 2), "utf8");

@@ -1,0 +1,52 @@
+id: milestone-escrow-arbiter
+slug: milestone-escrow-arbiter
+title: "Three-Party Milestone Escrow with Arbiter"
+description: "Build a buyer/seller/arbiter escrow contract supporting funded milestones, buyer release, and arbiter dispute resolution."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: smart-contract-engineering
+tags:
+  - escrow
+  - arbiter
+  - state-machine
+  - payments
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MilestoneEscrow.sol
+  editable_files:
+    - src/MilestoneEscrow.sol
+  readonly_files:
+    - test/MilestoneEscrow.t.sol
+tests:
+  public_suite: evaluation/public/MilestoneEscrow.t.sol
+  hidden_suite: evaluation/hidden/MilestoneEscrowHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Implementation check
+    content: "Follow the specification in README.md and check edge-case reverts."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity State Machine Escrow"
+    url: https://docs.soliditylang.org/en/latest/common-patterns.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

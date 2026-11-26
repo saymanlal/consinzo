@@ -1,0 +1,3 @@
+# Linear Token Vesting Wallet with Cliff
+
+Tracks `totalAllocation = address(this).balance + released`, enforces the cliff, computes linear vesting, and updates `released` before sending ETH.

@@ -1,0 +1,7 @@
+max_points: 200
+gas_budget: 300000
+weights:
+  functional_correctness: 60
+  security_invariants: 25
+  efficiency: 10
+  code_quality: 5

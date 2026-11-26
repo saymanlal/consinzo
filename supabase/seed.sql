@@ -40,5 +40,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.achievements (id, title, description, criteria_type) VALUES
   ('first-verified-pass', 'First Verified Pass', 'Passed all public and hidden evaluation tests on an engineering challenge.', 'server_verified_submission'),
   ('evm-token-architect', 'Token Standard Architect', 'Completed ERC-20 and ERC-721 engineering challenges with verified tests.', 'server_verified_category'),
-  ('security-defender', 'Invariant Defender', 'Identified and patched a critical smart contract vulnerability.', 'server_verified_security')
+  ('security-defender', 'Invariant Defender', 'Identified and patched a critical smart contract vulnerability.', 'server_verified_security'),
+  ('defi-protocol-builder', 'DeFi Protocol Architect', 'Completed Constant Product AMM and ERC-4626 Yield Vault challenges.', 'server_verified_defi'),
+  ('security-arena-specialist', 'Security Arena Specialist', 'Completed 5 or more validated Security Arena missions.', 'server_verified_security_count'),
+  ('contest-competitor', 'Contest Competitor', 'Registered and scored in a timed CONSINZO engineering competition.', 'server_verified_contest')
 ON CONFLICT (id) DO NOTHING;

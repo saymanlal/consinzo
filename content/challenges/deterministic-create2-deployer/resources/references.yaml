@@ -1,0 +1,6 @@
+references:
+  - title: "EIP-1014 CREATE2 Opcode"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: Ethereum EIPs
+    version: "1.0"
+    verified_at: "2026-11-26"

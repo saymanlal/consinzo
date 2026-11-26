@@ -1,0 +1,52 @@
+id: deterministic-create2-deployer
+slug: deterministic-create2-deployer
+title: "Deterministic CREATE2 Factory & Address Predictor"
+description: "Build a CREATE2 deployer contract that computes exact counterfactual addresses before deployment and deploys bytecode deterministically."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: advanced-blockchain-systems
+tags:
+  - create2
+  - assembly
+  - factory
+  - counterfactual
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/Create2Factory.sol
+  editable_files:
+    - src/Create2Factory.sol
+  readonly_files:
+    - test/Create2Factory.t.sol
+tests:
+  public_suite: evaluation/public/Create2Factory.t.sol
+  hidden_suite: evaluation/hidden/Create2FactoryHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Implementation check
+    content: "Follow the specification in README.md and check edge-case reverts."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1014 CREATE2 Opcode"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: Ethereum EIPs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

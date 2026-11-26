@@ -1,0 +1,52 @@
+id: minimal-clone-factory-1167
+slug: minimal-clone-factory-1167
+title: "EIP-1167 Minimal Proxy Clone Factory"
+description: "Assemble EIP-1167 minimal proxy bytecode in inline assembly to deploy ultra-cheap delegating contract clones."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: advanced-blockchain-systems
+tags:
+  - eip1167
+  - minimal-proxy
+  - clones
+  - assembly
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CloneFactory.sol
+  editable_files:
+    - src/CloneFactory.sol
+  readonly_files:
+    - test/CloneFactory.t.sol
+tests:
+  public_suite: evaluation/public/CloneFactory.t.sol
+  hidden_suite: evaluation/hidden/CloneFactoryHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Implementation check
+    content: "Follow the specification in README.md and check edge-case reverts."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1167 Minimal Proxy Standard"
+    url: https://eips.ethereum.org/EIPS/eip-1167
+    source: Ethereum EIPs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

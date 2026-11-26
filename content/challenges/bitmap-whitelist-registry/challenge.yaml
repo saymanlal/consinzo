@@ -1,0 +1,52 @@
+id: bitmap-whitelist-registry
+slug: bitmap-whitelist-registry
+title: "Gas-Efficient 256-Bit Bitmap Whitelist Registry"
+description: "Store and query boolean whitelist flags packed 256-per-slot using bitwise masks instead of per-index mappings."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: programming-fundamentals
+tags:
+  - bitmap
+  - bitwise
+  - gas-optimization
+  - storage
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BitmapRegistry.sol
+  editable_files:
+    - src/BitmapRegistry.sol
+  readonly_files:
+    - test/BitmapRegistry.t.sol
+tests:
+  public_suite: evaluation/public/BitmapRegistry.t.sol
+  hidden_suite: evaluation/hidden/BitmapRegistryHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Implementation check
+    content: "Follow the specification in README.md and check edge-case reverts."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "OpenZeppelin BitMaps"
+    url: https://docs.openzeppelin.com/contracts/5.x/api/utils#BitMaps
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

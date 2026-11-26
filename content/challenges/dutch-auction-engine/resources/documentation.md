@@ -1,0 +1,3 @@
+# Linear-Decay Dutch Auction Contract
+
+Caps decay at `reservePrice`, sets `sold = true` before transfers, pays `seller` exact price, and refunds `msg.value - price`.

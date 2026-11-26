@@ -1,0 +1,6 @@
+references:
+  - title: "EIP-1167 Minimal Proxy Standard"
+    url: https://eips.ethereum.org/EIPS/eip-1167
+    source: Ethereum EIPs
+    version: "1.0"
+    verified_at: "2026-11-26"

@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
-import { getLeaderboardEntries } from "@/lib/data-adapter";
+import { getLeaderboardEntries, type LeaderboardCategory } from "@/lib/data-adapter";
 
-export async function GET() {
-  const leaderboard = await getLeaderboardEntries();
-  return NextResponse.json({ leaderboard });
+const VALID_CATEGORIES = new Set<LeaderboardCategory>([
+  "overall",
+  "security",
+  "coding",
+  "weekly",
+  "monthly",
+]);
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const rawCategory = (searchParams.get("category") ?? "overall") as LeaderboardCategory;
+  const category = VALID_CATEGORIES.has(rawCategory) ? rawCategory : "overall";
+  const leaderboard = await getLeaderboardEntries(category);
+  return NextResponse.json({ category, leaderboard });
 }

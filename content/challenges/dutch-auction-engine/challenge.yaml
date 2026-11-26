@@ -1,0 +1,52 @@
+id: dutch-auction-engine
+slug: dutch-auction-engine
+title: "Linear-Decay Dutch Auction Contract"
+description: "Implement a descending-price Dutch auction where price decays linearly over time down to a reserve floor and excess buyer ETH is refunded."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - dutch-auction
+  - defi
+  - pricing
+  - refunds
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/DutchAuction.sol
+  editable_files:
+    - src/DutchAuction.sol
+  readonly_files:
+    - test/DutchAuction.t.sol
+tests:
+  public_suite: evaluation/public/DutchAuction.t.sol
+  hidden_suite: evaluation/hidden/DutchAuctionHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Implementation check
+    content: "Follow the specification in README.md and check edge-case reverts."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Dutch Auction Mechanism Design"
+    url: https://docs.soliditylang.org/en/latest/solidity-by-example.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false
