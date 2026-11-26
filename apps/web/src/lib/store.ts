@@ -50,6 +50,13 @@ export interface StoredSubmission {
     failed: number;
   };
   sanitizedLogs: string[];
+  diagnostics?: Array<{
+    severity: "error" | "warning" | "info";
+    file: string;
+    line?: number;
+    column?: number;
+    message: string;
+  }>;
   createdAt: string;
 }
 

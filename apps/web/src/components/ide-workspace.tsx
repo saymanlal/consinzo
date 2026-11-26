@@ -133,6 +133,8 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
 
   function resetStarter() {
     setFiles(starterFiles);
+    setResult(null);
+    setErrorBanner(null);
     try {
       localStorage.removeItem(storageKey);
       setSaveState("saved");
@@ -161,7 +163,7 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
       }
       setResult(json as ExecutionApiResponse);
     } catch {
-      setErrorBanner("Network failure contacting local EVM runner.");
+      setErrorBanner("Network failure contacting evaluation runner.");
     } finally {
       setRunning("idle");
     }
@@ -196,7 +198,7 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
         runnerName: sub.runnerName,
         compilerVersion: sub.compilerVersion,
         compiled: sub.compiled,
-        diagnostics: [],
+        diagnostics: sub.diagnostics ?? [],
         publicTests: sub.publicTests,
         hiddenTestsSummary: sub.hiddenSummary,
         totalDurationMs: sub.durationMs,

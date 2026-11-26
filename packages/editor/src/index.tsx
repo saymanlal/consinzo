@@ -91,6 +91,50 @@ export function ConsinzoMonacoEditor({
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       onSave?.();
     });
+
+    // Register ambient near-sdk-js declarations so browser TypeScript IntelliSense
+    // resolves NEAR imports cleanly without spurious "module not found" markers.
+    const tsDefaults = monaco.languages.typescript?.typescriptDefaults;
+    if (tsDefaults) {
+      tsDefaults.setCompilerOptions({
+        target: monaco.languages.typescript.ScriptTarget.ES2022,
+        moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+        strict: true,
+        allowNonTsExtensions: true,
+        noEmit: true,
+      });
+      tsDefaults.addExtraLib(
+        `declare module "near-sdk-js" {
+  export interface NearContext {
+    predecessorAccountId: string;
+    signerAccountId: string;
+    currentAccountId: string;
+    attachedDeposit: bigint;
+    blockTimestamp: bigint;
+  }
+  export const near: {
+    _setContext(partial: Partial<NearContext>): void;
+    predecessorAccountId(): string;
+    signerAccountId(): string;
+    currentAccountId(): string;
+    attachedDeposit(): bigint;
+    blockTimestamp(): bigint;
+  };
+  export class LookupMap<V> {
+    readonly prefix: string;
+    constructor(prefix: string);
+    get(key: string): V | null;
+    set(key: string, value: V): void;
+    containsKey(key: string): boolean;
+    remove(key: string): void;
+  }
+  export function assert(cond: boolean, msg?: string): void;
+  export function assertEq<T>(a: T, b: T, msg?: string): void;
+  export function assertThrows(fn: () => void, expectedSubstring?: string): void;
+}`,
+        "file:///node_modules/@types/near-sdk-js/index.d.ts"
+      );
+    }
   };
 
   useEffect(() => {

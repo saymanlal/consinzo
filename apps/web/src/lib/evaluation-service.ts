@@ -104,6 +104,13 @@ export async function executeAndScoreSubmission(input: {
         }
       : undefined,
     sanitizedLogs: report.sanitizedLogs,
+    diagnostics: report.diagnostics.map((d) => ({
+      severity: d.severity,
+      file: d.file,
+      line: d.line,
+      column: d.column,
+      message: d.message,
+    })),
     createdAt: new Date().toISOString(),
   };
 
