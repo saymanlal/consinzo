@@ -2,8 +2,10 @@ import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import type { RoleName } from "@consinzo/shared";
 import { ConsinzoError } from "@consinzo/shared";
+import { getUserProfileById } from "./data-adapter";
 import { getServerEnv } from "./env";
 import { readDb, writeDb, type StoredUser } from "./store";
+import { getSupabaseAdminClient, getSupabaseServerAuthClient } from "./supabase";
 
 export const SESSION_COOKIE_NAME = "consinzo_session";
 
@@ -72,6 +74,29 @@ export function toSessionUser(u: StoredUser): SessionUser {
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
+  const env = getServerEnv();
+  if (env.isSupabaseConfigured) {
+    const supabaseAuth = await getSupabaseServerAuthClient();
+    if (supabaseAuth) {
+      const {
+        data: { user },
+      } = await supabaseAuth.auth.getUser();
+      if (user) {
+        const profile = await getUserProfileById(user.id);
+        if (profile) {
+          return {
+            id: profile.id,
+            email: profile.email || user.email || "",
+            username: profile.username,
+            displayName: profile.displayName,
+            roles: profile.roles,
+          };
+        }
+      }
+      return null;
+    }
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
@@ -120,7 +145,6 @@ export function createUserAccount(input: {
     throw new ConsinzoError("USERNAME_EXISTS", "This username is already taken.", 409);
   }
 
-  // First registered local account in dev gets platform_admin only if explicitly marked; standard users get "developer"
   const user: StoredUser = {
     id: crypto.randomUUID(),
     email: normEmail,
@@ -140,4 +164,73 @@ export function createUserAccount(input: {
   db.users.push(user);
   writeDb(db);
   return user;
+}
+
+export async function registerSupabaseAccount(input: {
+  email: string;
+  username: string;
+  displayName: string;
+  password: string;
+}): Promise<SessionUser> {
+  const admin = getSupabaseAdminClient();
+  const authClient = await getSupabaseServerAuthClient();
+  if (!admin || !authClient) {
+    throw new ConsinzoError("SUPABASE_UNAVAILABLE", "Supabase is not configured.", 500);
+  }
+
+  const normEmail = input.email.trim().toLowerCase();
+  const normUsername = input.username.trim().toLowerCase();
+
+  const { data: existingUsername } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("username", normUsername)
+    .maybeSingle();
+  if (existingUsername) {
+    throw new ConsinzoError("USERNAME_EXISTS", "This username is already taken.", 409);
+  }
+
+  const { data: created, error } = await admin.auth.admin.createUser({
+    email: normEmail,
+    password: input.password,
+    email_confirm: true,
+    user_metadata: { username: normUsername, display_name: input.displayName.trim() },
+  });
+
+  if (error || !created.user) {
+    throw new ConsinzoError(
+      "REGISTRATION_FAILED",
+      error?.message ?? "Unable to register user.",
+      400
+    );
+  }
+
+  await admin.from("profiles").insert({
+    id: created.user.id,
+    username: normUsername,
+    display_name: input.displayName.trim(),
+  });
+
+  const { data: devRole } = await admin
+    .from("roles")
+    .select("id")
+    .eq("name", "developer")
+    .maybeSingle();
+  if (devRole?.id) {
+    await admin.from("user_roles").insert({
+      user_id: created.user.id,
+      role_id: devRole.id,
+    });
+  }
+
+  // Sign in so SSR cookies are set on response
+  await authClient.auth.signInWithPassword({ email: normEmail, password: input.password });
+
+  return {
+    id: created.user.id,
+    email: normEmail,
+    username: normUsername,
+    displayName: input.displayName.trim(),
+    roles: ["developer"],
+  };
 }

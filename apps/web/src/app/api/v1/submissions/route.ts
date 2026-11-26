@@ -1,25 +1,17 @@
 import { NextResponse } from "next/server";
 import { SnapshotSubmissionSchema } from "@consinzo/validators";
 import { requireSessionUser } from "@/lib/auth";
+import { listUserSubmissions } from "@/lib/data-adapter";
 import { executeAndScoreSubmission } from "@/lib/evaluation-service";
 import { handleApiError } from "@/lib/http";
-import { readDb } from "@/lib/store";
 
 export async function GET(req: Request) {
   try {
     const user = await requireSessionUser();
     const { searchParams } = new URL(req.url);
-    const challengeSlug = searchParams.get("challengeSlug");
-    const db = readDb();
-
-    let items = db.submissions.filter((s) => s.userId === user.id);
-    if (challengeSlug) {
-      items = items.filter((s) => s.challengeSlug === challengeSlug);
-    }
-
-    return NextResponse.json({
-      submissions: items.slice(0, 50),
-    });
+    const challengeSlug = searchParams.get("challengeSlug") ?? undefined;
+    const submissions = await listUserSubmissions(user.id, challengeSlug);
+    return NextResponse.json({ submissions });
   } catch (err) {
     return handleApiError(err);
   }

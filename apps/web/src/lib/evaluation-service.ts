@@ -3,10 +3,12 @@ import { EvmRunner } from "@consinzo/runner-evm";
 import { calculateScore, type TestCaseOutcome } from "@consinzo/scoring";
 import { ConsinzoError, type ExecutionMode, type ProjectFile } from "@consinzo/shared";
 import { validateProjectSnapshot } from "@consinzo/validators";
-import { getPublicChallengeBySlug, getServerHiddenTestFiles } from "./challenges";
+import { getPublicChallengeBySlug } from "./challenges";
+import { loadPrivateHiddenTestFiles } from "./challenges/private-assets";
+import { saveEvaluatedSubmission } from "./data-adapter";
 import { getServerEnv } from "./env";
 import { enforceSubmissionQuota } from "./quotas";
-import { readDb, writeDb, type StoredSubmission } from "./store";
+import type { StoredSubmission } from "./store";
 
 export async function executeAndScoreSubmission(input: {
   userId: string;
@@ -28,7 +30,7 @@ export async function executeAndScoreSubmission(input: {
     throw new ConsinzoError("CHALLENGE_NOT_FOUND", "Challenge not found.", 404);
   }
 
-  enforceSubmissionQuota(input.userId);
+  await enforceSubmissionQuota(input.userId);
   const { sanitizedFiles } = validateProjectSnapshot(input.files);
 
   // Security: Strip user-submitted test/ files and enforce authoritative evaluation/public tests
@@ -37,7 +39,7 @@ export async function executeAndScoreSubmission(input: {
     path: t.path,
     content: t.content,
   }));
-  const hiddenTestFiles = getServerHiddenTestFiles(input.challengeSlug);
+  const hiddenTestFiles = await loadPrivateHiddenTestFiles(input.challengeSlug);
 
   const runner = new EvmRunner();
   const report = await runner.runTests([...userSrcFiles, ...authoritativePublicTests], {
@@ -55,7 +57,6 @@ export async function executeAndScoreSubmission(input: {
     errorMessage: t.reason,
   }));
 
-  // Build synthetic hidden outcomes array from hiddenSummary counts (names never leave server)
   const hiddenOutcomes: TestCaseOutcome[] = [];
   if (report.hiddenTestsSummary?.evaluated) {
     for (let i = 0; i < report.hiddenTestsSummary.passed; i++) {
@@ -106,85 +107,10 @@ export async function executeAndScoreSubmission(input: {
     createdAt: new Date().toISOString(),
   };
 
-  // Persist submission, unlock state, user points, and server-verified achievements
-  const db = readDb();
-  db.submissions.unshift(submission);
+  await saveEvaluatedSubmission(submission, {
+    isSecurityMission: challenge.manifest.is_security_mission,
+    unlockPolicy: challenge.manifest.solution_unlock_policy,
+  });
 
-  let unlock = db.unlocks.find(
-    (u) => u.userId === input.userId && u.challengeSlug === input.challengeSlug
-  );
-  const previouslyPassed = Boolean(unlock?.passed);
-  const previousBest = unlock?.bestScore ?? 0;
-
-  if (!unlock) {
-    unlock = {
-      userId: input.userId,
-      challengeSlug: input.challengeSlug,
-      passed: submission.passed,
-      attempts: 1,
-      bestScore: submission.score,
-      solutionUnlocked: submission.passed,
-      unlockedAt: submission.passed ? submission.createdAt : undefined,
-    };
-    db.unlocks.push(unlock);
-  } else {
-    unlock.attempts += 1;
-    if (submission.score > unlock.bestScore) {
-      unlock.bestScore = submission.score;
-    }
-    if (submission.passed && !unlock.passed) {
-      unlock.passed = true;
-      unlock.solutionUnlocked = true;
-      unlock.unlockedAt = submission.createdAt;
-    }
-    if (
-      challenge.manifest.solution_unlock_policy === "after_3_attempts" &&
-      unlock.attempts >= 3 &&
-      !unlock.solutionUnlocked
-    ) {
-      unlock.solutionUnlocked = true;
-      unlock.unlockedAt = submission.createdAt;
-    }
-  }
-
-  const user = db.users.find((u) => u.id === input.userId);
-  if (user) {
-    if (submission.score > previousBest) {
-      user.totalPoints = Math.round((user.totalPoints + (submission.score - previousBest)) * 100) / 100;
-    }
-    if (submission.passed && !previouslyPassed) {
-      user.challengesCompleted += 1;
-      if (challenge.manifest.is_security_mission) {
-        user.securityMissionsCompleted += 1;
-      }
-
-      const award = (achievementId: string) => {
-        if (
-          !db.achievements.some(
-            (a) => a.userId === user.id && a.achievementId === achievementId
-          )
-        ) {
-          db.achievements.push({
-            userId: user.id,
-            achievementId,
-            awardedAt: submission.createdAt,
-          });
-        }
-      };
-
-      award("first-verified-pass");
-      if (challenge.manifest.is_security_mission) {
-        award("security-defender");
-      }
-      const passedSlugs = new Set(
-        db.unlocks.filter((u) => u.userId === user.id && u.passed).map((u) => u.challengeSlug)
-      );
-      if (passedSlugs.has("erc20-token-vault") && passedSlugs.has("erc721-royalty-nft")) {
-        award("evm-token-architect");
-      }
-    }
-  }
-
-  writeDb(db);
   return submission;
 }

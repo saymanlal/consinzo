@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminRole } from "@/lib/auth";
 import { listPublishedChallenges } from "@/lib/challenges";
+import { getAdminStatsSnapshot } from "@/lib/data-adapter";
 import { handleApiError } from "@/lib/http";
 import { readDb, writeDb } from "@/lib/store";
 
@@ -20,18 +21,18 @@ export async function GET() {
       "challenge_manager",
       "security_reviewer",
     ]);
-    const db = readDb();
+    const snapshot = await getAdminStatsSnapshot();
     const challenges = listPublishedChallenges();
     return NextResponse.json({
       stats: {
-        registeredUsers: db.users.length,
+        registeredUsers: snapshot.registeredUsers,
         publishedChallenges: challenges.length,
-        totalSubmissions: db.submissions.length,
-        pendingAuditReports: db.auditReports.filter((r) => r.status === "submitted").length,
+        totalSubmissions: snapshot.totalSubmissions,
+        pendingAuditReports: snapshot.pendingAuditReports,
       },
-      recentSubmissions: db.submissions.slice(0, 20),
-      auditReports: db.auditReports,
-      auditLogs: db.adminAuditLogs.slice(0, 30),
+      recentSubmissions: snapshot.recentSubmissions,
+      auditReports: snapshot.auditReports,
+      auditLogs: snapshot.auditLogs,
     });
   } catch (err) {
     return handleApiError(err);

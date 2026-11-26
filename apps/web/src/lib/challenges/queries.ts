@@ -133,8 +133,8 @@ export function loadSingleChallengePackage(slug: string): {
   const hiddenDir = path.join(dir, "evaluation", "hidden");
   const hasHiddenTests =
     Boolean(manifest.tests.hidden_suite) &&
-    fs.existsSync(hiddenDir) &&
-    fs.readdirSync(hiddenDir).length > 0;
+    ((fs.existsSync(hiddenDir) && fs.readdirSync(hiddenDir).length > 0) ||
+      Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY));
 
   return {
     exists: true,

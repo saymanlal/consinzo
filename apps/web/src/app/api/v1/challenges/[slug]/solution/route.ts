@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { ConsinzoError } from "@consinzo/shared";
 import { requireSessionUser } from "@/lib/auth";
-import { getPublicChallengeBySlug, getServerReferenceSolution } from "@/lib/challenges";
+import { getPublicChallengeBySlug } from "@/lib/challenges";
+import { loadPrivateReferenceSolution } from "@/lib/challenges/private-assets";
+import { isSolutionUnlockedForUser } from "@/lib/data-adapter";
 import { handleApiError } from "@/lib/http";
-import { readDb } from "@/lib/store";
 
 export async function GET(
   _req: Request,
@@ -17,13 +18,10 @@ export async function GET(
       throw new ConsinzoError("NOT_FOUND", "Challenge not found.", 404);
     }
 
-    const db = readDb();
-    const unlock = db.unlocks.find(
-      (u) => u.userId === user.id && u.challengeSlug === slug
-    );
     const isAdmin = user.roles.some((r) => r === "super_admin" || r === "platform_admin");
+    const unlocked = isAdmin || (await isSolutionUnlockedForUser(user.id, slug));
 
-    if (!unlock?.solutionUnlocked && !isAdmin) {
+    if (!unlocked) {
       throw new ConsinzoError(
         "SOLUTION_LOCKED",
         `Reference solution is locked under policy "${challenge.manifest.solution_unlock_policy}". Pass the challenge evaluation first.`,
@@ -31,7 +29,7 @@ export async function GET(
       );
     }
 
-    const solution = getServerReferenceSolution(slug);
+    const solution = await loadPrivateReferenceSolution(slug);
     if (!solution) {
       throw new ConsinzoError("NOT_FOUND", "Reference solution unavailable.", 404);
     }

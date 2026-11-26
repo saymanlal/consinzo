@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
   createUserAccount,
+  registerSupabaseAccount,
   SESSION_COOKIE_NAME,
   signSessionToken,
   toSessionUser,
 } from "@/lib/auth";
+import { getServerEnv } from "@/lib/env";
 import { handleApiError } from "@/lib/http";
 
 const RegisterSchema = z.object({
@@ -18,6 +20,13 @@ const RegisterSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = RegisterSchema.parse(await req.json());
+    const env = getServerEnv();
+
+    if (env.isSupabaseConfigured) {
+      const user = await registerSupabaseAccount(body);
+      return NextResponse.json({ user }, { status: 201 });
+    }
+
     const user = createUserAccount(body);
     const token = signSessionToken({
       userId: user.id,
