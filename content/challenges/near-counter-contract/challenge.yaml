@@ -1,0 +1,53 @@
+id: near-counter-contract
+slug: near-counter-contract
+title: NEAR Stateful Counter & Access Control
+description: Build a TypeScript NEAR smart contract counter enforcing bounded increments, underflow safety, caller attribution, and owner-only resets.
+ecosystem: near
+language: TypeScript
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - near
+  - near-sdk-js
+  - state-management
+  - access-control
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/Counter.ts
+  editable_files:
+    - src/Counter.ts
+  readonly_files:
+    - test/Counter.t.ts
+tests:
+  public_suite: evaluation/public/Counter.t.ts
+  hidden_suite: evaluation/hidden/CounterHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 65
+    security_invariants: 25
+    efficiency: 5
+    code_quality: 5
+hints:
+  - order: 1
+    title: Predecessor vs Signer
+    content: Always authenticate state-changing actions like reset() with near.predecessorAccountId(), not signerAccountId().
+  - order: 2
+    title: Underflow & step bounds
+    content: Validate that step values are positive integers within [1, maxStep] and guard decrement() against negative counts.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: NEAR JS SDK Documentation
+    url: https://docs.near.org/build/smart-contracts/anatomy/anatomy
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

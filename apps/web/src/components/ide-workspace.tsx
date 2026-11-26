@@ -276,7 +276,10 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
             title="Remote GitHub Actions evaluation disabled in free-tier local config"
             className="hidden md:inline-flex items-center gap-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-[11px] text-zinc-400"
           >
-            Runner: solc + EthereumJS EVM
+            Runner:{" "}
+            {manifest.ecosystem === "near"
+              ? "NEAR TypeScript VM (near-sdk-js)"
+              : "solc + EthereumJS EVM"}
           </span>
           <Button
             size="sm"
@@ -542,7 +545,9 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
             <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-1.5 text-[11px] font-mono text-zinc-400">
               <span className="flex items-center gap-1.5">
                 <Terminal className="h-3.5 w-3.5 text-zinc-400" />
-                Compiler & EVM Execution Logs
+                {manifest.ecosystem === "near"
+                  ? "Compiler & NEAR VM Execution Logs"
+                  : "Compiler & EVM Execution Logs"}
               </span>
               {result && (
                 <span>
@@ -554,7 +559,9 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
             <div className="flex-1 overflow-y-auto p-3 font-mono text-xs space-y-1">
               {!result ? (
                 <div className="text-zinc-500">
-                  Ready. Press &quot;Run Public Tests&quot; (or Cmd/Ctrl+S) to compile with solc 0.8.28 and execute in EVM.
+                  {manifest.ecosystem === "near"
+                    ? 'Ready. Press "Run Public Tests" (or Cmd/Ctrl+S) to typecheck TypeScript and execute in the NEAR VM.'
+                    : 'Ready. Press "Run Public Tests" (or Cmd/Ctrl+S) to compile with solc 0.8.28 and execute in EVM.'}
                 </div>
               ) : (
                 result.sanitizedLogs.map((line, i) => (

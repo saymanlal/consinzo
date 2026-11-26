@@ -17,6 +17,7 @@
     "@consinzo/execution-sdk": "workspace:*",
     "@consinzo/runner-common": "workspace:*",
     "@consinzo/runner-evm": "workspace:*",
+    "@consinzo/runner-near": "workspace:*",
     "@consinzo/scoring": "workspace:*",
     "@consinzo/shared": "workspace:*",
     "@consinzo/ui": "workspace:*",

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, CheckSquare, Layers } from "lucide-react";
+import { ArrowRight, Layers } from "lucide-react";
 import { Badge, Card } from "@consinzo/ui";
+import { ProtocolSimulators } from "@/components/protocol-simulators";
 import { PROTOCOL_LABS } from "@/lib/knowledge";
 
 export default function ProtocolsPage() {
@@ -9,18 +10,22 @@ export default function ProtocolsPage() {
       <div className="border-b border-zinc-200 pb-6">
         <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-zinc-500">
           <Layers className="h-4 w-4 text-blue-700" />
-          Protocol Lab
+          Protocol Architecture &amp; DeFi Lab
         </div>
         <h1 className="mt-2 text-2xl font-semibold text-zinc-950">
-          DeFi & Protocol Engineering Laboratories
+          Core Protocol Mechanics, Simulators &amp; Invariants
         </h1>
         <p className="mt-1 text-sm text-zinc-600 max-w-3xl">
-          Architecture walkthroughs, invariant specifications, and direct hands-on implementation
-          workspaces for core decentralized protocols.
+          Inspect live mathematical models, simulate DeFi edge cases and inflation attacks, and jump
+          directly into verified Consinzo protocol implementations.
         </p>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+      <div className="mt-8">
+        <ProtocolSimulators />
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {PROTOCOL_LABS.map((lab) => (
           <Card key={lab.slug} className="p-6 flex flex-col justify-between">
             <div>
@@ -29,9 +34,9 @@ export default function ProtocolsPage() {
               <p className="mt-2 text-xs leading-relaxed text-zinc-600">{lab.summary}</p>
 
               <div className="mt-5">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Execution Flow
-                </h3>
+                </div>
                 <ol className="mt-2 space-y-1.5 text-xs text-zinc-700 list-decimal list-inside">
                   {lab.architectureSteps.map((step, i) => (
                     <li key={i}>{step}</li>
@@ -40,13 +45,13 @@ export default function ProtocolsPage() {
               </div>
 
               <div className="mt-5">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                  Verified Invariants
-                </h3>
-                <ul className="mt-2 space-y-1.5 text-xs text-zinc-700">
+                <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Critical Security Invariants
+                </div>
+                <ul className="mt-2 space-y-1 text-xs text-zinc-700">
                   {lab.invariants.map((inv, i) => (
-                    <li key={i} className="flex items-start gap-1.5 font-mono text-[11px]">
-                      <CheckSquare className="h-3.5 w-3.5 shrink-0 text-emerald-700 mt-0.5" />
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-600 shrink-0" />
                       <span>{inv}</span>
                     </li>
                   ))}
@@ -58,9 +63,9 @@ export default function ProtocolsPage() {
               <div className="mt-6 border-t border-zinc-100 pt-4">
                 <Link
                   href={`/workspace/${lab.linkedChallengeSlug}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:underline"
                 >
-                  Open Lab Implementation Workspace
+                  Open Live Protocol Challenge in IDE
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>

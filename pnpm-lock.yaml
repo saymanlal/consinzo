@@ -47,6 +47,9 @@ importers:
       '@consinzo/runner-evm':
         specifier: workspace:*
         version: link:../../runners/evm
+      '@consinzo/runner-near':
+        specifier: workspace:*
+        version: link:../../runners/near
       '@consinzo/scoring':
         specifier: workspace:*
         version: link:../../packages/scoring
@@ -295,6 +298,25 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.7)(lightningcss@1.33.0)(supports-color@7.2.0)
+
+  runners/near:
+    dependencies:
+      '@consinzo/execution-sdk':
+        specifier: workspace:*
+        version: link:../../packages/execution-sdk
+      '@consinzo/runner-common':
+        specifier: workspace:*
+        version: link:../common
+      '@consinzo/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+    devDependencies:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.7)(lightningcss@1.33.0)(supports-color@7.2.0)

@@ -1,0 +1,53 @@
+id: near-dao-voting
+slug: near-dao-voting
+title: NEAR Weighted DAO Proposal & Quorum Engine
+description: Implement a weighted-voting NEAR DAO governance contract supporting member weights, double-vote prevention, deadline enforcement, and quorum finalization.
+ecosystem: near
+language: TypeScript
+difficulty: intermediate
+category: protocol-implementation
+tags:
+  - near
+  - dao
+  - governance
+  - quorum
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/DaoVoting.ts
+  editable_files:
+    - src/DaoVoting.ts
+  readonly_files:
+    - test/DaoVoting.t.ts
+tests:
+  public_suite: evaluation/public/DaoVoting.t.ts
+  hidden_suite: evaluation/hidden/DaoVotingHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 55
+    security_invariants: 30
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Composite vote keys
+    content: Store voted flags under deterministic keys like `${proposalId}:${voter}` in a LookupMap<boolean> so every account votes at most once per proposal.
+  - order: 2
+    title: Quorum & deadline checks
+    content: Enforce blockTimestamp <= deadline during vote(), and blockTimestamp > deadline during finalize().
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: Sputnik DAO v2 Design Overview
+    url: https://docs.near.org/concepts/protocol/account-model
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

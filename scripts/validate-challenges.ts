@@ -4,8 +4,13 @@ import { ECOSYSTEM_REGISTRY } from "../packages/ecosystem-registry/src/index";
 import { CHALLENGE_CATEGORIES, type ProjectFile } from "../packages/shared/src/index";
 import { validateChallengeDirectory } from "../packages/validators/src/index";
 import { EvmRunner } from "../runners/evm/src/index";
+import { NearRunner } from "../runners/near/src/index";
 
-function readSolFiles(dir: string, mountPrefix: string): ProjectFile[] {
+function readChallengeSourceFiles(
+  dir: string,
+  mountPrefix: string,
+  extensions: string[]
+): ProjectFile[] {
   if (!fs.existsSync(dir)) return [];
   const results: ProjectFile[] = [];
   const walk = (cur: string) => {
@@ -13,7 +18,7 @@ function readSolFiles(dir: string, mountPrefix: string): ProjectFile[] {
       const abs = path.join(cur, entry.name);
       if (entry.isDirectory()) {
         walk(abs);
-      } else if (entry.name.endsWith(".sol")) {
+      } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
         const rel = path.relative(dir, abs).replaceAll("\\", "/");
         results.push({
           path: `${mountPrefix}${rel}`,
@@ -34,7 +39,8 @@ async function main() {
     .map((d) => d.name)
     .sort();
 
-  const runner = new EvmRunner();
+  const evmRunner = new EvmRunner();
+  const nearRunner = new NearRunner();
   const seenIds = new Set<string>();
   const seenSlugs = new Set<string>();
   const validEcosystemIds = new Set(ECOSYSTEM_REGISTRY.map((e) => e.id));
@@ -76,9 +82,12 @@ async function main() {
     seenIds.add(m.id);
     seenSlugs.add(m.slug);
 
+    const runner = m.ecosystem === "near" ? nearRunner : evmRunner;
+    const exts = m.ecosystem === "near" ? [".ts", ".js"] : [".sol"];
+
     // 1. Verify starter compiles cleanly
-    const starterSrc = readSolFiles(path.join(dir, "starter/src"), "src/");
-    const starterTest = readSolFiles(path.join(dir, "starter/test"), "test/");
+    const starterSrc = readChallengeSourceFiles(path.join(dir, "starter/src"), "src/", exts);
+    const starterTest = readChallengeSourceFiles(path.join(dir, "starter/test"), "test/", exts);
     const starterCompile = await runner.compile([...starterSrc, ...starterTest]);
     if (!starterCompile.compiled) {
       console.error(`[FAIL] ${slug} starter failed to compile:`, starterCompile.diagnostics);
@@ -87,9 +96,13 @@ async function main() {
     }
 
     // 2. Verify reference solution passes ALL public AND hidden tests
-    const refSrc = readSolFiles(path.join(dir, "solution/reference"), "src/");
-    const publicTest = readSolFiles(path.join(dir, "evaluation/public"), "test/");
-    const hiddenTest = readSolFiles(path.join(dir, "evaluation/hidden"), "evaluation/hidden/");
+    const refSrc = readChallengeSourceFiles(path.join(dir, "solution/reference"), "src/", exts);
+    const publicTest = readChallengeSourceFiles(path.join(dir, "evaluation/public"), "test/", exts);
+    const hiddenTest = readChallengeSourceFiles(
+      path.join(dir, "evaluation/hidden"),
+      "evaluation/hidden/",
+      exts
+    );
 
     const refReport = await runner.runTests([...refSrc, ...publicTest], {
       mode: "local-cli",

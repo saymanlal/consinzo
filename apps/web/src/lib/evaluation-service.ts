@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
-import { EvmRunner } from "@consinzo/runner-evm";
 import { calculateScore, type TestCaseOutcome } from "@consinzo/scoring";
+import { getEcosystemRunner } from "./runner-dispatch";
 import { ConsinzoError, type ExecutionMode, type ProjectFile } from "@consinzo/shared";
 import { validateProjectSnapshot } from "@consinzo/validators";
 import { getPublicChallengeBySlug } from "./challenges";
@@ -41,7 +41,7 @@ export async function executeAndScoreSubmission(input: {
   }));
   const hiddenTestFiles = await loadPrivateHiddenTestFiles(input.challengeSlug);
 
-  const runner = new EvmRunner();
+  const runner = getEcosystemRunner(challenge.manifest.ecosystem);
   const report = await runner.runTests([...userSrcFiles, ...authoritativePublicTests], {
     mode: input.mode,
     timeoutMs: Math.min(challenge.manifest.tests.timeout_ms, env.executionTimeoutMs),

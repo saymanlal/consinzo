@@ -410,6 +410,76 @@ export async function saveEvaluatedSubmission(
         );
       }
     }
+
+    // Update active Supabase contest_scores if user is registered in an active contest containing this challenge
+    const nowIso = submission.createdAt;
+    const { data: userEntries } = await supabase
+      .from("contest_entries")
+      .select(
+        "contest_id, contests(id, starts_at, ends_at, contest_challenges(challenge_id))"
+      )
+      .eq("user_id", submission.userId);
+
+    for (const entry of userEntries ?? []) {
+      const c = (Array.isArray(entry.contests) ? entry.contests[0] : entry.contests) as
+        | {
+            id?: string;
+            starts_at?: string;
+            ends_at?: string;
+            contest_challenges?: Array<{ challenge_id?: string }>;
+          }
+        | undefined;
+      if (!c?.id || !c.starts_at || !c.ends_at) continue;
+      if (nowIso < String(c.starts_at) || nowIso > String(c.ends_at)) continue;
+
+      const contestChallengeIds = (c.contest_challenges ?? [])
+        .map((cc) => cc.challenge_id)
+        .filter((id): id is string => Boolean(id));
+      if (!contestChallengeIds.includes(challengeId)) continue;
+
+      const { data: userContestSubs } = await supabase
+        .from("submissions")
+        .select("challenge_id, score")
+        .eq("user_id", submission.userId)
+        .in("challenge_id", contestChallengeIds);
+
+      const bestByChallenge = new Map<string, number>();
+      for (const s of userContestSubs ?? []) {
+        const cid = String(s.challenge_id);
+        bestByChallenge.set(cid, Math.max(bestByChallenge.get(cid) ?? 0, Number(s.score ?? 0)));
+      }
+      const totalScore = Array.from(bestByChallenge.values()).reduce((sum, v) => sum + v, 0);
+
+      const { data: existingContestScore } = await supabase
+        .from("contest_scores")
+        .select("last_accepted_at")
+        .eq("contest_id", c.id)
+        .eq("user_id", submission.userId)
+        .maybeSingle();
+
+      await supabase.from("contest_scores").upsert(
+        {
+          contest_id: c.id,
+          user_id: submission.userId,
+          total_score: totalScore,
+          last_accepted_at: submission.passed
+            ? nowIso
+            : (existingContestScore?.last_accepted_at ?? nowIso),
+        },
+        { onConflict: "contest_id,user_id" }
+      );
+
+      if (submission.score > 0) {
+        await supabase.from("user_achievements").upsert(
+          {
+            user_id: submission.userId,
+            achievement_id: "contest-competitor",
+            submission_id: submission.id,
+          },
+          { onConflict: "user_id,achievement_id" }
+        );
+      }
+    }
     return;
   }
 
@@ -978,6 +1048,91 @@ export async function joinContestTeam(contestSlug: string, userId: string, teamI
 }
 
 export async function getContestDetailsAndStandings(contestSlug: string) {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: c } = await supabase
+      .from("contests")
+      .select("*, contest_challenges(challenges(slug)), contest_entries(user_id)")
+      .eq("slug", contestSlug)
+      .maybeSingle();
+    if (!c) return null;
+
+    const challengeRows = (c.contest_challenges as Array<Record<string, unknown>> | undefined) ?? [];
+    const entryRows = (c.contest_entries as Array<{ user_id: string }> | undefined) ?? [];
+    const challengeSlugs = challengeRows
+      .map((cc) => {
+        const ch = (Array.isArray(cc.challenges) ? cc.challenges[0] : cc.challenges) as
+          | { slug?: string }
+          | undefined;
+        return ch?.slug ?? "";
+      })
+      .filter(Boolean);
+
+    const contest: StoredContest = {
+      slug: String(c.slug),
+      title: String(c.title),
+      description: String(c.description),
+      contestType: c.contest_type as StoredContest["contestType"],
+      visibility: c.visibility as StoredContest["visibility"],
+      startsAt: String(c.starts_at),
+      endsAt: String(c.ends_at),
+      challengeSlugs,
+      organizerId: String(c.organizer_id),
+      registeredUserIds: entryRows.map((e) => e.user_id),
+    };
+
+    const [{ data: teamRows }, { data: scoreRows }] = await Promise.all([
+      supabase
+        .from("teams")
+        .select("id, name, captain_id, created_at, team_members(user_id, profiles(username, display_name))")
+        .eq("contest_id", c.id),
+      supabase
+        .from("contest_scores")
+        .select("total_score, last_accepted_at, profiles(username, display_name)")
+        .eq("contest_id", c.id)
+        .order("total_score", { ascending: false })
+        .order("last_accepted_at", { ascending: true }),
+    ]);
+
+    const teams = (teamRows ?? []).map((t: Record<string, unknown>) => {
+      const tmRows =
+        (t.team_members as Array<{
+          user_id: string;
+          profiles?: { username?: string; display_name?: string } | Array<{ username?: string; display_name?: string }>;
+        }>) ?? [];
+      return {
+        id: String(t.id),
+        contestSlug,
+        name: String(t.name),
+        captainId: String(t.captain_id),
+        memberIds: tmRows.map((m) => String(m.user_id)),
+        createdAt: String(t.created_at),
+        members: tmRows.map((m) => {
+          const prof = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+          return {
+            username: prof?.username ?? "developer",
+            displayName: prof?.display_name ?? "Developer",
+          };
+        }),
+      };
+    });
+
+    const standings = (scoreRows ?? []).map((cs: Record<string, unknown>) => {
+      const prof = (Array.isArray(cs.profiles) ? cs.profiles[0] : cs.profiles) as
+        | { username?: string; display_name?: string }
+        | undefined;
+      return {
+        username: prof?.username ?? "developer",
+        displayName: prof?.display_name ?? "Developer",
+        totalScore: Number(cs.total_score ?? 0),
+        lastAcceptedAt: String(cs.last_accepted_at ?? ""),
+      };
+    });
+
+    return { contest, teams, standings };
+  }
+
   const db = readDb();
   const contest = db.contests.find((c) => c.slug === contestSlug);
   if (!contest) return null;

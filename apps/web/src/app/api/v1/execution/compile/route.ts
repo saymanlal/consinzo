@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { EvmRunner } from "@consinzo/runner-evm";
 import { ConsinzoError } from "@consinzo/shared";
 import { SnapshotSubmissionSchema, validateProjectSnapshot } from "@consinzo/validators";
 import { getPublicChallengeBySlug } from "@/lib/challenges";
 import { getServerEnv } from "@/lib/env";
 import { handleApiError } from "@/lib/http";
+import { getEcosystemRunner } from "@/lib/runner-dispatch";
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }));
 
     const env = getServerEnv();
-    const runner = new EvmRunner();
+    const runner = getEcosystemRunner(challenge.manifest.ecosystem);
     const report = await runner.runTests([...userSrc, ...publicTests], {
       mode: "local-cli",
       timeoutMs: Math.min(challenge.manifest.tests.timeout_ms, env.executionTimeoutMs),

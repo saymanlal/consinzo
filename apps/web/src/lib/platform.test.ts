@@ -256,4 +256,28 @@ describe("CONSINZO Phase 1 Security, Authorization & ERC-20 Workflow", () => {
     // Public portfolio must never leak email
     expect(JSON.stringify(portfolio)).not.toContain("alice@consinzo.test");
   });
+
+  it("8. Executes and scores NEAR TypeScript challenges via NearRunner", async () => {
+    const refCounter = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "../../content/challenges/near-counter-contract/solution/reference/Counter.ts"
+      ),
+      "utf8"
+    );
+
+    const sub = await executeAndScoreSubmission({
+      userId: aliceId,
+      challengeSlug: "near-counter-contract",
+      mode: "local-cli",
+      files: [{ path: "src/Counter.ts", content: refCounter }],
+    });
+
+    expect(sub.runnerName).toBe("near-ts-vm");
+    expect(sub.compiled).toBe(true);
+    expect(sub.passed).toBe(true);
+    expect(sub.score).toBe(100);
+    expect(sub.hiddenSummary?.evaluated).toBe(true);
+    expect(sub.hiddenSummary?.passed).toBe(2);
+  });
 });

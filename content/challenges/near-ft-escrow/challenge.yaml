@@ -1,0 +1,53 @@
+id: near-ft-escrow
+slug: near-ft-escrow
+title: NEAR Timelocked Escrow & Deposit Vault
+description: Implement a multi-party NEAR escrow contract using LookupMap storage, attachedDeposit verification, and strict timelock release/refund state transitions.
+ecosystem: near
+language: TypeScript
+difficulty: intermediate
+category: smart-contract-engineering
+tags:
+  - near
+  - escrow
+  - timelock
+  - storage-collections
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/Escrow.ts
+  editable_files:
+    - src/Escrow.ts
+  readonly_files:
+    - test/Escrow.t.ts
+tests:
+  public_suite: evaluation/public/Escrow.t.ts
+  hidden_suite: evaluation/hidden/EscrowHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 55
+    security_invariants: 30
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Attached deposit and settlement invariants
+    content: Verify attachedDeposit() > 0n on escrow creation, and mark status RELEASED or REFUNDED before crediting balances to block double-claims.
+  - order: 2
+    title: Timelock boundary checks
+    content: Allow beneficiary release once near.blockTimestamp() >= releaseAfterNs, or allow early release by the depositor.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: NEAR Storage Collections (LookupMap)
+    url: https://docs.near.org/build/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-27"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

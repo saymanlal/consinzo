@@ -59,6 +59,6 @@ export interface EcosystemRunner {
   }>;
   runTests(
     files: ProjectFile[],
-    options: { timeoutMs?: number; includeHiddenFiles?: ProjectFile[] }
+    options?: { timeoutMs?: number; includeHiddenFiles?: ProjectFile[]; mode?: ExecutionMode }
   ): Promise<ExecutionReport>;
 }

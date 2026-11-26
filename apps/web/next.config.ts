@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
     "@consinzo/editor",
     "@consinzo/runner-common",
     "@consinzo/runner-evm",
+    "@consinzo/runner-near",
   ],
   serverExternalPackages: ["solc"],
   poweredByHeader: false,
