@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, CheckCircle2, Code2, Search, Shield } from "lucide-react";
@@ -19,6 +19,17 @@ export function ChallengeCatalogueClient({
   const [ecosystem, setEcosystem] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
   const [category, setCategory] = useState("all");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ecoParam = params.get("ecosystem");
+    const diffParam = params.get("difficulty");
+    const catParam = params.get("category");
+    if (ecoParam) setEcosystem(ecoParam);
+    if (diffParam) setDifficulty(diffParam);
+    if (catParam) setCategory(catParam);
+  }, []);
 
   const { data: meData } = useQuery<{
     bookmarks?: string[];

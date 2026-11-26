@@ -178,6 +178,23 @@ function initialSeedDb(): LocalDatabase {
         organizerId: "system",
         registeredUserIds: [],
       },
+      {
+        slug: "near-ts-builder-sprint-01",
+        title: "NEAR TypeScript Builder Sprint #01",
+        description:
+          "Multi-ecosystem engineering sprint covering NEAR predecessor attribution, LookupMap timelocked escrow, and weighted DAO governance.",
+        contestType: "coding",
+        visibility: "public",
+        startsAt: "2026-11-25T00:00:00.000Z",
+        endsAt: "2026-12-31T23:59:59.000Z",
+        challengeSlugs: [
+          "near-counter-contract",
+          "near-ft-escrow",
+          "near-dao-voting",
+        ],
+        organizerId: "system",
+        registeredUserIds: [],
+      },
     ],
     teams: [],
     contestScores: [],
@@ -197,6 +214,15 @@ export function readDb(): LocalDatabase {
     return {
       ...initialSeedDb(),
       ...parsed,
+      contests:
+        parsed.contests && parsed.contests.length > 0
+          ? [
+              ...parsed.contests,
+              ...initialSeedDb().contests.filter(
+                (seeded) => !parsed.contests!.some((existing) => existing.slug === seeded.slug)
+              ),
+            ]
+          : initialSeedDb().contests,
       teams: parsed.teams ?? [],
       contestScores: parsed.contestScores ?? [],
     };

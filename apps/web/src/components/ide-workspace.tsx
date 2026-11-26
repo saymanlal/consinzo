@@ -6,8 +6,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowLeft,
+  Check,
   CheckCircle2,
   ChevronRight,
+  Copy,
   FileCode2,
   FolderOpen,
   History,
@@ -88,6 +90,7 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
   const [submissions, setSubmissions] = useState<
     Array<{ id: string; status: string; score: number; maxPoints: number; passed: boolean; createdAt: string }>
   >([]);
+  const [cliCopied, setCliCopied] = useState(false);
 
   // Restore autosaved files on mount
   useEffect(() => {
@@ -397,9 +400,34 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
                 </div>
 
                 <div className="border-t border-zinc-800 pt-4">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-                    Local CLI Command (Mode B)
-                  </h2>
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                      Local CLI Command (Mode B)
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard?.writeText(
+                          `pnpm cli -- test content/challenges/${manifest.slug}`
+                        );
+                        setCliCopied(true);
+                        setTimeout(() => setCliCopied(false), 1800);
+                      }}
+                      className="inline-flex items-center gap-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-0.5 font-mono text-[10px] text-zinc-300 hover:bg-zinc-800 cursor-pointer"
+                    >
+                      {cliCopied ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-400" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <pre className="rounded border border-zinc-800 bg-zinc-950 p-2.5 font-mono text-[11px] text-zinc-300 overflow-x-auto">
                     pnpm cli -- test content/challenges/{manifest.slug}
                   </pre>
@@ -614,6 +642,26 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
                     <span className="font-mono font-semibold text-white">
                       {result.score} / {result.maxPoints}
                     </span>
+                  </div>
+                )}
+                {result.scoringBreakdown?.components && (
+                  <div className="grid grid-cols-2 gap-1.5 border-t border-zinc-800 pt-2 font-mono text-[10px]">
+                    <div className="flex justify-between rounded bg-zinc-950/60 px-2 py-1 text-zinc-300">
+                      <span className="text-zinc-500">Func</span>
+                      <span>{result.scoringBreakdown.components.functionalCorrectness}</span>
+                    </div>
+                    <div className="flex justify-between rounded bg-zinc-950/60 px-2 py-1 text-zinc-300">
+                      <span className="text-zinc-500">Sec</span>
+                      <span>{result.scoringBreakdown.components.securityInvariants}</span>
+                    </div>
+                    <div className="flex justify-between rounded bg-zinc-950/60 px-2 py-1 text-zinc-300">
+                      <span className="text-zinc-500">Eff</span>
+                      <span>{result.scoringBreakdown.components.efficiency}</span>
+                    </div>
+                    <div className="flex justify-between rounded bg-zinc-950/60 px-2 py-1 text-zinc-300">
+                      <span className="text-zinc-500">Qual</span>
+                      <span>{result.scoringBreakdown.components.codeQuality}</span>
+                    </div>
                   </div>
                 )}
                 {result.hiddenTestsSummary && (

@@ -1,8 +1,13 @@
-import { CheckCircle2, Cpu, ExternalLink, XCircle } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, CheckCircle2, Cpu, ExternalLink, XCircle } from "lucide-react";
 import { ECOSYSTEM_REGISTRY, SUPPORT_LEVEL_LABELS } from "@consinzo/ecosystem-registry";
 import { Badge, Card } from "@consinzo/ui";
+import { listPublishedChallenges } from "@/lib/challenges";
+import { KNOWLEDGE_ENTRIES } from "@/lib/knowledge";
 
 export default function EcosystemsPage() {
+  const allChallenges = listPublishedChallenges();
+
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
       <div className="border-b border-zinc-200 pb-6">
@@ -22,6 +27,8 @@ export default function EcosystemsPage() {
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {ECOSYSTEM_REGISTRY.map((eco) => {
           const level = SUPPORT_LEVEL_LABELS[eco.supportLevel];
+          const ecoChallenges = allChallenges.filter((c) => c.ecosystem === eco.id);
+          const guide = KNOWLEDGE_ENTRIES.find((k) => k.ecosystemId === eco.id);
           return (
             <Card key={eco.id} className="p-5 space-y-4">
               <div className="flex items-start justify-between gap-3">
@@ -66,19 +73,39 @@ export default function EcosystemsPage() {
                 ))}
               </div>
 
-              <div className="border-t border-zinc-100 pt-3 flex items-center justify-between text-xs">
+              <div className="border-t border-zinc-100 pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div className="font-mono text-zinc-600">
                   Toolchains: {eco.toolchains.map((t) => `${t.name} (${t.pinnedVersion})`).join(" · ")}
                 </div>
-                <a
-                  href={eco.officialDocsUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-blue-700 hover:underline shrink-0"
-                >
-                  Docs
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  {guide && (
+                    <Link
+                      href={`/knowledge/${guide.slug}`}
+                      className="inline-flex items-center gap-1 font-medium text-zinc-700 hover:text-zinc-950"
+                    >
+                      <BookOpen className="h-3 w-3" />
+                      Guide
+                    </Link>
+                  )}
+                  {ecoChallenges.length > 0 && (
+                    <Link
+                      href={`/challenges?ecosystem=${eco.id}`}
+                      className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline"
+                    >
+                      {ecoChallenges.length} Challenges
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  )}
+                  <a
+                    href={eco.officialDocsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900"
+                  >
+                    Docs
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
               </div>
             </Card>
           );

@@ -83,6 +83,7 @@ export default function CompetitionsPage() {
     }
     setMsg("Registered for competition.");
     await queryClient.invalidateQueries({ queryKey: ["contests"] });
+    await queryClient.invalidateQueries({ queryKey: ["contest-details", slug] });
   }
 
   async function createTeam(e: React.FormEvent) {
@@ -158,10 +159,21 @@ export default function CompetitionsPage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-4">
             <h2 className="text-base font-semibold text-zinc-950">Scheduled Contests</h2>
-            {contests.map((c) => (
-              <Card key={c.slug} className="p-5 space-y-4">
+            {contests.map((c) => {
+              const nowMs = Date.now();
+              const isUpcoming = nowMs < new Date(c.startsAt).getTime();
+              const isEnded = nowMs > new Date(c.endsAt).getTime();
+              const statusTone = isEnded ? "neutral" : isUpcoming ? "amber" : "green";
+              const statusLabel = isEnded ? "ended" : isUpcoming ? "upcoming" : "active";
+              const isSelected = selectedSlug === c.slug;
+              return (
+              <Card
+                key={c.slug}
+                className={`p-5 space-y-4 ${isSelected ? "border-blue-600 ring-1 ring-blue-600/20" : ""}`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
+                    <Badge tone={statusTone}>{statusLabel}</Badge>
                     <Badge tone="blue">{c.contestType}</Badge>
                     <Badge tone="neutral">{c.visibility}</Badge>
                   </div>
@@ -208,7 +220,8 @@ export default function CompetitionsPage() {
                   </div>
                 </div>
               </Card>
-            ))}
+              );
+            })}
           </div>
 
           {/* Active Contest Teams & Live Standings */}
