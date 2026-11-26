@@ -10,6 +10,19 @@ export default function OverviewPage() {
   const securityCount = challenges.filter((c) => c.is_security_mission).length;
   const activeExecutionCount = ECOSYSTEM_REGISTRY.filter((e) => e.supportLevel >= 3).length;
 
+  const featuredSlugs = [
+    "erc20-token-vault",
+    "reentrancy-vault-defense",
+    "constant-product-amm",
+    "erc4626-tokenized-vault",
+    "near-counter-contract",
+    "near-signer-predecessor-bypass",
+  ];
+  const featured = featuredSlugs
+    .map((slug) => challenges.find((c) => c.slug === slug))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c));
+  const featuredChallenges = featured.length >= 6 ? featured : challenges.slice(0, 6);
+
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-10 lg:px-6">
       {/* Compact Engineering Header */}
@@ -96,7 +109,7 @@ export default function OverviewPage() {
           </Link>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {challenges.slice(0, 6).map((c) => (
+          {featuredChallenges.map((c) => (
             <Card key={c.slug} className="flex flex-col justify-between p-5">
               <div>
                 <div className="flex items-center justify-between gap-2">
