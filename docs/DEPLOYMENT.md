@@ -10,13 +10,13 @@
    ```bash
    cp .env.example .env.local
    ```
-3. Validate all 10 EVM challenges:
+3. Validate all 38 EVM & NEAR challenges:
    ```bash
    pnpm validate:challenges
    ```
-4. Run unit, validator, EVM runner, routing, and security tests:
+4. Run unit, validator, EVM/NEAR runner, routing, and security tests:
    ```bash
-   ./node_modules/.bin/vitest run packages/scoring/src/index.test.ts packages/validators/src/index.test.ts runners/evm/src/evm-runner.test.ts
+   ./node_modules/.bin/vitest run packages/scoring/src/index.test.ts packages/validators/src/index.test.ts runners/evm/src/evm-runner.test.ts runners/near/src/near-runner.test.ts
    (cd apps/web && ../../node_modules/.bin/vitest run src/lib/platform.test.ts src/lib/challenges-routing.test.ts)
    ```
 5. Start the Next.js development server:

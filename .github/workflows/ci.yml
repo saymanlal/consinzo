@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 11
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -25,5 +25,8 @@ jobs:
       - run: pnpm --filter @consinzo/scoring test
       - run: pnpm --filter @consinzo/validators test
       - run: pnpm --filter @consinzo/runner-evm test
+      - run: pnpm --filter @consinzo/runner-near test
+      - run: pnpm --filter @consinzo/web typecheck
       - run: pnpm --filter @consinzo/web test
+      - run: pnpm validate:challenges
       - run: pnpm --filter @consinzo/web build

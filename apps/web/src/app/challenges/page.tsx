@@ -11,8 +11,8 @@ export default function ChallengesPage() {
           Codex Challenge Catalogue
         </h1>
         <p className="mt-1 text-sm text-zinc-600">
-          Validated smart contract engineering challenges with starter projects, real Solidity
-          compilation, and isolated evaluation tests.
+          Validated smart contract engineering challenges with starter projects, real Solidity and
+          NEAR TypeScript compilation, and isolated evaluation tests.
         </p>
       </div>
       <ChallengeCatalogueClient initialChallenges={challenges} />

@@ -16,11 +16,13 @@ build/
 *.pem
 *.key
 
-# Runner temp artifacts
+# Runner temp artifacts & local runtime store
 runners/**/.tmp/
 content/**/out/
 content/**/cache/
 content/**/broadcast/
+apps/web/.data/
+.vercel/
 
 # OS & Editor
 .DS_Store

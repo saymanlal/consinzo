@@ -9,7 +9,7 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm --filter @consinzo/validators test && pnpm --filter @consinzo/scoring test && pnpm --filter @consinzo/runner-evm test && pnpm --filter @consinzo/web test",
+    "test": "pnpm --filter @consinzo/validators test && pnpm --filter @consinzo/scoring test && pnpm --filter @consinzo/runner-evm test && pnpm --filter @consinzo/runner-near test && pnpm --filter @consinzo/web test",
     "validate:challenges": "tsx scripts/validate-challenges.ts",
     "verify:licenses": "tsx scripts/license-inventory.ts",
     "sync:supabase": "tsx scripts/sync-private-challenges-to-supabase.ts",

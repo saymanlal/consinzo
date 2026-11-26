@@ -11,9 +11,12 @@ export async function GET() {
     authMode: env.isSupabaseConfigured ? "supabase" : "local-dev-signed-cookie",
     execution: {
       localEvmRunner: env.enableLocalEvmRunner,
+      localNearRunner: true,
       remoteActionsEval: env.enableRemoteActionsEval,
       nativeForgeAvailable: toolchain.forgeAvailable,
       bundledSolcVersion: "0.8.28",
+      nearTypeScriptVersion: "5.9.3",
+      activeEcosystems: ["ethereum-evm", "near"],
     },
     timestamp: new Date().toISOString(),
   });

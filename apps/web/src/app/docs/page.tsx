@@ -14,10 +14,12 @@ export default function DocsPage() {
         <h2 className="text-base font-semibold text-zinc-950">Execution Modes</h2>
         <ul className="list-disc list-inside text-xs text-zinc-700 space-y-1.5">
           <li>
-            <strong>Mode B (Local CLI &amp; In-Process EVM Runner):</strong> Compiles Solidity
-            projects via <code className="font-mono">solc 0.8.28</code> and executes Foundry-compatible
-            test contracts via native <code className="font-mono">forge</code> (when installed) or
-            bundled <code className="font-mono">@ethereumjs/evm</code>.
+            <strong>Mode B (Local CLI &amp; In-Process Multi-Ecosystem Runners):</strong> Compiles
+            EVM Solidity projects via <code className="font-mono">solc 0.8.28</code> and executes
+            Foundry-compatible test contracts via native <code className="font-mono">forge</code>{" "}
+            (when installed) or bundled <code className="font-mono">@ethereumjs/evm</code>, and
+            typechecks/executes NEAR TypeScript contracts via{" "}
+            <code className="font-mono">@consinzo/runner-near</code>.
           </li>
           <li>
             <strong>Mode C (Remote GitHub Actions Evaluation):</strong> Disabled by default in

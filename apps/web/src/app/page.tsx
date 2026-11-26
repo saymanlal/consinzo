@@ -25,8 +25,8 @@ export default function OverviewPage() {
           <p className="mt-3 text-base leading-relaxed text-zinc-600">
             Practical smart-contract and protocol engineering environment featuring real{" "}
             <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs">solc 0.8.28</code>{" "}
-            compilation, EthereumJS EVM test execution, Foundry-compatible cheatcodes, isolated
-            hidden evaluation suites, and security exploit defense missions.
+            compilation, EthereumJS EVM &amp; NEAR TypeScript VM test execution, Foundry-compatible
+            cheatcodes, isolated hidden evaluation suites, and security exploit defense missions.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -61,7 +61,7 @@ export default function OverviewPage() {
             <div className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
               {challenges.length}
             </div>
-            <div className="mt-1 text-xs text-zinc-500">EVM public + hidden suites</div>
+            <div className="mt-1 text-xs text-zinc-500">EVM &amp; NEAR public + hidden suites</div>
           </Card>
           <Card className="p-4">
             <div className="text-xs font-medium text-zinc-500">Security Missions</div>
@@ -75,7 +75,7 @@ export default function OverviewPage() {
             <div className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
               {activeExecutionCount} / {ECOSYSTEM_REGISTRY.length}
             </div>
-            <div className="mt-1 text-xs text-zinc-500">EVM Level 4 active; 9 mapped</div>
+            <div className="mt-1 text-xs text-zinc-500">EVM L4 + NEAR L3 active; 8 mapped</div>
           </Card>
           <Card className="p-4">
             <div className="text-xs font-medium text-zinc-500">Protocol Labs</div>
@@ -180,12 +180,12 @@ export default function OverviewPage() {
                       {eco.capabilities.localCliTest ? (
                         <span className="inline-flex items-center gap-1 text-emerald-700 font-medium">
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          Verified solc + EVM
+                          {eco.id === "near" ? "Verified NEAR TS VM" : "Verified solc + EVM"}
                         </span>
                       ) : eco.capabilities.editorSyntax ? (
                         <span className="inline-flex items-center gap-1 text-zinc-600">
                           <Cpu className="h-3.5 w-3.5" />
-                          Syntax only (Phase 4 runner)
+                          Syntax only (runner roadmap)
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-zinc-400">
