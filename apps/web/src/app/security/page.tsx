@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Code2, FileWarning, Shield } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Code2, FileWarning, Shield } from "lucide-react";
 import { Badge, Button, Card, Input, Textarea } from "@consinzo/ui";
 
 interface ChallengeSummary {
@@ -56,6 +56,18 @@ export default function SecurityArenaPage() {
       return res.json();
     },
   });
+
+  const { data: meData } = useQuery<{
+    unlocks?: Array<{ challengeSlug: string; passed: boolean }>;
+  }>({
+    queryKey: ["auth-me"],
+    queryFn: async () => (await fetch("/api/v1/auth/me")).json(),
+  });
+
+  const passedSlugs = useMemo(
+    () => new Set((meData?.unlocks ?? []).filter((u) => u.passed).map((u) => u.challengeSlug)),
+    [meData?.unlocks]
+  );
 
   async function handleAuditSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -153,10 +165,18 @@ export default function SecurityArenaPage() {
           {filteredMissions.map((m) => (
             <Card key={m.slug} className="p-5 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between">
-                  <Badge tone={m.tags.includes("exploit") ? "red" : "blue"}>
-                    {m.tags.includes("exploit") ? "Red-Team Exploit" : "Blue-Team Patch"}
-                  </Badge>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Badge tone={m.tags.includes("exploit") ? "red" : "blue"}>
+                      {m.tags.includes("exploit") ? "Red-Team Exploit" : "Blue-Team Patch"}
+                    </Badge>
+                    {passedSlugs.has(m.slug) && (
+                      <Badge tone="green">
+                        <CheckCircle2 className="mr-1 h-3 w-3" />
+                        Passed
+                      </Badge>
+                    )}
+                  </div>
                   <Badge tone="amber">{m.difficulty}</Badge>
                 </div>
                 <h3 className="mt-3 text-base font-semibold text-zinc-950">{m.title}</h3>
@@ -174,20 +194,34 @@ export default function SecurityArenaPage() {
               </div>
               <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
                 <span className="font-mono text-xs text-zinc-500">{m.scoring.max_points} pts</span>
-                <Link
-                  href={`/workspace/${m.slug}`}
-                  className="inline-flex items-center gap-1 rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
-                >
-                  <Code2 className="h-3.5 w-3.5" />
-                  Launch Mission
-                </Link>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMissionSlug(m.slug);
+                      document
+                        .getElementById("audit-finding-form")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="rounded border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer"
+                  >
+                    Write Finding
+                  </button>
+                  <Link
+                    href={`/workspace/${m.slug}`}
+                    className="inline-flex items-center gap-1 rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+                  >
+                    <Code2 className="h-3.5 w-3.5" />
+                    Launch Mission
+                  </Link>
+                </div>
               </div>
             </Card>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-5">
+      <section id="audit-finding-form" className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3 p-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950">
             <FileWarning className="h-4 w-4 text-zinc-700" />

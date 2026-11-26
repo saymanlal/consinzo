@@ -9,6 +9,8 @@ import { Button, Card, Input } from "@consinzo/ui";
 function AuthFormInner() {
   const searchParams = useSearchParams();
   const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
+  const rawNext = searchParams.get("next") ?? "";
+  const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
   const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -42,7 +44,7 @@ function AuthFormInner() {
         return;
       }
       await queryClient.invalidateQueries({ queryKey: ["auth-me"] });
-      router.push("/dashboard");
+      router.push(safeNext);
       router.refresh();
     } catch {
       setError("Network error while authenticating.");

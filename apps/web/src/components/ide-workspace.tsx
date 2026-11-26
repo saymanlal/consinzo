@@ -322,7 +322,7 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
             <span>{errorBanner}</span>
           </div>
           {errorBanner.includes("Sign in") && (
-            <Link href="/auth" className="font-semibold underline">
+            <Link href={`/auth?next=/workspace/${manifest.slug}`} className="font-semibold underline">
               Sign In →
             </Link>
           )}
