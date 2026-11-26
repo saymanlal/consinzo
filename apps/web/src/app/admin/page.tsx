@@ -13,6 +13,9 @@ interface AdminAuditReport {
   severity: string;
   affectedComponent: string;
   rootCause: string;
+  attackScenario?: string;
+  proofOfConcept?: string;
+  recommendedRemediation?: string;
   status: string;
   reviewerFeedback?: string;
 }
@@ -197,6 +200,31 @@ export default function AdminDashboardPage() {
                     @{r.authorUsername} · {r.missionSlug} · {r.affectedComponent}
                   </div>
                   <p className="text-zinc-700">{r.rootCause}</p>
+                  {(r.proofOfConcept || r.recommendedRemediation) && (
+                    <details className="text-[11px]">
+                      <summary className="cursor-pointer font-medium text-blue-700 hover:underline">
+                        Inspect PoC &amp; Remediation
+                      </summary>
+                      <div className="mt-2 space-y-2 rounded bg-zinc-50 p-2.5">
+                        {r.attackScenario && (
+                          <p className="text-zinc-700">
+                            <span className="font-semibold">Scenario:</span> {r.attackScenario}
+                          </p>
+                        )}
+                        {r.proofOfConcept && (
+                          <pre className="overflow-x-auto font-mono text-zinc-900 whitespace-pre-wrap">
+                            {r.proofOfConcept}
+                          </pre>
+                        )}
+                        {r.recommendedRemediation && (
+                          <p className="text-zinc-700">
+                            <span className="font-semibold">Remediation:</span>{" "}
+                            {r.recommendedRemediation}
+                          </p>
+                        )}
+                      </div>
+                    </details>
+                  )}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Input
                       placeholder="Reviewer feedback..."

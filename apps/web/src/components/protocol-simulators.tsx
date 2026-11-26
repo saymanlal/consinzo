@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Sliders } from "lucide-react";
 import { Badge, Card } from "@consinzo/ui";
 
-type SimulatorTab = "amm" | "vault" | "auction";
+type SimulatorTab = "amm" | "vault" | "auction" | "oracle";
 
 export function ProtocolSimulators() {
   const [tab, setTab] = useState<SimulatorTab>("amm");
@@ -89,6 +89,36 @@ export function ProtocolSimulators() {
     };
   }, [startPrice, reservePrice, durationSec, elapsedSec, bidUnits]);
 
+  // 4. Flash-Loan Oracle Manipulation vs TWAP Defense state
+  const [poolDepthEth, setPoolDepthEth] = useState(500);
+  const [spotPriceUsdc, setSpotPriceUsdc] = useState(2000);
+  const [flashSwapEth, setFlashSwapEth] = useState(300);
+  const [collateralUnits, setCollateralUnits] = useState(50);
+  const [twapEnabled, setTwapEnabled] = useState(false);
+
+  const oracleStats = useMemo(() => {
+    const reserveUsdc = poolDepthEth * spotPriceUsdc;
+    const k = poolDepthEth * reserveUsdc;
+    // Model attacker pushing ETH spot price UP by buying ETH with a USDC flash loan:
+    const newEthAfterBuy = Math.max(20, poolDepthEth - flashSwapEth);
+    const newUsdcAfterBuy = k / newEthAfterBuy;
+    const spotManipulatedPrice = newUsdcAfterBuy / newEthAfterBuy;
+    const oraclePriceUsed = twapEnabled
+      ? spotPriceUsdc * 0.96 + spotManipulatedPrice * 0.04 // single-block weight bounded by TWAP window
+      : spotManipulatedPrice;
+    const ltv = 0.75;
+    const fairMaxBorrow = collateralUnits * spotPriceUsdc * ltv;
+    const actualMaxBorrow = collateralUnits * oraclePriceUsed * ltv;
+    const excessExtractable = Math.max(0, actualMaxBorrow - fairMaxBorrow);
+    return {
+      spotManipulatedPrice,
+      oraclePriceUsed,
+      fairMaxBorrow,
+      actualMaxBorrow,
+      excessExtractable,
+    };
+  }, [poolDepthEth, spotPriceUsdc, flashSwapEth, collateralUnits, twapEnabled]);
+
   return (
     <Card className="p-6 border-zinc-200 bg-white">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 pb-4">
@@ -111,6 +141,7 @@ export function ProtocolSimulators() {
               { id: "amm", label: "AMM (x·y = k)" },
               { id: "vault", label: "ERC-4626 Inflation" },
               { id: "auction", label: "Dutch Auction Decay" },
+              { id: "oracle", label: "Flash-Loan Oracle" },
             ] as const
           ).map((item) => (
             <button
@@ -475,6 +506,146 @@ export function ProtocolSimulators() {
               Adjust duration or start price cleanly and verify{" "}
               <code className="font-mono">msg.value &gt;= cost</code> with immediate excess refund
               to prevent stuck bidder funds.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {tab === "oracle" && (
+        <div className="mt-5 grid gap-6 lg:grid-cols-2">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 p-3">
+              <div>
+                <div className="text-xs font-semibold text-zinc-950">Oracle Architecture</div>
+                <div className="text-[11px] text-zinc-600">
+                  Compare single-block AMM spot price vs multi-block TWAP filter
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTwapEnabled((v) => !v)}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  twapEnabled ? "bg-emerald-700 text-white" : "bg-red-700 text-white"
+                }`}
+              >
+                {twapEnabled ? "TWAP Protected" : "Spot Oracle (Vulnerable)"}
+              </button>
+            </div>
+
+            <label className="block text-xs">
+              <div className="flex justify-between font-medium text-zinc-700">
+                <span>AMM Pool ETH Liquidity Depth</span>
+                <span className="font-mono text-zinc-950">{poolDepthEth} ETH</span>
+              </div>
+              <input
+                type="range"
+                min={200}
+                max={2000}
+                step={50}
+                value={poolDepthEth}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setPoolDepthEth(v);
+                  if (flashSwapEth >= v) setFlashSwapEth(Math.max(20, v - 50));
+                }}
+                className="mt-1.5 w-full accent-blue-700"
+              />
+            </label>
+
+            <label className="block text-xs">
+              <div className="flex justify-between font-medium text-zinc-700">
+                <span>Flash-Loan Skew (ETH Bought From Pool)</span>
+                <span className="font-mono text-zinc-950">{flashSwapEth} ETH</span>
+              </div>
+              <input
+                type="range"
+                min={20}
+                max={Math.max(40, poolDepthEth - 40)}
+                step={10}
+                value={flashSwapEth}
+                onChange={(e) => setFlashSwapEth(Number(e.target.value))}
+                className="mt-1.5 w-full accent-blue-700"
+              />
+            </label>
+
+            <label className="block text-xs">
+              <div className="flex justify-between font-medium text-zinc-700">
+                <span>Attacker Collateral Deposited (ETH)</span>
+                <span className="font-mono text-zinc-950">{collateralUnits} ETH</span>
+              </div>
+              <input
+                type="range"
+                min={10}
+                max={200}
+                step={5}
+                value={collateralUnits}
+                onChange={(e) => setCollateralUnits(Number(e.target.value))}
+                className="mt-1.5 w-full accent-blue-700"
+              />
+            </label>
+
+            <label className="block text-xs">
+              <div className="flex justify-between font-medium text-zinc-700">
+                <span>Baseline Fair Market Price</span>
+                <span className="font-mono text-zinc-950">${spotPriceUsdc} USDC/ETH</span>
+              </div>
+              <input
+                type="range"
+                min={500}
+                max={4000}
+                step={100}
+                value={spotPriceUsdc}
+                onChange={(e) => setSpotPriceUsdc(Number(e.target.value))}
+                className="mt-1.5 w-full accent-blue-700"
+              />
+            </label>
+          </div>
+
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-zinc-900">Lending Borrow Limit Impact (75% LTV)</span>
+              {oracleStats.excessExtractable > 5000 ? (
+                <Badge tone="red" className="gap-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Excess Drain ${Math.round(oracleStats.excessExtractable).toLocaleString()}
+                </Badge>
+              ) : (
+                <Badge tone="green" className="gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Skew Contained
+                </Badge>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-3 font-mono">
+              <div className="rounded border border-zinc-200 bg-white p-2.5">
+                <div className="text-[11px] text-zinc-500">Skewed Spot Pool Price</div>
+                <div className="mt-0.5 text-sm font-semibold text-zinc-950">
+                  ${Math.round(oracleStats.spotManipulatedPrice).toLocaleString()}
+                </div>
+              </div>
+              <div className="rounded border border-zinc-200 bg-white p-2.5">
+                <div className="text-[11px] text-zinc-500">Oracle Price Accepted</div>
+                <div className="mt-0.5 text-sm font-semibold text-zinc-950">
+                  ${Math.round(oracleStats.oraclePriceUsed).toLocaleString()}
+                </div>
+              </div>
+              <div className="rounded border border-zinc-200 bg-white p-2.5">
+                <div className="text-[11px] text-zinc-500">Fair Borrow Ceiling</div>
+                <div className="mt-0.5 text-zinc-900">
+                  ${Math.round(oracleStats.fairMaxBorrow).toLocaleString()}
+                </div>
+              </div>
+              <div className="rounded border border-zinc-200 bg-white p-2.5">
+                <div className="text-[11px] text-zinc-500">Quoted Borrow Ceiling</div>
+                <div className="mt-0.5 text-zinc-900">
+                  ${Math.round(oracleStats.actualMaxBorrow).toLocaleString()}
+                </div>
+              </div>
+            </div>
+            <p className="text-[11px] text-zinc-600 leading-relaxed">
+              Reading spot reserves inside a single transaction lets a flash-loaned swap inflate
+              collateral valuation instantaneously. Time-weighted cumulative observations (TWAP) or
+              decentralized median feeds bound single-block skew.
             </p>
           </div>
         </div>

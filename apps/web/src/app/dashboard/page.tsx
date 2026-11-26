@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Award, Bookmark, CheckCircle2, Code2, ExternalLink, History, Lock } from "lucide-react";
@@ -8,6 +8,7 @@ import { Badge, Card } from "@consinzo/ui";
 import { getAchievementMeta } from "@/lib/achievements";
 
 export default function DashboardPage() {
+  const [subFilter, setSubFilter] = useState<"all" | "passed" | "failed">("all");
   const { data: meData, isLoading } = useQuery({
     queryKey: ["auth-me"],
     queryFn: async () => (await fetch("/api/v1/auth/me")).json(),
@@ -49,6 +50,11 @@ export default function DashboardPage() {
 
   const user = meData.user;
   const submissions = subData?.submissions ?? [];
+  const filteredSubmissions = submissions.filter((s: { passed: boolean }) => {
+    if (subFilter === "passed") return s.passed;
+    if (subFilter === "failed") return !s.passed;
+    return true;
+  });
   const unlocks = meData.unlocks ?? [];
   const achievements = meData.achievements ?? [];
   const bookmarks: string[] = meData.bookmarks ?? [];
@@ -111,18 +117,34 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 p-6">
-          <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950">
-            <History className="h-4 w-4" />
-            Recent Submissions
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950">
+              <History className="h-4 w-4" />
+              Recent Submissions ({filteredSubmissions.length})
+            </div>
+            <div className="inline-flex rounded-md border border-zinc-200 bg-zinc-50 p-0.5 text-[11px]">
+              {(["all", "passed", "failed"] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setSubFilter(f)}
+                  className={`rounded px-2.5 py-1 capitalize cursor-pointer ${
+                    subFilter === f ? "bg-white font-semibold text-zinc-950 shadow-xs" : "text-zinc-600"
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="mt-4 space-y-2">
-            {submissions.length === 0 ? (
+            {filteredSubmissions.length === 0 ? (
               <p className="text-xs text-zinc-500">
-                No submissions yet. Open a challenge in the Codex and click &quot;Submit &amp;
+                No matching submissions yet. Open a challenge in the Codex and click &quot;Submit &amp;
                 Evaluate&quot;.
               </p>
             ) : (
-              submissions.slice(0, 10).map((s: {
+              filteredSubmissions.slice(0, 10).map((s: {
                 id: string;
                 challengeSlug: string;
                 status: string;

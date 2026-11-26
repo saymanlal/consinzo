@@ -22,6 +22,9 @@ interface AuditReport {
   title: string;
   severity: string;
   affectedComponent: string;
+  rootCause: string;
+  proofOfConcept: string;
+  recommendedRemediation: string;
   status: string;
   reviewerFeedback?: string;
   createdAt: string;
@@ -369,8 +372,23 @@ export default function SecurityArenaPage() {
                     <Badge tone={r.status === "accepted" ? "green" : "amber"}>{r.status}</Badge>
                   </div>
                   <div className="font-mono text-[11px] text-zinc-500">
-                    {r.missionSlug} · {r.severity.toUpperCase()}
+                    {r.missionSlug} · {r.severity.toUpperCase()} · {r.affectedComponent}
                   </div>
+                  <p className="text-zinc-700">{r.rootCause}</p>
+                  <details className="pt-1">
+                    <summary className="cursor-pointer font-medium text-blue-700 hover:underline">
+                      View PoC &amp; Remediation
+                    </summary>
+                    <div className="mt-2 space-y-2 rounded bg-zinc-50 p-2.5">
+                      <pre className="overflow-x-auto font-mono text-[11px] text-zinc-800 whitespace-pre-wrap">
+                        {r.proofOfConcept}
+                      </pre>
+                      <p className="text-zinc-700">
+                        <span className="font-semibold">Remediation:</span>{" "}
+                        {r.recommendedRemediation}
+                      </p>
+                    </div>
+                  </details>
                   {r.reviewerFeedback && (
                     <div className="mt-2 rounded bg-zinc-50 p-2 text-zinc-700">
                       Reviewer: {r.reviewerFeedback}
