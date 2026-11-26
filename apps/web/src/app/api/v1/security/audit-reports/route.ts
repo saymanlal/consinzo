@@ -1,7 +1,9 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
+import { ConsinzoError } from "@consinzo/shared";
 import { AuditFindingInputSchema } from "@consinzo/validators";
 import { getSessionUser, requireSessionUser } from "@/lib/auth";
+import { getPublicChallengeBySlug } from "@/lib/challenges";
 import { createAuditReport, listAuditReportsForActor } from "@/lib/data-adapter";
 import { handleApiError } from "@/lib/http";
 
@@ -21,6 +23,14 @@ export async function POST(req: Request) {
   try {
     const user = await requireSessionUser();
     const body = AuditFindingInputSchema.parse(await req.json());
+    const mission = getPublicChallengeBySlug(body.missionSlug);
+    if (!mission || !mission.manifest.is_security_mission) {
+      throw new ConsinzoError(
+        "SECURITY_MISSION_NOT_FOUND",
+        `Security mission "${body.missionSlug}" does not exist or is not published.`,
+        404
+      );
+    }
     const report = {
       id: crypto.randomUUID(),
       missionSlug: body.missionSlug,

@@ -26,7 +26,7 @@ jobs:
       - run: pnpm --filter @consinzo/validators test
       - run: pnpm --filter @consinzo/runner-evm test
       - run: pnpm --filter @consinzo/runner-near test
-      - run: pnpm --filter @consinzo/web typecheck
+      - run: pnpm -r typecheck
       - run: pnpm --filter @consinzo/web test
       - run: pnpm validate:challenges
       - run: pnpm --filter @consinzo/web build

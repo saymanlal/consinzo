@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { GET as getHealth } from "../app/api/v1/health/route";
 import { GET as getEcosystems } from "../app/api/v1/ecosystems/route";
+import { GET as listChallengesApi } from "../app/api/v1/challenges/route";
 import { POST as compileExecution } from "../app/api/v1/execution/compile/route";
 import { getEcosystemRunner } from "./runner-dispatch";
 
@@ -102,5 +103,28 @@ describe("Multi-Ecosystem API Route & Dispatch Integration", () => {
 
   it("explicitly rejects ecosystems without a provisioned server runner with HTTP 422", () => {
     expect(() => getEcosystemRunner("solana")).toThrowError(/not yet available/i);
+  });
+
+  it("supports slug search and NEAR security mission filtering via GET /api/v1/challenges", async () => {
+    const slugRes = await listChallengesApi(
+      new Request("http://localhost/api/v1/challenges?q=near-callback-rollback-guard")
+    );
+    expect(slugRes.status).toBe(200);
+    const slugJson = (await slugRes.json()) as {
+      total: number;
+      challenges: Array<{ slug: string }>;
+    };
+    expect(slugJson.total).toBe(1);
+    expect(slugJson.challenges[0]?.slug).toBe("near-callback-rollback-guard");
+
+    const nearSecRes = await listChallengesApi(
+      new Request("http://localhost/api/v1/challenges?ecosystem=near&security=true")
+    );
+    expect(nearSecRes.status).toBe(200);
+    const nearSecJson = (await nearSecRes.json()) as {
+      total: number;
+      challenges: Array<{ slug: string }>;
+    };
+    expect(nearSecJson.total).toBe(2);
   });
 });
