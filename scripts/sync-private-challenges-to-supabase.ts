@@ -4,7 +4,33 @@ import YAML from "yaml";
 import { createClient } from "@supabase/supabase-js";
 import { ChallengeManifestSchema } from "../packages/challenge-spec/src/index";
 
+function loadLocalEnvFiles() {
+  for (const filename of [".env.local", ".env"]) {
+    const filePath = path.resolve(process.cwd(), filename);
+    if (!fs.existsSync(filePath)) continue;
+    const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx === -1) continue;
+      const key = trimmed.slice(0, eqIdx).trim();
+      let val = trimmed.slice(eqIdx + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (key && process.env[key] === undefined) {
+        process.env[key] = val;
+      }
+    }
+  }
+}
+
 async function main() {
+  loadLocalEnvFiles();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const bucket = process.env.CONSINZO_PRIVATE_BUCKET || "consinzo-private";
@@ -87,6 +113,27 @@ async function main() {
     if (chalErr || !chalRow) {
       console.error(`Failed syncing challenge ${slug}:`, chalErr?.message);
       continue;
+    }
+
+    if (m.is_security_mission) {
+      await supabase.from("security_missions").upsert(
+        {
+          slug: m.slug,
+          challenge_id: chalRow.id,
+          title: m.title,
+          mission_type: m.tags.includes("exploit") ? "exploit" : "patch",
+          vulnerability_class: m.tags[0] ?? "smart-contract-security",
+          severity:
+            m.difficulty === "expert"
+              ? "critical"
+              : m.difficulty === "advanced"
+                ? "high"
+                : "medium",
+          requires_human_review: true,
+          publication_status: m.publication_status,
+        },
+        { onConflict: "slug" }
+      );
     }
 
     // 3. Upload private evaluation/hidden and solution/ files to private storage bucket

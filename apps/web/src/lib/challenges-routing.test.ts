@@ -50,7 +50,8 @@ describe("Challenge Routing, Data Access & Regression Suite", () => {
 
   it("ensures every published catalogue challenge has a valid detail record, starter files, and static param", () => {
     const published = getPublishedChallenges();
-    expect(published.length).toBe(10);
+    expect(published.length).toBe(27);
+    expect(published.filter((c) => c.is_security_mission).length).toBe(20);
 
     const detailSlugs = new Set(generateDetailStaticParams().map((p) => p.slug));
     const workspaceSlugs = new Set(generateWorkspaceStaticParams().map((p) => p.slug));
@@ -66,7 +67,7 @@ describe("Challenge Routing, Data Access & Regression Suite", () => {
   });
 
   it("supports ecosystem, difficulty, search, related, and adjacent queries consistently", () => {
-    expect(getChallengesByEcosystem("ethereum-evm").length).toBe(10);
+    expect(getChallengesByEcosystem("ethereum-evm").length).toBe(27);
     expect(getChallengesByDifficulty("beginner").length).toBeGreaterThanOrEqual(1);
     expect(searchChallenges("flash-loan").some((c) => c.slug === "flash-loan-arbitrage-guard")).toBe(
       true

@@ -1,0 +1,6 @@
+references:
+  - title: Read-Only Reentrancy Pattern
+    url: https://chainsecurity.com/curve-lp-oracle-manipulation-post-mortem/
+    source: ChainSecurity Research
+    version: "1.0"
+    verified_at: "2026-11-26"

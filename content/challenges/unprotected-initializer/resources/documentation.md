@@ -1,0 +1,3 @@
+# Exploit Unprotected Proxy Initializer
+
+Calls the unprotected `initialize(address(this))` to overwrite `owner`, then invokes `sweep` to transfer the contract balance.

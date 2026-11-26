@@ -1,0 +1,52 @@
+id: tx-origin-auth-bypass
+slug: tx-origin-auth-bypass
+title: "Patch tx.origin Phishing Vulnerability"
+description: "Replace unsafe tx.origin authorization in a treasury wallet with msg.sender verification so malicious forwarding contracts cannot drain owner funds."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - tx-origin
+  - access-control
+  - phishing
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/OriginWallet.sol
+  editable_files:
+    - src/OriginWallet.sol
+  readonly_files:
+    - test/OriginWallet.t.sol
+tests:
+  public_suite: evaluation/public/OriginWallet.t.sol
+  hidden_suite: evaluation/hidden/OriginWalletHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in OriginWallet.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-115 Authorization through tx.origin"
+    url: https://swcregistry.io/docs/SWC-115/
+    source: SWC Registry
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

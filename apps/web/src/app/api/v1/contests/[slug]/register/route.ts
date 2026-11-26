@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { ConsinzoError } from "@consinzo/shared";
 import { requireSessionUser } from "@/lib/auth";
+import { registerUserForContest } from "@/lib/data-adapter";
 import { handleApiError } from "@/lib/http";
-import { readDb, writeDb } from "@/lib/store";
 
 export async function POST(
   _req: Request,
@@ -11,19 +10,8 @@ export async function POST(
   try {
     const user = await requireSessionUser();
     const { slug } = await context.params;
-    const db = readDb();
-    const contest = db.contests.find((c) => c.slug === slug);
-    if (!contest) {
-      throw new ConsinzoError("NOT_FOUND", "Competition not found.", 404);
-    }
-    if (!contest.registeredUserIds.includes(user.id)) {
-      contest.registeredUserIds.push(user.id);
-      writeDb(db);
-    }
-    return NextResponse.json({
-      registered: true,
-      participantCount: contest.registeredUserIds.length,
-    });
+    const result = await registerUserForContest(slug, user.id);
+    return NextResponse.json(result);
   } catch (err) {
     return handleApiError(err);
   }

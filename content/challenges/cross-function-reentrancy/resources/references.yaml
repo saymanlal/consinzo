@@ -1,0 +1,6 @@
+references:
+  - title: Cross-Function Reentrancy
+    url: https://swcregistry.io/docs/SWC-107/
+    source: SWC Registry
+    version: "1.0"
+    verified_at: "2026-11-26"

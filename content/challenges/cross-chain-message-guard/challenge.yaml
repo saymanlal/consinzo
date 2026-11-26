@@ -1,0 +1,52 @@
+id: cross-chain-message-guard
+slug: cross-chain-message-guard
+title: "Secure Cross-Chain Bridge Message Verification"
+description: "Patch a cross-chain receiver that forgets to validate source chain ID, trusted remote sender, and message replay status."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: security-engineering
+tags:
+  - patch
+  - cross-chain
+  - bridge
+  - replay
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BridgeReceiver.sol
+  editable_files:
+    - src/BridgeReceiver.sol
+  readonly_files:
+    - test/BridgeReceiver.t.sol
+tests:
+  public_suite: evaluation/public/BridgeReceiver.t.sol
+  hidden_suite: evaluation/hidden/BridgeReceiverHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in BridgeReceiver.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Cross-Chain Bridge Verification Patterns"
+    url: https://docs.soliditylang.org/en/latest/security-considerations.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

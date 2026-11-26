@@ -1,0 +1,6 @@
+references:
+  - title: MEV & Slippage Protection Patterns
+    url: https://docs.uniswap.org/contracts/v3/guides/swaps/single-swaps
+    source: Uniswap Docs
+    version: "1.0"
+    verified_at: "2026-11-26"

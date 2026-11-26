@@ -1,0 +1,6 @@
+references:
+  - title: Cross-Chain Bridge Verification Patterns
+    url: https://docs.soliditylang.org/en/latest/security-considerations.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"

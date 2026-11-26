@@ -1,0 +1,52 @@
+id: precision-loss-staking
+slug: precision-loss-staking
+title: "Fix Division-Before-Multiplication Precision Loss"
+description: "Patch a staking reward distributor where integer division before multiplication truncates earned rewards to zero for small deposits."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - precision
+  - integer-math
+  - staking
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RewardPool.sol
+  editable_files:
+    - src/RewardPool.sol
+  readonly_files:
+    - test/RewardPool.t.sol
+tests:
+  public_suite: evaluation/public/RewardPool.t.sol
+  hidden_suite: evaluation/hidden/RewardPoolHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in RewardPool.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Arithmetic & Rounding"
+    url: https://docs.soliditylang.org/en/latest/types.html#integers
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

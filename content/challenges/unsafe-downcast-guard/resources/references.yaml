@@ -1,0 +1,6 @@
+references:
+  - title: OpenZeppelin SafeCast
+    url: https://docs.openzeppelin.com/contracts/5.x/api/utils#SafeCast
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"

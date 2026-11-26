@@ -1,0 +1,6 @@
+references:
+  - title: EIP-2612 Permit Extension
+    url: https://eips.ethereum.org/EIPS/eip-2612
+    source: Ethereum EIPs
+    version: "1.0"
+    verified_at: "2026-11-26"

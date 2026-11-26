@@ -1,0 +1,1 @@
+Performs `(stake[user] * totalReward) / totalStaked` so numerators are scaled before integer division.

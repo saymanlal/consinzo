@@ -658,7 +658,99 @@ export async function getLeaderboardEntries() {
     .slice(0, 50);
 }
 
-export async function listAuditReportsForActor(userId: string, isReviewer: boolean): Promise<StoredAuditReport[]> {
+async function resolveSupabaseSecurityMissionId(missionSlug: string): Promise<string | null> {
+  const supabase = getSupabaseAdminClient();
+  if (!supabase) return null;
+
+  const { data: existing } = await supabase
+    .from("security_missions")
+    .select("id")
+    .eq("slug", missionSlug)
+    .maybeSingle();
+  if (existing?.id) return existing.id as string;
+
+  const challengeId = await resolveSupabaseChallengeId(missionSlug);
+  const challenge = getPublicChallengeBySlug(missionSlug);
+  if (!challenge) return null;
+
+  const { data: created, error } = await supabase
+    .from("security_missions")
+    .upsert(
+      {
+        slug: challenge.manifest.slug,
+        challenge_id: challengeId,
+        title: challenge.manifest.title,
+        mission_type: challenge.manifest.tags.includes("exploit") ? "exploit" : "patch",
+        vulnerability_class: challenge.manifest.tags[0] ?? "smart-contract-security",
+        severity:
+          challenge.manifest.difficulty === "expert"
+            ? "critical"
+            : challenge.manifest.difficulty === "advanced"
+              ? "high"
+              : "medium",
+        requires_human_review: true,
+        publication_status: challenge.manifest.publication_status,
+      },
+      { onConflict: "slug" }
+    )
+    .select("id")
+    .single();
+
+  if (error || !created) return null;
+  return created.id as string;
+}
+
+export async function listAuditReportsForActor(
+  userId: string,
+  isReviewer: boolean
+): Promise<StoredAuditReport[]> {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    let query = supabase
+      .from("audit_reports")
+      .select(
+        "id, status, reviewer_feedback, submitted_at, author_id, security_missions(slug), security_findings(*), profiles!audit_reports_author_id_fkey(username)"
+      )
+      .order("submitted_at", { ascending: false })
+      .limit(50);
+
+    if (!isReviewer) {
+      query = query.eq("author_id", userId);
+    }
+
+    const { data } = await query;
+    return (data ?? []).map((row: Record<string, unknown>) => {
+      const mission = (
+        Array.isArray(row.security_missions) ? row.security_missions[0] : row.security_missions
+      ) as { slug?: string } | undefined;
+      const finding = (
+        Array.isArray(row.security_findings) ? row.security_findings[0] : row.security_findings
+      ) as Record<string, unknown> | undefined;
+      const author = (Array.isArray(row.profiles) ? row.profiles[0] : row.profiles) as
+        | { username?: string }
+        | undefined;
+
+      return {
+        id: String(row.id),
+        missionSlug: mission?.slug ?? "",
+        authorId: String(row.author_id),
+        authorUsername: author?.username ?? "researcher",
+        title: String(finding?.title ?? "Security Finding"),
+        severity: (finding?.severity as StoredAuditReport["severity"]) ?? "high",
+        affectedComponent: String(finding?.affected_component ?? ""),
+        rootCause: String(finding?.root_cause ?? ""),
+        attackScenario: String(finding?.attack_scenario ?? ""),
+        impact: String(finding?.impact ?? ""),
+        proofOfConcept: String(finding?.proof_of_concept ?? ""),
+        recommendedRemediation: String(finding?.recommended_remediation ?? ""),
+        status: (row.status as StoredAuditReport["status"]) ?? "submitted",
+        reviewerFeedback: row.reviewer_feedback ? String(row.reviewer_feedback) : undefined,
+        createdAt: String(row.submitted_at),
+      };
+    });
+  }
+
   const db = readDb();
   return isReviewer
     ? db.auditReports
@@ -666,9 +758,221 @@ export async function listAuditReportsForActor(userId: string, isReviewer: boole
 }
 
 export async function createAuditReport(report: StoredAuditReport): Promise<void> {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const missionId = await resolveSupabaseSecurityMissionId(report.missionSlug);
+    if (!missionId) {
+      throw new ConsinzoError("MISSION_NOT_FOUND", "Security mission not found.", 404);
+    }
+
+    const { error: repErr } = await supabase.from("audit_reports").insert({
+      id: report.id,
+      mission_id: missionId,
+      author_id: report.authorId,
+      status: report.status,
+      submitted_at: report.createdAt,
+    });
+    if (repErr) {
+      throw new ConsinzoError("DB_ERROR", repErr.message, 500);
+    }
+
+    await supabase.from("security_findings").insert({
+      audit_report_id: report.id,
+      title: report.title,
+      severity: report.severity,
+      affected_component: report.affectedComponent,
+      root_cause: report.rootCause,
+      attack_scenario: report.attackScenario,
+      impact: report.impact,
+      proof_of_concept: report.proofOfConcept,
+      recommended_remediation: report.recommendedRemediation,
+    });
+    return;
+  }
+
   const db = readDb();
   db.auditReports.unshift(report);
   writeDb(db);
+}
+
+export async function reviewAuditReport(input: {
+  reportId: string;
+  reviewerId: string;
+  decision: "accepted" | "needs_revision";
+  feedback: string;
+}): Promise<StoredAuditReport | null> {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: updated, error } = await supabase
+      .from("audit_reports")
+      .update({
+        status: input.decision,
+        reviewer_id: input.reviewerId,
+        reviewer_feedback: input.feedback,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", input.reportId)
+      .select("id")
+      .maybeSingle();
+
+    if (error || !updated) return null;
+
+    await supabase.from("admin_audit_logs").insert({
+      actor_id: input.reviewerId,
+      action: `audit_report.${input.decision}`,
+      target_type: "audit_report",
+      target_id: input.reportId,
+      metadata: { decision: input.decision },
+    });
+
+    const reports = await listAuditReportsForActor(input.reviewerId, true);
+    return reports.find((r) => r.id === input.reportId) ?? null;
+  }
+
+  const db = readDb();
+  const report = db.auditReports.find((r) => r.id === input.reportId);
+  if (!report) return null;
+  report.status = input.decision;
+  report.reviewerFeedback = input.feedback;
+  db.adminAuditLogs.unshift({
+    id: crypto.randomUUID(),
+    actorId: input.reviewerId,
+    action: `audit_report.${input.decision}`,
+    targetType: "audit_report",
+    targetId: report.id,
+    metadata: { missionSlug: report.missionSlug },
+    createdAt: new Date().toISOString(),
+  });
+  writeDb(db);
+  return report;
+}
+
+export async function listContestsWithCounts(): Promise<
+  Array<StoredContest & { participantCount: number }>
+> {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data } = await supabase
+      .from("contests")
+      .select("*, contest_challenges(challenges(slug)), contest_entries(user_id)")
+      .order("starts_at", { ascending: false });
+
+    if (data && data.length > 0) {
+      return data.map((c: Record<string, unknown>) => {
+        const challengeRows = (c.contest_challenges as Array<Record<string, unknown>> | undefined) ?? [];
+        const entryRows = (c.contest_entries as Array<{ user_id: string }> | undefined) ?? [];
+        const challengeSlugs = challengeRows
+          .map((cc) => {
+            const ch = (Array.isArray(cc.challenges) ? cc.challenges[0] : cc.challenges) as
+              | { slug?: string }
+              | undefined;
+            return ch?.slug ?? "";
+          })
+          .filter(Boolean);
+        return {
+          slug: String(c.slug),
+          title: String(c.title),
+          description: String(c.description),
+          contestType: c.contest_type as StoredContest["contestType"],
+          visibility: c.visibility as StoredContest["visibility"],
+          startsAt: String(c.starts_at),
+          endsAt: String(c.ends_at),
+          challengeSlugs,
+          organizerId: String(c.organizer_id),
+          registeredUserIds: entryRows.map((e) => e.user_id),
+          participantCount: entryRows.length,
+        };
+      });
+    }
+  }
+
+  const db = readDb();
+  return db.contests.map((c) => ({
+    ...c,
+    participantCount: c.registeredUserIds.length,
+  }));
+}
+
+export async function createContestRecord(contest: StoredContest): Promise<StoredContest> {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: created, error } = await supabase
+      .from("contests")
+      .insert({
+        slug: contest.slug,
+        title: contest.title,
+        description: contest.description,
+        contest_type: contest.contestType,
+        visibility: contest.visibility,
+        starts_at: contest.startsAt,
+        ends_at: contest.endsAt,
+        organizer_id: contest.organizerId,
+      })
+      .select("id")
+      .single();
+
+    if (error || !created) {
+      throw new ConsinzoError("CONTEST_CREATE_FAILED", error?.message ?? "Failed to create contest", 400);
+    }
+
+    for (let i = 0; i < contest.challengeSlugs.length; i++) {
+      const chId = await resolveSupabaseChallengeId(contest.challengeSlugs[i]!);
+      if (chId) {
+        await supabase.from("contest_challenges").insert({
+          contest_id: created.id,
+          challenge_id: chId,
+          display_order: i + 1,
+        });
+      }
+    }
+    return contest;
+  }
+
+  const db = readDb();
+  db.contests.push(contest);
+  writeDb(db);
+  return contest;
+}
+
+export async function registerUserForContest(
+  slug: string,
+  userId: string
+): Promise<{ registered: boolean; participantCount: number }> {
+  const env = getServerEnv();
+  const supabase = getSupabaseAdminClient();
+  if (env.isSupabaseConfigured && supabase) {
+    const { data: contest } = await supabase
+      .from("contests")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (contest?.id) {
+      await supabase
+        .from("contest_entries")
+        .upsert({ contest_id: contest.id, user_id: userId }, { onConflict: "contest_id,user_id" });
+      const { count } = await supabase
+        .from("contest_entries")
+        .select("id", { count: "exact", head: true })
+        .eq("contest_id", contest.id);
+      return { registered: true, participantCount: count ?? 1 };
+    }
+  }
+
+  const db = readDb();
+  const contest = db.contests.find((c) => c.slug === slug);
+  if (!contest) {
+    throw new ConsinzoError("NOT_FOUND", "Competition not found.", 404);
+  }
+  if (!contest.registeredUserIds.includes(userId)) {
+    contest.registeredUserIds.push(userId);
+    writeDb(db);
+  }
+  return { registered: true, participantCount: contest.registeredUserIds.length };
 }
 
 export async function getAdminStatsSnapshot(): Promise<{
@@ -682,18 +986,33 @@ export async function getAdminStatsSnapshot(): Promise<{
   const env = getServerEnv();
   const supabase = getSupabaseAdminClient();
   if (env.isSupabaseConfigured && supabase) {
-    const [{ count: userCount }, { count: subCount }] = await Promise.all([
-      supabase.from("profiles").select("id", { count: "exact", head: true }),
-      supabase.from("submissions").select("id", { count: "exact", head: true }),
-    ]);
-    const db = readDb();
+    const [{ count: userCount }, { count: subCount }, reports, { data: logRows }] =
+      await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("submissions").select("id", { count: "exact", head: true }),
+        listAuditReportsForActor("admin", true),
+        supabase
+          .from("admin_audit_logs")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(30),
+      ]);
+
     return {
       registeredUsers: userCount ?? 0,
       totalSubmissions: subCount ?? 0,
-      pendingAuditReports: db.auditReports.filter((r) => r.status === "submitted").length,
+      pendingAuditReports: reports.filter((r) => r.status === "submitted").length,
       recentSubmissions: [],
-      auditReports: db.auditReports,
-      auditLogs: db.adminAuditLogs.slice(0, 30),
+      auditReports: reports,
+      auditLogs: (logRows ?? []).map((l) => ({
+        id: String(l.id),
+        actorId: String(l.actor_id ?? ""),
+        action: String(l.action),
+        targetType: String(l.target_type),
+        targetId: String(l.target_id),
+        metadata: (l.metadata as Record<string, unknown>) ?? {},
+        createdAt: String(l.created_at),
+      })),
     };
   }
 

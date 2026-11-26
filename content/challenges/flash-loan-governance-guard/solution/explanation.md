@@ -1,0 +1,1 @@
+Requires locked governance power established strictly before `proposalBlock[id]` and prevents duplicate voting.

@@ -1,0 +1,52 @@
+id: slippage-frontrun-guard
+slug: slippage-frontrun-guard
+title: "Enforce Slippage & Deadline Bounds Against Sandwich MEV"
+description: "Patch a swap router wrapper that lacks minimum output and transaction deadline enforcement, protecting trades from front-running."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - mev
+  - front-running
+  - slippage
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SwapRouterGuard.sol
+  editable_files:
+    - src/SwapRouterGuard.sol
+  readonly_files:
+    - test/SwapRouterGuard.t.sol
+tests:
+  public_suite: evaluation/public/SwapRouterGuard.t.sol
+  hidden_suite: evaluation/hidden/SwapRouterGuardHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in SwapRouterGuard.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "MEV & Slippage Protection Patterns"
+    url: https://docs.uniswap.org/contracts/v3/guides/swaps/single-swaps
+    source: Uniswap Docs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

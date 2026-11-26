@@ -28,6 +28,7 @@ interface AuditReport {
 
 export default function SecurityArenaPage() {
   const queryClient = useQueryClient();
+  const [missionFilter, setMissionFilter] = useState<"all" | "exploit" | "patch">("all");
   const [missionSlug, setMissionSlug] = useState("reentrancy-vault-defense");
   const [title, setTitle] = useState("");
   const [severity, setSeverity] = useState("high");
@@ -92,6 +93,11 @@ export default function SecurityArenaPage() {
   }
 
   const missions = missionsData?.challenges ?? [];
+  const filteredMissions = missions.filter((m) => {
+    if (missionFilter === "exploit") return m.tags.includes("exploit");
+    if (missionFilter === "patch") return !m.tags.includes("exploit");
+    return true;
+  });
   const reports = reportsData?.reports ?? [];
 
   return (
@@ -118,17 +124,53 @@ export default function SecurityArenaPage() {
       </div>
 
       <section>
-        <h2 className="text-base font-semibold text-zinc-950">Active Security Missions</h2>
-        <div className="mt-3 grid gap-4 md:grid-cols-3">
-          {missions.map((m) => (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-zinc-950">
+            Security Missions ({filteredMissions.length} / {missions.length})
+          </h2>
+          <div className="inline-flex rounded-md border border-zinc-200 bg-white p-1 text-xs">
+            {(
+              [
+                ["all", "All Missions"],
+                ["patch", "Blue-Team (Patch)"],
+                ["exploit", "Red-Team (Exploit)"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setMissionFilter(key)}
+                className={`rounded px-3 py-1 font-medium cursor-pointer ${
+                  missionFilter === key ? "bg-slate-900 text-white" : "text-zinc-600 hover:text-zinc-950"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredMissions.map((m) => (
             <Card key={m.slug} className="p-5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <Badge tone="red">Security Mission</Badge>
+                  <Badge tone={m.tags.includes("exploit") ? "red" : "blue"}>
+                    {m.tags.includes("exploit") ? "Red-Team Exploit" : "Blue-Team Patch"}
+                  </Badge>
                   <Badge tone="amber">{m.difficulty}</Badge>
                 </div>
                 <h3 className="mt-3 text-base font-semibold text-zinc-950">{m.title}</h3>
                 <p className="mt-1.5 text-xs text-zinc-600">{m.description}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {m.tags.slice(0, 4).map((t) => (
+                    <span
+                      key={t}
+                      className="rounded bg-zinc-100 px-2 py-0.5 font-mono text-[11px] text-zinc-600"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
                 <span className="font-mono text-xs text-zinc-500">{m.scoring.max_points} pts</span>

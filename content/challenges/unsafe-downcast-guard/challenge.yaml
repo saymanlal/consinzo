@@ -1,0 +1,52 @@
+id: unsafe-downcast-guard
+slug: unsafe-downcast-guard
+title: "Prevent Silent Integer Truncation on Unsafe Downcast"
+description: "Fix a staking contract that silently casts uint256 deposit amounts into uint96 storage slots without bounds validation."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - downcast
+  - integer-truncation
+  - safecast
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PackedStake.sol
+  editable_files:
+    - src/PackedStake.sol
+  readonly_files:
+    - test/PackedStake.t.sol
+tests:
+  public_suite: evaluation/public/PackedStake.t.sol
+  hidden_suite: evaluation/hidden/PackedStakeHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in PackedStake.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "OpenZeppelin SafeCast"
+    url: https://docs.openzeppelin.com/contracts/5.x/api/utils#SafeCast
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

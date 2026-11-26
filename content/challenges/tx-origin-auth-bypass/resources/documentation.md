@@ -1,0 +1,3 @@
+# Patch tx.origin Phishing Vulnerability
+
+Replaces `tx.origin == owner` with `msg.sender == owner` so intermediary phishing contracts cannot inherit the EOA origin privilege.

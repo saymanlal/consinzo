@@ -1,0 +1,52 @@
+id: cross-function-reentrancy
+slug: cross-function-reentrancy
+title: "Exploit Cross-Function Reentrancy in Bank Contract"
+description: "Red-team mission: exploit a bank contract that updates balances after ETH send in withdraw(), using receive() to call transferBalance() to an accomplice."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: security-engineering
+tags:
+  - exploit
+  - reentrancy
+  - cross-function
+  - red-team
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CrossExploit.sol
+  editable_files:
+    - src/CrossExploit.sol
+  readonly_files:
+    - test/CrossExploit.t.sol
+tests:
+  public_suite: evaluation/public/CrossExploit.t.sol
+  hidden_suite: evaluation/hidden/CrossExploitHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in CrossExploit.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Cross-Function Reentrancy"
+    url: https://swcregistry.io/docs/SWC-107/
+    source: SWC Registry
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

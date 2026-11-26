@@ -1,0 +1,52 @@
+id: unprotected-initializer
+slug: unprotected-initializer
+title: "Exploit Unprotected Proxy Initializer"
+description: "Red-team mission: write an Exploit contract that takes ownership of an uninitialized upgradeable-style vault and drains its ETH balance."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - exploit
+  - initializer
+  - access-control
+  - red-team
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/Exploit.sol
+  editable_files:
+    - src/Exploit.sol
+  readonly_files:
+    - test/UnprotectedInit.t.sol
+tests:
+  public_suite: evaluation/public/UnprotectedInit.t.sol
+  hidden_suite: evaluation/hidden/UnprotectedInitHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in Exploit.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "OpenZeppelin Initializable Security"
+    url: https://docs.openzeppelin.com/contracts/5.x/api/proxy#Initializable
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

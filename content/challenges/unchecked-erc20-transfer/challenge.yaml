@@ -1,0 +1,52 @@
+id: unchecked-erc20-transfer
+slug: unchecked-erc20-transfer
+title: "Handle Fee-on-Transfer Tokens via Balance Delta Accounting"
+description: "Fix an ERC-20 escrow vault that credits nominal deposit amounts instead of actual received token deltas, preventing insolvency on fee-on-transfer tokens."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - erc20
+  - fee-on-transfer
+  - accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FeeSafeVault.sol
+  editable_files:
+    - src/FeeSafeVault.sol
+  readonly_files:
+    - test/FeeSafeVault.t.sol
+tests:
+  public_suite: evaluation/public/FeeSafeVault.t.sol
+  hidden_suite: evaluation/hidden/FeeSafeVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in FeeSafeVault.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Weird ERC20s: Fee on Transfer"
+    url: https://github.com/d-xo/weird-erc20
+    source: Weird ERC20 Registry
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

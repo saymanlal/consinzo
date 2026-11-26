@@ -1,0 +1,6 @@
+references:
+  - title: SWC-120 Weak Sources of Randomness
+    url: https://swcregistry.io/docs/SWC-120/
+    source: SWC Registry
+    version: "1.0"
+    verified_at: "2026-11-26"

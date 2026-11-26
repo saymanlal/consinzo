@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminRole } from "@/lib/auth";
+import { createContestRecord, listContestsWithCounts } from "@/lib/data-adapter";
 import { handleApiError } from "@/lib/http";
-import { readDb, writeDb } from "@/lib/store";
 
 const CreateContestSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/),
@@ -16,13 +16,8 @@ const CreateContestSchema = z.object({
 });
 
 export async function GET() {
-  const db = readDb();
-  return NextResponse.json({
-    contests: db.contests.map((c) => ({
-      ...c,
-      participantCount: c.registeredUserIds.length,
-    })),
-  });
+  const contests = await listContestsWithCounts();
+  return NextResponse.json({ contests });
 }
 
 export async function POST(req: Request) {
@@ -33,14 +28,11 @@ export async function POST(req: Request) {
       "super_admin",
     ]);
     const body = CreateContestSchema.parse(await req.json());
-    const db = readDb();
-    const contest = {
+    const contest = await createContestRecord({
       ...body,
       organizerId: organizer.id,
       registeredUserIds: [],
-    };
-    db.contests.push(contest);
-    writeDb(db);
+    });
     return NextResponse.json({ contest }, { status: 201 });
   } catch (err) {
     return handleApiError(err);

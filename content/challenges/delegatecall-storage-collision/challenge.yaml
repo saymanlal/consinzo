@@ -1,0 +1,52 @@
+id: delegatecall-storage-collision
+slug: delegatecall-storage-collision
+title: "Fix Delegatecall Storage Slot Collision"
+description: "Patch a proxy contract whose delegatecall target overwrites slot 0 (owner) because storage layouts do not match."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - delegatecall
+  - storage-collision
+  - proxy
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SafeProxy.sol
+  editable_files:
+    - src/SafeProxy.sol
+  readonly_files:
+    - test/SafeProxy.t.sol
+tests:
+  public_suite: evaluation/public/SafeProxy.t.sol
+  hidden_suite: evaluation/hidden/SafeProxyHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in SafeProxy.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-112 Delegatecall to Untrusted Callee & Storage Layout"
+    url: https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

@@ -1,0 +1,6 @@
+references:
+  - title: Solidity Arithmetic & Rounding
+    url: https://docs.soliditylang.org/en/latest/types.html#integers
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"

@@ -1,0 +1,3 @@
+# Fix Delegatecall Storage Slot Collision
+
+Aligns slot 0 (`implementation`), slot 1 (`owner`), and slot 2 (`lastNumber`) identically across both `SafeProxy` and `LogicV1`.

@@ -1,0 +1,6 @@
+references:
+  - title: SWC-112 Delegatecall to Untrusted Callee & Storage Layout
+    url: https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html
+    source: Solidity Documentation
+    version: "1.0"
+    verified_at: "2026-11-26"

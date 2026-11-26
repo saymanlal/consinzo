@@ -1,0 +1,6 @@
+references:
+  - title: ERC20Votes Checkpointing & Flash-Loan Defense
+    url: https://docs.openzeppelin.com/contracts/5.x/governance
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"

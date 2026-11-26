@@ -1,11 +1,9 @@
-import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminRole } from "@/lib/auth";
 import { listPublishedChallenges } from "@/lib/challenges";
-import { getAdminStatsSnapshot } from "@/lib/data-adapter";
+import { getAdminStatsSnapshot, reviewAuditReport } from "@/lib/data-adapter";
 import { handleApiError } from "@/lib/http";
-import { readDb, writeDb } from "@/lib/store";
 
 const ReviewActionSchema = z.object({
   reportId: z.string().uuid(),
@@ -47,27 +45,18 @@ export async function POST(req: Request) {
       "security_reviewer",
     ]);
     const body = ReviewActionSchema.parse(await req.json());
-    const db = readDb();
-    const report = db.auditReports.find((r) => r.id === body.reportId);
+    const report = await reviewAuditReport({
+      reportId: body.reportId,
+      reviewerId: reviewer.id,
+      decision: body.decision,
+      feedback: body.feedback,
+    });
     if (!report) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Audit report not found." } },
         { status: 404 }
       );
     }
-
-    report.status = body.decision;
-    report.reviewerFeedback = body.feedback;
-    db.adminAuditLogs.unshift({
-      id: crypto.randomUUID(),
-      actorId: reviewer.id,
-      action: `audit_report.${body.decision}`,
-      targetType: "audit_report",
-      targetId: report.id,
-      metadata: { missionSlug: report.missionSlug },
-      createdAt: new Date().toISOString(),
-    });
-    writeDb(db);
     return NextResponse.json({ report });
   } catch (err) {
     return handleApiError(err);

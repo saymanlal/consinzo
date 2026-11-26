@@ -1,0 +1,6 @@
+references:
+  - title: Uniswap v3 TWAP Oracle Security
+    url: https://docs.uniswap.org/concepts/protocol/oracle
+    source: Uniswap Docs
+    version: "1.0"
+    verified_at: "2026-11-26"

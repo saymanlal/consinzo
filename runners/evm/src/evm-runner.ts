@@ -200,18 +200,29 @@ async function runSingleTestFunction(
   const frameDepthStack: number[] = [];
   let targetTestContractHex = TEST_CONTRACT_ADDR.toString().toLowerCase();
 
-  evmRef.events.on("beforeMessage", (msg, resolve) => {
+  evmRef.events.on("beforeMessage", async (msg, resolve) => {
     frameDepthStack.push(msg.depth);
     const toHex = msg.to ? msg.to.toString().toLowerCase() : "";
     const callerHex = msg.caller.toString().toLowerCase();
     const isVmCall = toHex === VM_PRECOMPILE_HEX;
 
     if (!isVmCall && callerHex === targetTestContractHex && msg.depth === 1) {
+      let prankTarget: Address | undefined;
       if (state.nextPrank) {
-        msg.caller = state.nextPrank;
+        prankTarget = state.nextPrank;
         state.nextPrank = undefined;
       } else if (state.persistentPrank) {
-        msg.caller = state.persistentPrank;
+        prankTarget = state.persistentPrank;
+      }
+
+      if (prankTarget) {
+        if (!msg.to) {
+          // CREATE/CREATE2 expects the caller's nonce to have already been incremented (>= 1)
+          const acct = (await evmRef.stateManager.getAccount(prankTarget)) ?? new Account();
+          acct.nonce += 1n;
+          await evmRef.stateManager.putAccount(prankTarget, acct);
+        }
+        msg.caller = prankTarget;
       }
 
       if (state.expectRevert?.armed && expectedRevertDepth === null) {

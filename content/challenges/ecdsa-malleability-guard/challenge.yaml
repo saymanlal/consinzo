@@ -1,0 +1,52 @@
+id: ecdsa-malleability-guard
+slug: ecdsa-malleability-guard
+title: "Prevent ECDSA Signature Malleability Replay"
+description: "Patch a signature verifier that tracks used raw signature bytes instead of the message digest and fails to enforce lower-S curve bounds."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - ecdsa
+  - malleability
+  - signatures
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SigGuard.sol
+  editable_files:
+    - src/SigGuard.sol
+  readonly_files:
+    - test/SigGuard.t.sol
+tests:
+  public_suite: evaluation/public/SigGuard.t.sol
+  hidden_suite: evaluation/hidden/SigGuardHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in SigGuard.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "OpenZeppelin ECDSA Malleability Protection"
+    url: https://docs.openzeppelin.com/contracts/5.x/api/utils#ECDSA
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

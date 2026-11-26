@@ -1,0 +1,52 @@
+id: flash-loan-governance-guard
+slug: flash-loan-governance-guard
+title: "Block Flash-Loan Governance Vote Hijacking"
+description: "Secure a DAO voting contract against single-block flash-loan voting power amplification by requiring locked deposits held prior to proposal creation."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: advanced
+category: security-engineering
+tags:
+  - patch
+  - flash-loan
+  - governance
+  - voting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SnapshotDAO.sol
+  editable_files:
+    - src/SnapshotDAO.sol
+  readonly_files:
+    - test/SnapshotDAO.t.sol
+tests:
+  public_suite: evaluation/public/SnapshotDAO.t.sol
+  hidden_suite: evaluation/hidden/SnapshotDAOHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Root cause analysis
+    content: "Inspect authorization, accounting, and state-ordering assumptions in SnapshotDAO.sol."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC20Votes Checkpointing & Flash-Loan Defense"
+    url: https://docs.openzeppelin.com/contracts/5.x/governance
+    source: OpenZeppelin Docs
+    version: "1.0"
+    verified_at: "2026-11-26"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true
