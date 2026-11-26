@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Award, CheckCircle2, ExternalLink, Github, Shield, Trophy } from "lucide-react";
 import { Badge, Card } from "@consinzo/ui";
+import { getAchievementMeta } from "@/lib/achievements";
 import { getPublicDeveloperPortfolio } from "@/lib/data-adapter";
 
 export const dynamic = "force-dynamic";
@@ -120,17 +121,23 @@ export default async function PublicDeveloperProfilePage({
               {portfolio.achievements.length === 0 ? (
                 <p className="text-zinc-500">No achievements unlocked yet.</p>
               ) : (
-                portfolio.achievements.map((a) => (
-                  <div
-                    key={a.achievementId}
-                    className="flex items-center justify-between rounded border border-zinc-200 p-2.5"
-                  >
-                    <span className="font-mono text-zinc-900">{a.achievementId}</span>
-                    <span className="text-[11px] text-zinc-500">
-                      {new Date(a.awardedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))
+                portfolio.achievements.map((a) => {
+                  const meta = getAchievementMeta(a.achievementId);
+                  return (
+                    <div
+                      key={a.achievementId}
+                      className="rounded border border-zinc-200 p-2.5 space-y-1"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-zinc-950">{meta.title}</span>
+                        <span className="text-[11px] text-zinc-500 shrink-0">
+                          {new Date(a.awardedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-600">{meta.description}</p>
+                    </div>
+                  );
+                })
               )}
             </div>
           </Card>

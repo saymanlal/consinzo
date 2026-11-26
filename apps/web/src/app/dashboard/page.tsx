@@ -3,8 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Award, Bookmark, CheckCircle2, Code2, History, Lock } from "lucide-react";
+import { Award, Bookmark, CheckCircle2, Code2, ExternalLink, History, Lock } from "lucide-react";
 import { Badge, Card } from "@consinzo/ui";
+import { getAchievementMeta } from "@/lib/achievements";
 
 export default function DashboardPage() {
   const { data: meData, isLoading } = useQuery({
@@ -63,13 +64,22 @@ export default function DashboardPage() {
             @{user.username} · {user.email}
           </p>
         </div>
-        <Link
-          href="/challenges"
-          className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white"
-        >
-          <Code2 className="h-4 w-4" />
-          Browse Challenges
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/u/${user.username}`}
+            className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3.5 py-2 text-xs font-medium text-zinc-900 hover:bg-zinc-50"
+          >
+            Public Portfolio
+            <ExternalLink className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/challenges"
+            className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white"
+          >
+            <Code2 className="h-4 w-4" />
+            Browse Challenges
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -160,20 +170,26 @@ export default function DashboardPage() {
                   Pass challenges to earn server-verified achievements.
                 </p>
               ) : (
-                achievements.map((a: { achievementId: string; awardedAt: string }) => (
-                  <div
-                    key={a.achievementId}
-                    className="flex items-center justify-between rounded border border-zinc-200 p-2.5"
-                  >
-                    <span className="flex items-center gap-1.5 font-mono text-zinc-900">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
-                      {a.achievementId}
-                    </span>
-                    <span className="text-[11px] text-zinc-500">
-                      {new Date(a.awardedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))
+                achievements.map((a: { achievementId: string; awardedAt: string }) => {
+                  const meta = getAchievementMeta(a.achievementId);
+                  return (
+                    <div
+                      key={a.achievementId}
+                      className="rounded border border-zinc-200 p-2.5 space-y-1"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-1.5 font-semibold text-zinc-950">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                          {meta.title}
+                        </span>
+                        <span className="text-[11px] text-zinc-500 shrink-0">
+                          {new Date(a.awardedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-600">{meta.description}</p>
+                    </div>
+                  );
+                })
               )}
             </div>
           </Card>
@@ -207,6 +223,24 @@ export default function DashboardPage() {
             <p className="mt-1 text-xs text-zinc-500">
               Reference solutions unlock strictly after verified test completion.
             </p>
+            {unlocks.filter((u: { solutionUnlocked: boolean }) => u.solutionUnlocked).length > 0 && (
+              <div className="mt-3 space-y-1.5 text-xs">
+                {unlocks
+                  .filter((u: { solutionUnlocked: boolean }) => u.solutionUnlocked)
+                  .map((u: { challengeSlug: string; bestScore: number }) => (
+                    <Link
+                      key={u.challengeSlug}
+                      href={`/workspace/${u.challengeSlug}`}
+                      className="flex items-center justify-between rounded border border-zinc-200 px-2.5 py-1.5 hover:bg-zinc-50"
+                    >
+                      <span className="font-mono text-zinc-800 truncate">{u.challengeSlug}</span>
+                      <span className="font-mono text-[11px] font-semibold text-emerald-700 shrink-0">
+                        {u.bestScore} pts
+                      </span>
+                    </Link>
+                  ))}
+              </div>
+            )}
           </Card>
         </div>
       </div>

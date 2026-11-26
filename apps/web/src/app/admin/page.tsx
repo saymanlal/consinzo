@@ -20,6 +20,7 @@ interface AdminAuditReport {
 interface AdminChallengeItem {
   slug: string;
   title: string;
+  ecosystem: string;
   difficulty: string;
   category: string;
   version: string;
@@ -35,6 +36,10 @@ export default function AdminDashboardPage() {
   const [contestSlug, setContestSlug] = useState("");
   const [contestTitle, setContestTitle] = useState("");
   const [contestDesc, setContestDesc] = useState("");
+  const [contestType, setContestType] = useState<"coding" | "security" | "university" | "sponsored">(
+    "security"
+  );
+  const [contestDurationDays, setContestDurationDays] = useState(14);
   const [contestChallenges, setContestChallenges] = useState("erc20-token-vault,constant-product-amm");
   const [contestMsg, setContestMsg] = useState<string | null>(null);
 
@@ -78,7 +83,7 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     setContestMsg(null);
     const now = new Date();
-    const end = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const end = new Date(now.getTime() + Math.max(1, contestDurationDays) * 24 * 60 * 60 * 1000);
     const res = await fetch("/api/v1/contests", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -86,7 +91,7 @@ export default function AdminDashboardPage() {
         slug: contestSlug.trim(),
         title: contestTitle.trim(),
         description: contestDesc.trim(),
-        contestType: "security",
+        contestType,
         visibility: "public",
         startsAt: now.toISOString(),
         endsAt: end.toISOString(),
@@ -249,6 +254,30 @@ export default function AdminDashboardPage() {
               onChange={(e) => setContestDesc(e.target.value)}
               placeholder="Competition rules & scope..."
             />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <select
+                value={contestType}
+                onChange={(e) =>
+                  setContestType(
+                    e.target.value as "coding" | "security" | "university" | "sponsored"
+                  )
+                }
+                className="h-9 rounded-md border border-zinc-300 bg-white px-3 text-xs text-zinc-800"
+              >
+                <option value="security">Type: Security</option>
+                <option value="coding">Type: Coding</option>
+                <option value="university">Type: University</option>
+                <option value="sponsored">Type: Sponsored</option>
+              </select>
+              <Input
+                type="number"
+                min={1}
+                max={90}
+                value={contestDurationDays}
+                onChange={(e) => setContestDurationDays(Number(e.target.value) || 14)}
+                placeholder="Duration (days)"
+              />
+            </div>
             <Input
               required
               value={contestChallenges}
@@ -291,6 +320,7 @@ export default function AdminDashboardPage() {
               <tr>
                 <th className="py-2 pr-4">Slug</th>
                 <th className="py-2 pr-4">Title</th>
+                <th className="py-2 pr-4">Ecosystem</th>
                 <th className="py-2 pr-4">Category</th>
                 <th className="py-2 pr-4">Type</th>
                 <th className="py-2">Package Status</th>
@@ -301,6 +331,9 @@ export default function AdminDashboardPage() {
                 <tr key={c.slug}>
                   <td className="py-2 pr-4 font-mono text-zinc-900">{c.slug}</td>
                   <td className="py-2 pr-4 text-zinc-800">{c.title}</td>
+                  <td className="py-2 pr-4">
+                    <Badge tone="neutral">{c.ecosystem}</Badge>
+                  </td>
                   <td className="py-2 pr-4 font-mono text-zinc-500">{c.category}</td>
                   <td className="py-2 pr-4">
                     <Badge tone={c.isSecurityMission ? "red" : "blue"}>
