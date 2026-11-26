@@ -13,7 +13,7 @@
     "validate:challenges": "tsx scripts/validate-challenges.ts",
     "verify:licenses": "tsx scripts/license-inventory.ts",
     "sync:supabase": "tsx scripts/sync-private-challenges-to-supabase.ts",
-    "cli": "tsx runners/evm/src/cli.ts"
+    "cli": "tsx scripts/cli.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -30,11 +30,11 @@ INSERT INTO public.ecosystems (id, name, short_name, adapter_id, support_level, 
   ('sui', 'Sui', 'SUI', 'sui-move-adapter', 0, 'Object-centric Move model (distinct from Aptos). Reference only in Phase 1.', 'https://docs.sui.io/'),
   ('aptos', 'Aptos', 'APT', 'aptos-move-adapter', 0, 'Account-resource Move model (distinct from Sui). Reference only in Phase 1.', 'https://aptos.dev/'),
   ('starknet', 'Starknet', 'STRK', 'starknet-cairo-adapter', 0, 'Validity-rollup Cairo VM ecosystem. Reference only in Phase 1.', 'https://docs.starknet.io/'),
-  ('cardano', 'Cardano', 'ADA', 'cardano-aiken-adapter', 0, 'Extended UTXO validator model. Reference only in Phase 1.', 'https://aiken-lang.org/'),
-  ('near', 'NEAR', 'NEAR', 'near-wasm-adapter', 1, 'Sharded WebAssembly async-call model (distinct from Cosmos). Editor syntax only.', 'https://docs.near.org/'),
+  ('cardano', 'Cardano', 'ADA', 'cardano-aiken-adapter', 0, 'Extended UTXO validator model. Reference only.', 'https://aiken-lang.org/'),
+  ('near', 'NEAR', 'NEAR', 'near-ts-vm-adapter', 3, 'Sharded WebAssembly async-call model. TypeScript near-sdk-js execution via deterministic Node VM runner.', 'https://docs.near.org/'),
   ('cosmos', 'Cosmos', 'ATOM', 'cosmos-cosmwasm-adapter', 1, 'Actor-model CosmWasm over IBC (distinct from NEAR). Editor syntax only.', 'https://docs.cosmwasm.com/'),
-  ('algorand', 'Algorand', 'ALGO', 'algorand-algokit-adapter', 0, 'AVM stateful & stateless smart contracts. Reference only in Phase 1.', 'https://developer.algorand.org/'),
-  ('tezos', 'Tezos', 'XTZ', 'tezos-ligo-adapter', 0, 'Michelson stack VM. Reference only in Phase 1.', 'https://tezos.com/developers/')
+  ('algorand', 'Algorand', 'ALGO', 'algorand-algokit-adapter', 0, 'AVM stateful & stateless smart contracts. Reference only.', 'https://developer.algorand.org/'),
+  ('tezos', 'Tezos', 'XTZ', 'tezos-ligo-adapter', 0, 'Michelson stack VM. Reference only.', 'https://tezos.com/developers/')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.achievements (id, title, description, criteria_type) VALUES
@@ -43,5 +43,6 @@ INSERT INTO public.achievements (id, title, description, criteria_type) VALUES
   ('security-defender', 'Invariant Defender', 'Identified and patched a critical smart contract vulnerability.', 'server_verified_security'),
   ('defi-protocol-builder', 'DeFi Protocol Architect', 'Completed Constant Product AMM and ERC-4626 Yield Vault challenges.', 'server_verified_defi'),
   ('security-arena-specialist', 'Security Arena Specialist', 'Completed 5 or more validated Security Arena missions.', 'server_verified_security_count'),
-  ('contest-competitor', 'Contest Competitor', 'Registered and scored in a timed CONSINZO engineering competition.', 'server_verified_contest')
+  ('contest-competitor', 'Contest Competitor', 'Registered and scored in a timed CONSINZO engineering competition.', 'server_verified_contest'),
+  ('near-ts-architect', 'NEAR TypeScript Engineer', 'Completed NEAR Counter and NEAR Weighted DAO Voting challenges.', 'server_verified_ecosystem')
 ON CONFLICT (id) DO NOTHING;

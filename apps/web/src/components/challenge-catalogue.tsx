@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { Bookmark, Code2, Search, Shield } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Bookmark, CheckCircle2, Code2, Search, Shield } from "lucide-react";
 import type { ChallengeManifest } from "@consinzo/challenge-spec";
 import { CHALLENGE_CATEGORIES } from "@consinzo/shared";
 import { ECOSYSTEM_REGISTRY } from "@consinzo/ecosystem-registry";
@@ -13,11 +14,25 @@ export function ChallengeCatalogueClient({
 }: {
   initialChallenges: ChallengeManifest[];
 }) {
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const [ecosystem, setEcosystem] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
   const [category, setCategory] = useState("all");
-  const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+
+  const { data: meData } = useQuery<{
+    bookmarks?: string[];
+    unlocks?: Array<{ challengeSlug: string; passed: boolean }>;
+  }>({
+    queryKey: ["auth-me"],
+    queryFn: async () => (await fetch("/api/v1/auth/me")).json(),
+  });
+
+  const bookmarked = useMemo(() => new Set(meData?.bookmarks ?? []), [meData?.bookmarks]);
+  const passedSlugs = useMemo(
+    () => new Set((meData?.unlocks ?? []).filter((u) => u.passed).map((u) => u.challengeSlug)),
+    [meData?.unlocks]
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -45,13 +60,7 @@ export function ChallengeCatalogueClient({
       body: JSON.stringify({ challengeSlug: slug }),
     });
     if (res.ok) {
-      const json = (await res.json()) as { bookmarked: boolean };
-      setBookmarked((prev) => {
-        const next = new Set(prev);
-        if (json.bookmarked) next.add(slug);
-        else next.delete(slug);
-        return next;
-      });
+      await queryClient.invalidateQueries({ queryKey: ["auth-me"] });
     }
   }
 
@@ -111,8 +120,8 @@ export function ChallengeCatalogueClient({
         <Card className="p-10 text-center">
           <p className="text-sm font-medium text-zinc-900">No matching challenges</p>
           <p className="mt-1 text-xs text-zinc-500">
-            Adjust filters or clear your search query. Currently only Ethereum/EVM challenges are
-            published in Phase 1.
+            Adjust filters or clear your search query to browse published challenges across active
+            ecosystems.
           </p>
         </Card>
       ) : (
@@ -127,6 +136,12 @@ export function ChallengeCatalogueClient({
                       <Badge tone="red">
                         <Shield className="mr-1 h-3 w-3" />
                         Security
+                      </Badge>
+                    )}
+                    {passedSlugs.has(c.slug) && (
+                      <Badge tone="green">
+                        <CheckCircle2 className="mr-1 h-3 w-3" />
+                        Passed
                       </Badge>
                     )}
                   </div>

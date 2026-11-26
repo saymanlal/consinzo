@@ -409,6 +409,35 @@ export async function saveEvaluatedSubmission(
           { onConflict: "user_id,achievement_id" }
         );
       }
+      if (
+        submission.challengeSlug === "near-counter-contract" ||
+        submission.challengeSlug === "near-dao-voting"
+      ) {
+        const { data: passedNearRows } = await supabase
+          .from("submissions")
+          .select("challenges!inner(slug)")
+          .eq("user_id", submission.userId)
+          .eq("passed", true)
+          .in("challenges.slug", ["near-counter-contract", "near-dao-voting"]);
+        const nearSet = new Set(
+          (passedNearRows ?? []).map((r: Record<string, unknown>) => {
+            const ch = (Array.isArray(r.challenges) ? r.challenges[0] : r.challenges) as
+              | { slug?: string }
+              | undefined;
+            return ch?.slug ?? "";
+          })
+        );
+        if (nearSet.has("near-counter-contract") && nearSet.has("near-dao-voting")) {
+          await supabase.from("user_achievements").upsert(
+            {
+              user_id: submission.userId,
+              achievement_id: "near-ts-architect",
+              submission_id: submission.id,
+            },
+            { onConflict: "user_id,achievement_id" }
+          );
+        }
+      }
     }
 
     // Update active Supabase contest_scores if user is registered in an active contest containing this challenge
@@ -562,6 +591,9 @@ export async function saveEvaluatedSubmission(
       }
       if (passedSlugs.has("constant-product-amm") && passedSlugs.has("erc4626-tokenized-vault")) {
         award("defi-protocol-builder");
+      }
+      if (passedSlugs.has("near-counter-contract") && passedSlugs.has("near-dao-voting")) {
+        award("near-ts-architect");
       }
       if (user.securityMissionsCompleted >= 5) {
         award("security-arena-specialist");

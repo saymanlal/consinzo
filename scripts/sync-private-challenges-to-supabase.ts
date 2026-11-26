@@ -3,6 +3,7 @@ import path from "node:path";
 import YAML from "yaml";
 import { createClient } from "@supabase/supabase-js";
 import { ChallengeManifestSchema } from "../packages/challenge-spec/src/index";
+import { ECOSYSTEM_REGISTRY } from "../packages/ecosystem-registry/src/index";
 
 function loadLocalEnvFiles() {
   for (const filename of [".env.local", ".env"]) {
@@ -45,6 +46,31 @@ async function main() {
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
+  // 0. Keep ecosystems & achievement definitions synced with the platform registry
+  for (const eco of ECOSYSTEM_REGISTRY) {
+    await supabase.from("ecosystems").upsert(
+      {
+        id: eco.id,
+        name: eco.name,
+        short_name: eco.shortName,
+        adapter_id: eco.adapterId,
+        support_level: eco.supportLevel,
+        architecture_notes: eco.architectureNotes,
+        official_docs_url: eco.officialDocsUrl,
+      },
+      { onConflict: "id" }
+    );
+  }
+  await supabase.from("achievements").upsert(
+    {
+      id: "near-ts-architect",
+      title: "NEAR TypeScript Engineer",
+      description: "Completed NEAR Counter and NEAR Weighted DAO Voting challenges.",
+      criteria_type: "server_verified_ecosystem",
+    },
+    { onConflict: "id" }
+  );
 
   // 1. Ensure private bucket exists (public: false)
   const { data: buckets } = await supabase.storage.listBuckets();
