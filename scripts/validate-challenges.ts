@@ -33,11 +33,36 @@ function readChallengeSourceFiles(
 
 async function main() {
   const challengesRoot = path.resolve(process.cwd(), "content/challenges");
-  const slugs = fs
+  const allSlugs = fs
     .readdirSync(challengesRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
     .sort();
+
+  // Optional: `pnpm validate:challenges -- slug-a slug-b` validates only those packages.
+  // Ids and slugs are still checked for uniqueness against the whole catalogue.
+  const only = process.argv.slice(2).filter((a) => a !== "--" && !a.startsWith("-"));
+  const unknown = only.filter((slug) => !allSlugs.includes(slug));
+  if (unknown.length > 0) {
+    console.error(`Unknown challenge slug(s): ${unknown.join(", ")}`);
+    process.exit(1);
+  }
+  const slugs = only.length > 0 ? allSlugs.filter((slug) => only.includes(slug)) : allSlugs;
+  const catalogueIds = new Map<string, string>();
+  for (const slug of allSlugs) {
+    const match = /^id:\s*["']?([a-z0-9-]+)["']?\s*$/m.exec(
+      fs.existsSync(path.join(challengesRoot, slug, "challenge.yaml"))
+        ? fs.readFileSync(path.join(challengesRoot, slug, "challenge.yaml"), "utf8")
+        : ""
+    );
+    if (!match) continue;
+    const owner = catalogueIds.get(match[1]!);
+    if (owner && slugs.some((x) => x === slug || x === owner)) {
+      console.error(`[FAIL] duplicate challenge id "${match[1]}" in ${owner} and ${slug}`);
+      process.exit(1);
+    }
+    catalogueIds.set(match[1]!, slug);
+  }
 
   const evmRunner = new EvmRunner();
   const nearRunner = new NearRunner();
@@ -95,7 +120,6 @@ async function main() {
       continue;
     }
 
-    // 2. Verify reference solution passes ALL public AND hidden tests
     const refSrc = readChallengeSourceFiles(path.join(dir, "solution/reference"), "src/", exts);
     const publicTest = readChallengeSourceFiles(path.join(dir, "evaluation/public"), "test/", exts);
     const hiddenTest = readChallengeSourceFiles(
@@ -103,6 +127,19 @@ async function main() {
       "evaluation/hidden/",
       exts
     );
+
+    // 2. The untouched starter must NOT already pass: otherwise there is nothing to solve.
+    const starterReport = await runner.runTests([...starterSrc, ...publicTest], {
+      mode: "local-cli",
+      includeHiddenFiles: hiddenTest,
+    });
+    if (starterReport.status === "passed") {
+      console.error(`[FAIL] ${slug} starter already passes every public and hidden test`);
+      failures++;
+      continue;
+    }
+
+    // 3. Verify reference solution passes ALL public AND hidden tests
 
     const refReport = await runner.runTests([...refSrc, ...publicTest], {
       mode: "local-cli",
