@@ -1,0 +1,64 @@
+id: isolated-lending-bad-debt
+slug: isolated-lending-bad-debt
+title: "Isolated Lending Market with Bad-Debt Socialisation"
+description: "Build a single-collateral, single-asset lending market with share-based supply and borrow accounting, interest accrual, liquidation with a bonus, and bad debt that is written off against all suppliers pro rata."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - lending
+  - bad-debt
+  - liquidation
+  - share-accounting
+  - interest-accrual
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/IsolatedMarket.sol
+  editable_files:
+    - src/IsolatedMarket.sol
+  readonly_files:
+    - test/IsolatedMarket.t.sol
+tests:
+  public_suite: evaluation/public/IsolatedMarket.t.sol
+  hidden_suite: evaluation/hidden/IsolatedMarketHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 900000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two share systems"
+    content: "Supply and borrow each have their own (totalAssets, totalShares) pair. Interest raises both asset totals by the same amount and changes no share balance, so it is O(1)."
+  - order: 2
+    title: "Round against the caller"
+    content: "Shares minted to a supplier and assets paid to a withdrawer round down. Shares minted to a borrower and assets charged to a repayer or liquidator round up."
+  - order: 3
+    title: "Bad debt is a supplier loss"
+    content: "When a liquidation takes the last unit of collateral, any borrow shares left on the position can never be repaid. Remove their asset value from both totalBorrowAssets and totalSupplyAssets so the supply share price drops for everyone at once."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

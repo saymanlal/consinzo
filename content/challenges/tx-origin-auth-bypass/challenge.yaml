@@ -4,7 +4,7 @@ title: "Patch tx.origin Phishing Vulnerability"
 description: "Replace unsafe tx.origin authorization in a treasury wallet with msg.sender verification so malicious forwarding contracts cannot drain owner funds."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: beginner
+difficulty: easy
 category: security-engineering
 tags:
   - patch

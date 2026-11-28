@@ -1,0 +1,70 @@
+id: rfq-intent-settlement
+slug: rfq-intent-settlement
+title: RFQ Intent Settlement with Partial Fills and a Nonce Bitmap
+description: Build a request-for-quote settlement contract where makers authorise orders by EIP-712 signature, ERC-1271 or on-chain pre-approval, takers fill them partially, and a per-maker nonce bitmap handles cancellation and replay protection.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: legend
+category: defi-engineering
+tags:
+  - rfq
+  - intents
+  - eip712
+  - nonce-bitmap
+  - partial-fills
+  - erc1271
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RfqSettlement.sol
+  editable_files:
+    - src/RfqSettlement.sol
+  readonly_files:
+    - test/RfqSettlement.t.sol
+tests:
+  public_suite: evaluation/public/RfqSettlement.t.sol
+  hidden_suite: evaluation/hidden/RfqSettlementHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 250
+  gas_budget: 600000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Two independent pieces of state
+    content: The fill progress is keyed by the order digest, while the nonce bitmap is keyed by maker. A partial fill only touches the first one; the nonce bit is set when the order is complete or the maker cancels.
+  - order: 2
+    title: Three authorisation paths, chosen by the input
+    content: An empty signature means the pre-approval mapping. Otherwise a maker with code is asked through ERC-1271 and a maker without code must have produced a 65-byte r, s, v signature with a low s and v equal to 27 or 28.
+  - order: 3
+    title: Order of operations in fill
+    content: Write the new filled amount and the nonce bit before calling any token. A token that calls back into fill must see the order as already filled.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-712 Typed Structured Data Hashing and Signing
+    url: https://eips.ethereum.org/EIPS/eip-712
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: ERC-1271 Standard Signature Validation Method for Contracts
+    url: https://eips.ethereum.org/EIPS/eip-1271
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: EIP-2 Homestead Hard-fork Changes (low-s signatures)
+    url: https://eips.ethereum.org/EIPS/eip-2
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

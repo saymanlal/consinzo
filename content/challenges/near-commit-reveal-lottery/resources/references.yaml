@@ -1,0 +1,11 @@
+references:
+  - title: "NEAR Security: Random Numbers"
+    url: https://docs.near.org/smart-contracts/security/random
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Security: Front Running"
+    url: https://docs.near.org/smart-contracts/security/frontrunning
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"

@@ -1,0 +1,69 @@
+id: perp-funding-index-accounting
+slug: perp-funding-index-accounting
+title: "Perpetual Funding Accounting with Cumulative Indices"
+description: "Implement the funding ledger of a perpetual market: a signed per-second funding rate moves money between longs and shorts through one cumulative index per side, so that payments stay zero-sum even when open interest is unbalanced."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - perpetuals
+  - funding-rate
+  - cumulative-index
+  - signed-math
+  - margin
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FundingLedger.sol
+  editable_files:
+    - src/FundingLedger.sol
+  readonly_files:
+    - test/FundingLedger.t.sol
+tests:
+  public_suite: evaluation/public/FundingLedger.t.sol
+  hidden_suite: evaluation/hidden/FundingLedgerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 700000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One index per side"
+    content: "Keep a signed cumulative index for longs and another for shorts. A position remembers the index of its side when it was last settled; what it owes is size times the index difference."
+  - order: 2
+    title: "Keep it zero-sum"
+    content: "The paying side is charged rate * elapsed per unit. Compute the total collected from the paying side's open interest and divide it by the receiving side's open interest to get what the receivers earn per unit."
+  - order: 3
+    title: "Settle before you change anything"
+    content: "Any action that changes a position's size or margin, or the open interest, must first accrue the global indices and settle the position at its old size."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

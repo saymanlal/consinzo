@@ -1,0 +1,69 @@
+id: eth-tip-jar
+slug: eth-tip-jar
+title: "ETH Tip Jar With Receive and Owner Withdrawal"
+description: "Build a tip jar that accepts ETH through a payable function and through plain transfers, records how much each tipper has given, and lets only the owner withdraw the balance."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: smart-contract-engineering
+tags:
+  - solidity
+  - payable
+  - receive
+  - events
+  - eth-transfer
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TipJar.sol
+  editable_files:
+    - src/TipJar.sol
+  readonly_files:
+    - test/TipJar.t.sol
+tests:
+  public_suite: evaluation/public/TipJar.t.sol
+  hidden_suite: evaluation/hidden/TipJarHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One internal path for both entry points"
+    content: "receive() and tip() should do exactly the same bookkeeping. Put it in one internal function and call it from both."
+  - order: 2
+    title: "Sending ETH out"
+    content: "Use a low-level call with a value: (bool ok, ) = owner.call{value: amount}(\"\"). Check ok and revert with TransferFailed() if it is false."
+  - order: 3
+    title: "Count each tipper once"
+    content: "A tipper is new exactly when their recorded total is still zero before the current tip is added."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Receive Ether Function"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#receive-ether-function
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Events"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#events
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html#withdrawal-from-contracts
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

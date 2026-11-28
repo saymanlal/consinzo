@@ -1,0 +1,63 @@
+id: multi-lock-token-timelock
+slug: multi-lock-token-timelock
+title: "Token Timelock Vault with Independent Locks"
+description: "Implement an ERC-20 timelock vault in which every user can hold any number of independent locks, each with its own amount and unlock time, with extension, single withdrawal and batch withdrawal of matured locks."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: defi-engineering
+tags:
+  - timelock
+  - vault
+  - erc20
+  - struct-arrays
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TimelockVault.sol
+  editable_files:
+    - src/TimelockVault.sol
+  readonly_files:
+    - test/TimelockVault.t.sol
+tests:
+  public_suite: evaluation/public/TimelockVault.t.sol
+  hidden_suite: evaluation/hidden/TimelockVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Lock ids are per-user indices"
+    content: "Store an array of lock structs per user. The id returned by lock() is the index of the new element, so ids start at 0 for every user and never change."
+  - order: 2
+    title: "Mark, do not delete"
+    content: "Removing array elements would shift ids. Keep the entry and set a withdrawn flag; every view and every withdrawal path must respect it."
+  - order: 3
+    title: "Boundary"
+    content: "A lock is withdrawable when block.timestamp >= unlockTime. Extending is only allowed to a strictly later time, including for locks that have already matured."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Types: Arrays and Structs"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

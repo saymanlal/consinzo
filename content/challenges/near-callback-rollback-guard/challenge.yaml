@@ -4,7 +4,7 @@ title: Patch NEAR Cross-Contract Callback Double-Refund Vulnerability
 description: Secure an asynchronous NEAR payout router against unauthorized callback spoofing and duplicate failure rollback refunds across sharded promise execution.
 ecosystem: near
 language: TypeScript
-difficulty: advanced
+difficulty: hard
 category: security-engineering
 tags:
   - near

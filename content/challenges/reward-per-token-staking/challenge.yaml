@@ -1,0 +1,64 @@
+id: reward-per-token-staking
+slug: reward-per-token-staking
+title: "Staking Rewards with rewardPerToken Accounting"
+description: "Implement a staking pool that streams a reward token at a fixed rate over a period and attributes it to stakers in O(1) using cumulative reward-per-token accounting, including top-ups that roll over the undistributed remainder."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: defi-engineering
+tags:
+  - staking
+  - reward-per-token
+  - liquidity-mining
+  - accounting
+  - erc20
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/StakingRewards.sol
+  editable_files:
+    - src/StakingRewards.sol
+  readonly_files:
+    - test/StakingRewards.t.sol
+tests:
+  public_suite: evaluation/public/StakingRewards.t.sol
+  hidden_suite: evaluation/hidden/StakingRewardsHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two-step update"
+    content: "Before any change to a balance or to the rate, first bring the global rewardPerTokenStored and lastUpdateTime up to date, then settle the affected account: rewards[account] = earned(account) and userRewardPerTokenPaid[account] = rewardPerTokenStored."
+  - order: 2
+    title: "Stop the clock at periodFinish"
+    content: "Use min(block.timestamp, periodFinish) everywhere you measure elapsed reward time, otherwise rewards keep accruing after the budget is exhausted."
+  - order: 3
+    title: "Rolling over a running period"
+    content: "When new rewards arrive before periodFinish, the undistributed remainder is (periodFinish - block.timestamp) * rewardRate. Add it to the new amount before dividing by the duration."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

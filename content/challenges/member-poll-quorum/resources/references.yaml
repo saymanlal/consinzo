@@ -1,0 +1,11 @@
+references:
+  - title: "Solidity by Example: Voting"
+    url: https://docs.soliditylang.org/en/v0.8.28/solidity-by-example.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types: Mappings, Structs and Enums"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

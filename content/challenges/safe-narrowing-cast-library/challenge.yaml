@@ -1,0 +1,63 @@
+id: safe-narrowing-cast-library
+slug: safe-narrowing-cast-library
+title: "Safe Narrowing Cast Library"
+description: "Write a Solidity library that converts uint256 values to uint128, uint64 and uint32 and reverts with a descriptive custom error instead of silently truncating when the value does not fit."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - libraries
+  - type-conversion
+  - custom-errors
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SafeCastLib.sol
+  editable_files:
+    - src/SafeCastLib.sol
+  readonly_files:
+    - test/SafeCastLib.t.sol
+tests:
+  public_suite: evaluation/public/SafeCastLib.t.sol
+  hidden_suite: evaluation/hidden/SafeCastLibHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 30000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Explicit casts never revert"
+    content: "uint64(x) keeps the low 64 bits and discards the rest without any check, even in Solidity 0.8. The comparison has to be written by hand before the cast."
+  - order: 2
+    title: "Use the type's own maximum"
+    content: "type(uint64).max is the largest value that fits. Compare against it rather than typing out a long literal."
+  - order: 3
+    title: "Internal library functions"
+    content: "Declare the functions internal and pure. They are then compiled into the calling contract and can be attached to uint256 with a using-for directive."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Explicit Conversions"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#explicit-conversions
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Libraries"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#libraries
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

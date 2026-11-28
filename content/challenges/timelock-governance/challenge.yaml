@@ -4,7 +4,7 @@ title: Protocol Governance Timelock Controller
 description: Build a time-delayed governance execution controller enforcing minimum queue delay, grace-period expiration, and cancellation controls.
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: hard
 category: protocol-implementation
 tags:
   - governance

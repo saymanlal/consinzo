@@ -1,0 +1,11 @@
+references:
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: Restricting Access"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

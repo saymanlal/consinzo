@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, Code2, FileWarning, Shield } from "lucide-react";
+import { DifficultyBadge } from "@/components/difficulty-badge";
 import { Badge, Button, Card, Input, Textarea } from "@consinzo/ui";
 
 interface ChallengeSummary {
@@ -182,7 +183,7 @@ export default function SecurityArenaPage() {
                       </Badge>
                     )}
                   </div>
-                  <Badge tone="amber">{m.difficulty}</Badge>
+                  <DifficultyBadge difficulty={m.difficulty} />
                 </div>
                 <h3 className="mt-3 text-base font-semibold text-zinc-950">{m.title}</h3>
                 <p className="mt-1.5 text-xs text-zinc-600">{m.description}</p>

@@ -1,0 +1,65 @@
+id: multi-hop-swap-router
+slug: multi-hop-swap-router
+title: "Multi-Hop Exact-Input Swap Router"
+description: "Implement a stateless router that quotes and executes exact-input swaps along a path of constant-product pairs, sending each hop's output directly to the next pair and enforcing a minimum output and a deadline."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - router
+  - multi-hop
+  - amm
+  - slippage
+  - deadline
+  - integration
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SwapRouter.sol
+  editable_files:
+    - src/SwapRouter.sol
+  readonly_files:
+    - test/SwapRouter.t.sol
+tests:
+  public_suite: evaluation/public/SwapRouter.t.sol
+  hidden_suite: evaluation/hidden/SwapRouterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Quote first, then execute"
+    content: "Compute the whole amounts array with getAmountsOut before moving any token. The slippage check uses the last element and the pairs are then asked for exactly the quoted amounts."
+  - order: 2
+    title: "Token order inside a pair"
+    content: "A pair stores reserves as (reserve0, reserve1) for (token0, token1). Compare your input token with pair.token0() to decide which reserve is the input side and which of amount0Out / amount1Out is non-zero."
+  - order: 3
+    title: "No custody"
+    content: "The router never needs to hold tokens: transfer the input from the user straight to the first pair, and make every pair send its output to the next pair, or to the recipient on the last hop."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Contracts: Interfaces"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

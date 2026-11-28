@@ -1,0 +1,62 @@
+id: near-storage-registration
+slug: near-storage-registration
+title: "NEAR Storage Registration with Refunds"
+description: "Build a contract that requires accounts to register by paying a storage fee before they can store data, records the fee actually paid, and refunds exactly that amount on unregister."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: smart-contract-engineering
+tags:
+  - near
+  - storage-deposit
+  - registration
+  - refunds
+  - nep-145
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/RegisteredNotes.ts
+  editable_files:
+    - src/RegisteredNotes.ts
+  readonly_files:
+    - test/RegisteredNotes.t.ts
+tests:
+  public_suite: evaluation/public/RegisteredNotes.t.ts
+  hidden_suite: evaluation/hidden/RegisteredNotesHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Record what was paid"
+    content: "Store the fee charged at registration per account. The fee can change later, and the refund must be the amount this account paid, not the current fee."
+  - order: 2
+    title: "Excess is not a donation"
+    content: "If the attached deposit is larger than the fee, keep only the fee as the storage balance and credit the difference to the account's refundable balance."
+  - order: 3
+    title: "Unregister cleans up"
+    content: "Unregistering deletes the account's stored data together with its registration, so the storage the fee paid for is actually released."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Storage Staking"
+    url: https://docs.near.org/protocol/storage/storage-staking
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Contract State and Storage"
+    url: https://docs.near.org/smart-contracts/anatomy/storage
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

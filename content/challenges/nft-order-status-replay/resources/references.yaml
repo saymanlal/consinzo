@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-721 Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "SWC-121 Missing Protection against Signature Replay Attacks"
+    url: https://swcregistry.io/docs/SWC-121/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"

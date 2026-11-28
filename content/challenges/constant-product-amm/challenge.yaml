@@ -4,7 +4,7 @@ title: Constant Product AMM Pool (x * y = k)
 description: Implement a constant-product decentralized exchange pool supporting liquidity provisioning, LP share burning, and fee-adjusted swaps.
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: hard
 category: defi-engineering
 tags:
   - amm

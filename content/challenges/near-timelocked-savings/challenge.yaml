@@ -1,0 +1,62 @@
+id: near-timelocked-savings
+slug: near-timelocked-savings
+title: "NEAR Time-Locked Savings Box"
+description: "Build a personal savings box where each account locks deposits until a chosen block timestamp, may extend but never shorten the lock, and withdraws everything once it has expired."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: smart-contract-engineering
+tags:
+  - near
+  - timelock
+  - block-timestamp
+  - attached-deposit
+  - savings
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/SavingsBox.ts
+  editable_files:
+    - src/SavingsBox.ts
+  readonly_files:
+    - test/SavingsBox.t.ts
+tests:
+  public_suite: evaluation/public/SavingsBox.t.ts
+  hidden_suite: evaluation/hidden/SavingsBoxHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Time comes from the block"
+    content: "Compare against near.blockTimestamp(), which is a bigint in nanoseconds. Never trust a time passed in by the caller as the current time."
+  - order: 2
+    title: "Boundary"
+    content: "A box with unlockAt equal to the current timestamp is unlocked. Withdrawal is blocked only while now < unlockAt."
+  - order: 3
+    title: "Top-ups"
+    content: "A second deposit adds to the same box. It may move the unlock time later, never earlier."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Contract Environment"
+    url: https://docs.near.org/smart-contracts/anatomy/environment
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

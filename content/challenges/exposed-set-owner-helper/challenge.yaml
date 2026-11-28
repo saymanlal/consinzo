@@ -1,0 +1,60 @@
+id: exposed-set-owner-helper
+slug: exposed-set-owner-helper
+title: "Hide a Public Ownership Helper"
+description: "FeeConfig routes ownership changes through a _setOwner helper that was left public, so anyone can call it directly and become the owner. Patch the visibility so ownership only changes through the guarded function."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - visibility
+  - access-control
+  - ownership
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FeeConfig.sol
+  editable_files:
+    - src/FeeConfig.sol
+  readonly_files:
+    - test/FeeConfig.t.sol
+tests:
+  public_suite: evaluation/public/FeeConfig.t.sol
+  hidden_suite: evaluation/hidden/FeeConfigHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 100000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Read every visibility keyword"
+    content: "A leading underscore is only a naming convention. What decides who can call a function is the keyword after the parameter list."
+  - order: 2
+    title: "Two entry points, one guard"
+    content: "transferOwnership() checks the caller and then delegates to the helper. Ask what stops someone from skipping the first function."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-100 Function Default Visibility"
+    url: https://swcregistry.io/docs/SWC-100/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Contracts: Visibility and Getters"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

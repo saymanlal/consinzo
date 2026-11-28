@@ -1,0 +1,63 @@
+id: multi-role-guard-wrong-operator
+slug: multi-role-guard-wrong-operator
+title: "Fix Dual-Control Guards That Accept a Single Role"
+description: "A treasury is meant to require two separate roles for sensitive actions, but several guards combine the role checks with the wrong boolean operator. Patch the guards so an account holding only one role can no longer move funds, unpause or change the limit."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: security-engineering
+tags:
+  - patch
+  - access-control
+  - roles
+  - boolean-logic
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/DualControlTreasury.sol
+  editable_files:
+    - src/DualControlTreasury.sol
+  readonly_files:
+    - test/DualControlTreasury.t.sol
+tests:
+  public_suite: evaluation/public/DualControlTreasury.t.sol
+  hidden_suite: evaluation/hidden/DualControlTreasuryHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 120000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Write the truth table"
+    content: "For each guard, list the four combinations of (treasurer, compliance) and mark which ones the specification allows. Compare that with what the condition in the code actually rejects."
+  - order: 2
+    title: "De Morgan's laws"
+    content: "'Revert unless A and B' is 'revert if not A or not B'. 'Revert unless A or B' is 'revert if not A and not B'. The two are easy to swap when a condition is written in its negated form."
+  - order: 3
+    title: "Not every guard is wrong"
+    content: "One function is intentionally open to holders of either role. Check each function against the README instead of replacing every operator."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-105 Unprotected Ether Withdrawal"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types: Booleans and Operators"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

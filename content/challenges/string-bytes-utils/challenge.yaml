@@ -1,0 +1,64 @@
+id: string-bytes-utils
+slug: string-bytes-utils
+title: "String and Bytes Utilities"
+description: "Implement pure helpers for strings and byte arrays: byte length, equality by hash, concatenation, prefix matching and a bounded-length validator with a custom error."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: programming-fundamentals
+tags:
+  - solidity
+  - strings
+  - bytes
+  - keccak256
+  - pure-functions
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/StringUtils.sol
+  editable_files:
+    - src/StringUtils.sol
+  readonly_files:
+    - test/StringUtils.t.sol
+tests:
+  public_suite: evaluation/public/StringUtils.t.sol
+  hidden_suite: evaluation/hidden/StringUtilsHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 60000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Strings are byte arrays"
+    content: "Convert with bytes(s) to get a length and index access. The length is in bytes, so a non-ASCII character counts more than once."
+  - order: 2
+    title: "Compare by hash"
+    content: "Dynamic arrays cannot be compared with ==. Compare keccak256 of both sides; checking the lengths first is a cheap early exit."
+  - order: 3
+    title: "Prefix check"
+    content: "A prefix longer than the string can never match. After that check, compare byte by byte over the prefix length only."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Bytes and String as Arrays"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#bytes-and-string-as-arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Mathematical and Cryptographic Functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html#mathematical-and-cryptographic-functions
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

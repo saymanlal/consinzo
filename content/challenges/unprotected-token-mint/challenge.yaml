@@ -1,0 +1,60 @@
+id: unprotected-token-mint
+slug: unprotected-token-mint
+title: "Restrict an Unprotected Token Mint"
+description: "RewardToken lets any caller mint new tokens. Patch mint() so that only the contract owner can create supply, while transfers and ownership handover keep working."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - access-control
+  - erc20
+  - minting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RewardToken.sol
+  editable_files:
+    - src/RewardToken.sol
+  readonly_files:
+    - test/RewardToken.t.sol
+tests:
+  public_suite: evaluation/public/RewardToken.t.sol
+  hidden_suite: evaluation/hidden/RewardTokenHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Who may call mint?"
+    content: "Compare mint() with transferOwnership(). One of them checks msg.sender against owner and the other does not."
+  - order: 2
+    title: "Reuse the existing error"
+    content: "The contract already declares NotOwner(). A modifier keeps the check in one place and lets both privileged functions share it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Common Patterns: Restricting Access"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-105 Unprotected Ether Withdrawal (missing access control)"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

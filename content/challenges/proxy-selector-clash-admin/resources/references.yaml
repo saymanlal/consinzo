@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-1967 Proxy Storage Slots"
+    url: https://eips.ethereum.org/EIPS/eip-1967
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity ABI specification: function selector"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

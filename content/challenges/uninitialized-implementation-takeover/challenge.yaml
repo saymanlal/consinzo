@@ -1,0 +1,70 @@
+id: uninitialized-implementation-takeover
+slug: uninitialized-implementation-takeover
+title: "Lock an Uninitialised Implementation Behind an Upgradeable Proxy"
+description: "The logic contract behind an upgradeable proxy was deployed without being initialised. Anyone can initialise it directly, become its owner and make it delegatecall arbitrary code through its own upgrade function. Patch the logic contract so the implementation can never be initialised or upgraded directly, while the proxy keeps working."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - proxy
+  - uninitialized-implementation
+  - uups
+  - delegatecall
+  - upgradeability
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/VaultLogic.sol
+  editable_files:
+    - src/VaultLogic.sol
+  readonly_files:
+    - test/VaultLogic.t.sol
+tests:
+  public_suite: evaluation/public/VaultLogic.t.sol
+  hidden_suite: evaluation/hidden/VaultLogicHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two storages, one code"
+    content: "The proxy's storage was initialised through delegatecall. The implementation contract has its own, separate storage, and nobody ever wrote to it. Read initialized and owner on the implementation address."
+  - order: 2
+    title: "What an owner of the implementation can do"
+    content: "upgradeToAndCall ends in a delegatecall to an address the owner chooses. Called directly on the implementation, that runs foreign code with the implementation's identity, including SELFDESTRUCT on chains where it still removes code."
+  - order: 3
+    title: "Constructors and immutables belong to the implementation"
+    content: "A constructor runs only for the implementation, never for the proxy. Use it to mark the implementation as initialised. An immutable holding address(this) lets a function detect whether it is running through a proxy."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-1967: Proxy Storage Slots"
+    url: https://eips.ethereum.org/EIPS/eip-1967
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "ERC-1822: Universal Upgradeable Proxy Standard (UUPS)"
+    url: https://eips.ethereum.org/EIPS/eip-1822
+    source: "Ethereum Improvement Proposals"
+    version: "stagnant"
+    verified_at: "2026-11-28"
+  - title: "SWC-106 Unprotected SELFDESTRUCT Instruction"
+    url: https://swcregistry.io/docs/SWC-106/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

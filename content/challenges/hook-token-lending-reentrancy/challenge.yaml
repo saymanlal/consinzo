@@ -1,0 +1,69 @@
+id: hook-token-lending-reentrancy
+slug: hook-token-lending-reentrancy
+title: "Patch a Lending Pool Re-entered Through Token Transfer Hooks"
+description: "A lending pool accepts a collateral token that notifies recipients on transfer. The pool sends collateral before it updates the borrower's position, so the recipient hook can withdraw the same collateral again or borrow against collateral that is already leaving. Patch the pool so its accounting is final before any token call."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - reentrancy
+  - erc777
+  - token-hooks
+  - lending
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/HookLendingPool.sol
+  editable_files:
+    - src/HookLendingPool.sol
+  readonly_files:
+    - test/HookLendingPool.t.sol
+tests:
+  public_suite: evaluation/public/HookLendingPool.t.sol
+  hidden_suite: evaluation/hidden/HookLendingPoolHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 350000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Token transfers can be external calls to the user"
+    content: "With hook-enabled tokens (ERC-777 style), transfer() runs code at the recipient before it returns. Treat every transfer of such a token like a call to an untrusted contract."
+  - order: 2
+    title: "Stale local variables"
+    content: "withdrawCollateral computes the remaining balance before the transfer and stores it afterwards. Ask what a nested call sees in storage during the transfer, and what the outer call overwrites when it resumes."
+  - order: 3
+    title: "More than one entry point"
+    content: "The hook can call any function of the pool, not only the one that triggered it. Borrowing reads the same collateral balance, so every state-changing function needs to observe finished accounting or be locked."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-107 Reentrancy"
+    url: https://swcregistry.io/docs/SWC-107/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "ERC-777: Token Standard (send and receive hooks)"
+    url: https://eips.ethereum.org/EIPS/eip-777
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations: Reentrancy"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

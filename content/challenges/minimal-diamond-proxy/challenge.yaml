@@ -1,0 +1,65 @@
+id: minimal-diamond-proxy
+slug: minimal-diamond-proxy
+title: "Minimal Diamond Proxy (EIP-2535): diamondCut, Routing and Loupe"
+description: "Implement a diamond: a proxy that routes each function selector to one of many facet contracts. It needs an owner-only diamondCut with add, replace and remove, an optional initialisation delegatecall, the four loupe views, and bookkeeping that stays consistent through arbitrary sequences of cuts."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: advanced-blockchain-systems
+tags:
+  - eip-2535
+  - diamond-proxy
+  - delegatecall
+  - function-selectors
+  - upgradeability
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/Diamond.sol
+  editable_files:
+    - src/Diamond.sol
+  readonly_files:
+    - test/Diamond.t.sol
+tests:
+  public_suite: evaluation/public/Diamond.t.sol
+  hidden_suite: evaluation/hidden/DiamondHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 800000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Keep the diamond's own state out of slot 0"
+    content: "Facets are free to use any storage layout. Put the owner and all selector bookkeeping into one struct at a hashed slot (diamond storage) and access it through a storage pointer set in assembly."
+  - order: 2
+    title: "Store positions for O(1) removal"
+    content: "Remember, for every selector, its index inside its facet's selector array, and for every facet its index in the facet list. Removal is then swap-with-last and pop, but you must update the stored index of the element you moved."
+  - order: 3
+    title: "A facet disappears with its last selector"
+    content: "When the last selector of a facet is removed or replaced away, the facet must leave facetAddresses(). When the first selector of a facet is added, it must appear exactly once."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-2535: Diamonds, Multi-Facet Proxy"
+    url: https://eips.ethereum.org/EIPS/eip-2535
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Inline Assembly"
+    url: https://docs.soliditylang.org/en/v0.8.28/assembly.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

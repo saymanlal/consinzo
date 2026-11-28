@@ -4,7 +4,7 @@ title: ERC-721 NFT Collection with EIP-2981 Royalties
 description: Implement a supply-capped ERC-721 non-fungible token contract with approvals, operator permissions, and EIP-2981 royalty calculations.
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: intermediate
+difficulty: normal
 category: token-standards
 tags:
   - erc721

@@ -2,7 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
+import { getDifficultyMeta, normalizeDifficulty } from "@/lib/difficulty";
+import { GUEST_LIMITS, isGuestTier } from "@/lib/guest-limits";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -21,6 +23,7 @@ import {
   Send,
   Terminal,
   XCircle,
+  UserRound,
 } from "lucide-react";
 import type { PublicChallengeView } from "@consinzo/challenge-spec";
 import { ConsinzoMonacoEditor, type EditorDiagnostic } from "@consinzo/editor";
@@ -91,6 +94,18 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
     Array<{ id: string; status: string; score: number; maxPoints: number; passed: boolean; createdAt: string }>
   >([]);
   const [cliCopied, setCliCopied] = useState(false);
+  const [guestRuns, setGuestRuns] = useState<{ remaining: number; limit: number } | null>(null);
+
+  const { data: meData, isLoading: meLoading } = useQuery<{ user: { id: string } | null }>({
+    queryKey: ["auth-me"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/auth/me");
+      return res.ok ? res.json() : { user: null };
+    },
+  });
+  const isGuest = !meLoading && !meData?.user;
+  const guestLocked = isGuest && !isGuestTier(normalizeDifficulty(manifest.difficulty));
+  const authHref = `/auth?mode=register&next=${encodeURIComponent(`/workspace/${manifest.slug}`)}`;
 
   // Restore autosaved files on mount
   useEffect(() => {
@@ -159,7 +174,13 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
       const json = await res.json();
       if (!res.ok) {
         setErrorBanner(json?.error?.message ?? "Compilation failed.");
+        if (json?.error?.code === "GUEST_LIMIT_REACHED") {
+          setGuestRuns({ remaining: 0, limit: json.error.details?.limit ?? GUEST_LIMITS.RUNS_PER_HOUR });
+        }
         return;
+      }
+      if (json?.access?.guest) {
+        setGuestRuns({ remaining: json.access.remaining, limit: json.access.limit });
       }
       setResult(json as ExecutionApiResponse);
     } catch {
@@ -298,24 +319,62 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
           <Button
             size="sm"
             variant="secondary"
-            disabled={running !== "idle"}
+            disabled={running !== "idle" || guestLocked}
             onClick={runPublicTests}
             className="border-zinc-600 bg-zinc-800 text-white hover:bg-zinc-700"
           >
             <Play className="h-3.5 w-3.5 text-emerald-400" />
             {running === "public" ? "Running..." : "Run Public Tests"}
           </Button>
-          <Button
-            size="sm"
-            disabled={running !== "idle"}
-            onClick={submitSolution}
-            className="bg-blue-700 border-blue-600 text-white hover:bg-blue-600"
-          >
-            <Send className="h-3.5 w-3.5" />
-            {running === "submit" ? "Evaluating..." : "Submit & Evaluate"}
-          </Button>
+          {isGuest ? (
+            <Link
+              href={authHref}
+              className="inline-flex h-8 items-center gap-2 rounded-md border border-blue-600 bg-blue-700 px-3 text-xs font-medium text-white hover:bg-blue-600"
+            >
+              <Send className="h-3.5 w-3.5" />
+              Sign in to submit
+            </Link>
+          ) : (
+            <Button
+              size="sm"
+              disabled={running !== "idle"}
+              onClick={submitSolution}
+              className="bg-blue-700 border-blue-600 text-white hover:bg-blue-600"
+            >
+              <Send className="h-3.5 w-3.5" />
+              {running === "submit" ? "Evaluating..." : "Submit & Evaluate"}
+            </Button>
+          )}
         </div>
       </div>
+
+      {isGuest && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-900/60 bg-cyan-950/40 px-4 py-2 text-xs text-cyan-100">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-700/60 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider">
+              <UserRound className="h-3 w-3" />
+              Guest mode
+            </span>
+            {guestLocked ? (
+              <span>
+                {getDifficultyMeta(manifest.difficulty).label} challenges need an account. You can
+                read the problem and edit code; guests can run Beginner, Easy and Normal.
+              </span>
+            ) : (
+              <span>
+                Public tests only ·{" "}
+                {guestRuns
+                  ? `${guestRuns.remaining} of ${guestRuns.limit} runs left this hour`
+                  : `${GUEST_LIMITS.RUNS_PER_HOUR} runs per hour`}{" "}
+                · your code stays in this browser
+              </span>
+            )}
+          </div>
+          <Link href={authHref} className="font-semibold text-white underline underline-offset-2">
+            Create a free account to submit and earn points →
+          </Link>
+        </div>
+      )}
 
       {errorBanner && (
         <div className="flex items-center justify-between border-b border-red-900/60 bg-red-950/60 px-4 py-2 text-xs text-red-200">
@@ -323,8 +382,8 @@ export function IdeWorkspace({ challenge }: { challenge: PublicChallengeView }) 
             <AlertTriangle className="h-4 w-4 text-red-400" />
             <span>{errorBanner}</span>
           </div>
-          {errorBanner.includes("Sign in") && (
-            <Link href={`/auth?next=/workspace/${manifest.slug}`} className="font-semibold underline">
+          {/sign in/i.test(errorBanner) && (
+            <Link href={authHref} className="shrink-0 font-semibold underline">
               Sign In →
             </Link>
           )}

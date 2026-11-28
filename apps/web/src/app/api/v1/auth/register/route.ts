@@ -3,12 +3,12 @@ import { z } from "zod";
 import {
   createUserAccount,
   registerSupabaseAccount,
-  SESSION_COOKIE_NAME,
-  signSessionToken,
+  setLocalSessionCookie,
   toSessionUser,
 } from "@/lib/auth";
 import { getServerEnv } from "@/lib/env";
 import { handleApiError } from "@/lib/http";
+import { enforceRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const RegisterSchema = z.object({
   email: z.string().email(),
@@ -19,6 +19,7 @@ const RegisterSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    enforceRateLimit(`register:${getClientIp(req)}`, 10, 60 * 60 * 1000, "sign-up attempts");
     const body = RegisterSchema.parse(await req.json());
     const env = getServerEnv();
 
@@ -28,19 +29,8 @@ export async function POST(req: Request) {
     }
 
     const user = createUserAccount(body);
-    const token = signSessionToken({
-      userId: user.id,
-      exp: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    });
-
     const res = NextResponse.json({ user: toSessionUser(user) }, { status: 201 });
-    res.cookies.set(SESSION_COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    });
+    setLocalSessionCookie(res, user.id);
     return res;
   } catch (err) {
     return handleApiError(err);

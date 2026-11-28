@@ -4,7 +4,7 @@ title: "Exploit Cross-Function Reentrancy in Bank Contract"
 description: "Red-team mission: exploit a bank contract that updates balances after ETH send in withdraw(), using receive() to call transferBalance() to an accomplice."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: hard
 category: security-engineering
 tags:
   - exploit

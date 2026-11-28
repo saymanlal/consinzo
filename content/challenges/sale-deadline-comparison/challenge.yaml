@@ -1,0 +1,60 @@
+id: sale-deadline-comparison
+slug: sale-deadline-comparison
+title: "Fix the Deadline Checks of a Timed Sale"
+description: "TimedSale compares block.timestamp with its deadline using the wrong operators: purchases are refused only during one exact second and finalisation opens a second late. Patch both checks so the sale closes at the deadline and stays closed."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: security-engineering
+tags:
+  - patch
+  - timestamp
+  - comparison-operators
+  - boundary-conditions
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TimedSale.sol
+  editable_files:
+    - src/TimedSale.sol
+  readonly_files:
+    - test/TimedSale.t.sol
+tests:
+  public_suite: evaluation/public/TimedSale.t.sol
+  hidden_suite: evaluation/hidden/TimedSaleHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Test three instants"
+    content: "For each check ask what happens one second before the deadline, at the deadline and one second after it."
+  - order: 2
+    title: "One boundary, two functions"
+    content: "buy() and finalize() must agree on the instant the sale closes. At every timestamp exactly one of them should be allowed by the deadline rule."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Units and Globally Available Variables: Block and Transaction Properties"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-116 Block values as a proxy for time"
+    url: https://swcregistry.io/docs/SWC-116/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

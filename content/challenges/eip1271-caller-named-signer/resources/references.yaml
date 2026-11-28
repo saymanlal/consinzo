@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-1271 Standard Signature Validation Method for Contracts"
+    url: https://eips.ethereum.org/EIPS/eip-1271
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "SWC-122 Lack of Proper Signature Verification"
+    url: https://swcregistry.io/docs/SWC-122/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"

@@ -1,0 +1,69 @@
+id: cdp-stablecoin-vault-engine
+slug: cdp-stablecoin-vault-engine
+title: "CDP Stablecoin Engine with a Stability Fee Accumulator"
+description: "Build a single-collateral CDP engine: users lock collateral and mint a stablecoin, debt grows through a global rate accumulator, unsafe vaults are liquidated with a penalty, and bad debt is healed from accrued fees."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - cdp
+  - stablecoin
+  - rate-accumulator
+  - liquidation
+  - bad-debt
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CdpEngine.sol
+  editable_files:
+    - src/CdpEngine.sol
+  readonly_files:
+    - test/CdpEngine.t.sol
+tests:
+  public_suite: evaluation/public/CdpEngine.t.sol
+  hidden_suite: evaluation/hidden/CdpEngineHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 900000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Store normalized debt, not debt"
+    content: "Each vault stores debt divided by the rate at the time it was drawn. Multiplying by the current rate gives the present debt for every vault without touching any of them."
+  - order: 2
+    title: "Round against the user"
+    content: "Normalized debt rounds up when minting and down when repaying, and the debt shown to the user rounds up. The system must never be owed less than the stablecoin in circulation."
+  - order: 3
+    title: "Where the fee goes"
+    content: "When the rate grows, the total debt grows by totalNormalizedDebt * (newRate - oldRate) / RAY. Mint exactly that amount to the engine itself so supply and debt stay in step."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

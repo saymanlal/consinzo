@@ -1,0 +1,11 @@
+references:
+  - title: "ERC-1620 Money Streaming"
+    url: https://eips.ethereum.org/EIPS/eip-1620
+    source: "Ethereum EIPs"
+    version: "Stagnant"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"

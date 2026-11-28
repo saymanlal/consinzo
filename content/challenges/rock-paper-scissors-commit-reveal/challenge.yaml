@@ -1,0 +1,63 @@
+id: rock-paper-scissors-commit-reveal
+slug: rock-paper-scissors-commit-reveal
+title: "Rock-Paper-Scissors with Commit-Reveal and Reveal Timeout"
+description: "Build a two-player staked rock-paper-scissors game. Moves are hidden with a commit-reveal scheme, and a player who fails to reveal before the timeout forfeits their stake to the player who did."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: protocol-implementation
+tags:
+  - commit-reveal
+  - game
+  - timeouts
+  - pull-payments
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RockPaperScissors.sol
+  editable_files:
+    - src/RockPaperScissors.sol
+  readonly_files:
+    - test/RockPaperScissors.t.sol
+tests:
+  public_suite: evaluation/public/RockPaperScissors.t.sol
+  hidden_suite: evaluation/hidden/RockPaperScissorsHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Bind the commitment to the player"
+    content: "The commitment hashes the player's address together with the move and a secret salt. Without the address, the second player could copy the first player's commitment and replay their reveal to force a draw."
+  - order: 2
+    title: "Deciding the winner"
+    content: "With Rock = 1, Paper = 2, Scissors = 3, move a beats move b exactly when (3 + a - b) % 3 == 1."
+  - order: 3
+    title: "The timeout is the point"
+    content: "Without a deadline, the player who sees they are about to lose simply never reveals and the stakes are stuck. settle must handle one reveal, zero reveals and two reveals."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity by Example: Blind Auction"
+    url: https://docs.soliditylang.org/en/v0.8.28/solidity-by-example.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: State Machine"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,68 @@
+id: english-auction-anti-sniping
+slug: english-auction-anti-sniping
+title: "English Auction with Pull Refunds and Anti-Sniping Extension"
+description: "Build an ascending-price ETH auction where outbid bidders withdraw their own refunds and any bid placed close to the end pushes the end time out, so last-second sniping does not work."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: protocol-implementation
+tags:
+  - auction
+  - pull-payments
+  - anti-sniping
+  - ether-handling
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/EnglishAuction.sol
+  editable_files:
+    - src/EnglishAuction.sol
+  readonly_files:
+    - test/EnglishAuction.t.sol
+tests:
+  public_suite: evaluation/public/EnglishAuction.t.sol
+  hidden_suite: evaluation/hidden/EnglishAuctionHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 250000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Never pay the previous bidder inside bid"
+    content: "Credit the outbid amount to a pendingReturns mapping and let the bidder call withdraw. If bid pushed ETH to the previous bidder, a bidder contract that rejects ETH could never be outbid."
+  - order: 2
+    title: "Extension rule"
+    content: "Compute the time left as endTime - block.timestamp. Only when it is smaller than extensionWindow do you move endTime, and you move it to block.timestamp + extensionWindow, not endTime + extensionWindow."
+  - order: 3
+    title: "Settle exactly once"
+    content: "Mark the auction settled before sending the proceeds to the seller, and remember that an auction with no bids still has to be settleable."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity by Example: Simple Open Auction"
+    url: https://docs.soliditylang.org/en/v0.8.28/solidity-by-example.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-113: DoS with Failed Call"
+    url: https://swcregistry.io/docs/SWC-113/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

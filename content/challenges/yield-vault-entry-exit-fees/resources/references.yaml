@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-4626 Tokenized Vaults"
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"

@@ -1,0 +1,64 @@
+id: empty-market-donation-attack
+slug: empty-market-donation-attack
+title: "Defend a Lending Market Against the Empty-Market Donation Attack"
+description: "A two-asset lending market derives its exchange rate from its raw token balance, rounds share burns down and checks health against a stale rate. An attacker who holds two wei of shares in an empty market donates tokens, borrows the other asset and then withdraws the donation. Patch the accounting."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - lending
+  - exchange-rate
+  - donation-attack
+  - rounding
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TwinMarket.sol
+  editable_files:
+    - src/TwinMarket.sol
+  readonly_files:
+    - test/TwinMarket.t.sol
+tests:
+  public_suite: evaluation/public/TwinMarket.t.sol
+  hidden_suite: evaluation/hidden/TwinMarketHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 400000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Who can change the exchange rate?"
+    content: "exchangeRate reads the token balance of the contract. Anyone can change that number with a plain transfer that never passes through mint."
+  - order: 2
+    title: "Rounding must favour the pool"
+    content: "When a user names the underlying amount to take out, the shares burned must be rounded up. Work out what floor does when two wei of shares are each worth 500 tokens."
+  - order: 3
+    title: "Check health on the final state"
+    content: "The solvency check in the redeem paths runs before the outgoing transfer. With balance-based cash, the tokens about to leave still count as collateral."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-4626 Tokenized Vaults (rounding rules and security considerations)"
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity security considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

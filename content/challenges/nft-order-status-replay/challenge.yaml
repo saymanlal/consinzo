@@ -1,0 +1,63 @@
+id: nft-order-status-replay
+slug: nft-order-status-replay
+title: "Stop Cancelled and Filled NFT Orders From Being Filled"
+description: "An NFT order book records cancellations and maker nonces but never consults them when an order is filled, so cancelled orders stay live and a filled order can be filled again once the maker owns the token again. Patch the order lifecycle."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - nft-marketplace
+  - order-replay
+  - state-machine
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/NftOrderBook.sol
+  editable_files:
+    - src/NftOrderBook.sol
+  readonly_files:
+    - test/NftOrderBook.t.sol
+tests:
+  public_suite: evaluation/public/NftOrderBook.t.sol
+  hidden_suite: evaluation/hidden/NftOrderBookHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Follow the status field"
+    content: "Find every place that writes an order's status and every place that reads it. The fill path is the one that moves value."
+  - order: 2
+    title: "An order is a one-shot authorisation"
+    content: "The marketplace keeps its token approval after a sale. If the maker ever owns the token again, what stops the old order from executing a second time?"
+  - order: 3
+    title: "Bulk cancellation"
+    content: "cancelAllOrders bumps the maker's nonce. That only invalidates anything if fillOrder compares the nonce stored in the order with the maker's current nonce."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-721 Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "SWC-121 Missing Protection against Signature Replay Attacks"
+    url: https://swcregistry.io/docs/SWC-121/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

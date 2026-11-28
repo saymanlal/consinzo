@@ -1,46 +1,111 @@
-import { Card } from "@consinzo/ui";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Gauge, PlayCircle, Terminal, UserRound } from "lucide-react";
+import { FREE_TIER_LIMITS } from "@consinzo/shared";
+import { Container, DarkBand, PageHero } from "@/components/marketing/blocks";
+import { Reveal } from "@/components/marketing/motion";
+import { DIFFICULTY_META, DIFFICULTY_TIERS } from "@/lib/difficulty";
+import { GUEST_LIMITS } from "@/lib/guest-limits";
+import { pageMetadata } from "@/lib/site";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Documentation",
+  description:
+    "CONSINZO technical documentation: execution modes, the local CLI, guest and account limits, difficulty tiers and scoring.",
+  path: "/docs",
+});
+
+const kb = (bytes: number) => `${Math.round(bytes / 1024)} KB`;
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <div className="border-b border-zinc-200 pb-4">
-        <h1 className="text-2xl font-semibold text-zinc-950">CONSINZO Technical Documentation</h1>
-        <p className="mt-1 text-sm text-zinc-600">
-          Local CLI workflow, challenge package schema, execution modes, and REST API v1 reference.
-        </p>
-      </div>
+    <DarkBand>
+      <PageHero
+        eyebrow="Documentation"
+        title={
+          <>
+            How CONSINZO <span className="cz-gradient-text">runs your code</span>
+          </>
+        }
+        lead="Execution modes, the local CLI, limits for guests and accounts, difficulty tiers and scoring."
+      />
+      <Container className="grid gap-4 pb-24 lg:grid-cols-2">
+        <Reveal as="section" className="cz-card p-6 sm:p-8 lg:col-span-2">
+          <h2 className="flex items-center gap-2 text-base font-semibold text-white">
+            <PlayCircle className="h-5 w-5 text-cyan-300" /> Execution modes
+          </h2>
+          <ul className="mt-4 space-y-4 text-sm leading-relaxed text-zinc-400">
+            <li>
+              <strong className="text-zinc-200">Mode B — local CLI and in-process runners.</strong>{" "}
+              Compiles EVM Solidity projects with <code className="font-mono text-zinc-200">solc 0.8.28</code>{" "}
+              and executes Foundry-compatible test contracts with native{" "}
+              <code className="font-mono text-zinc-200">forge</code> (when installed) or the bundled{" "}
+              <code className="font-mono text-zinc-200">@ethereumjs/evm</code>. NEAR TypeScript
+              contracts are type-checked and executed by{" "}
+              <code className="font-mono text-zinc-200">@consinzo/runner-near</code>.
+            </li>
+            <li>
+              <strong className="text-zinc-200">Mode C — remote evaluation.</strong> Disabled by
+              default unless an isolated evaluation runner without repository secret exposure is
+              configured.
+            </li>
+          </ul>
+        </Reveal>
 
-      <Card className="p-6 space-y-3">
-        <h2 className="text-base font-semibold text-zinc-950">Execution Modes</h2>
-        <ul className="list-disc list-inside text-xs text-zinc-700 space-y-1.5">
-          <li>
-            <strong>Mode B (Local CLI &amp; In-Process Multi-Ecosystem Runners):</strong> Compiles
-            EVM Solidity projects via <code className="font-mono">solc 0.8.28</code> and executes
-            Foundry-compatible test contracts via native <code className="font-mono">forge</code>{" "}
-            (when installed) or bundled <code className="font-mono">@ethereumjs/evm</code>, and
-            typechecks/executes NEAR TypeScript contracts via{" "}
-            <code className="font-mono">@consinzo/runner-near</code>.
-          </li>
-          <li>
-            <strong>Mode C (Remote GitHub Actions Evaluation):</strong> Disabled by default in
-            free-tier local deployments unless an isolated evaluation runner without repository
-            secret exposure is configured.
-          </li>
-        </ul>
-        <pre className="rounded bg-zinc-950 p-3 font-mono text-xs text-zinc-200 overflow-x-auto">
+        <Reveal as="section" delay={80} className="cz-card p-6 sm:p-8">
+          <h2 className="flex items-center gap-2 text-base font-semibold text-white">
+            <Terminal className="h-5 w-5 text-violet-300" /> Local CLI
+          </h2>
+          <pre className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-4 font-mono text-xs leading-relaxed text-zinc-300">
 {`pnpm cli -- doctor
 pnpm cli -- compile content/challenges/erc20-token-vault
 pnpm cli -- test content/challenges/erc20-token-vault
 pnpm validate:challenges`}
-        </pre>
-      </Card>
+          </pre>
+        </Reveal>
 
-      <Card className="p-6 space-y-2 text-xs text-zinc-700">
-        <h2 className="text-base font-semibold text-zinc-950">Free-Tier Guardrails</h2>
-        <p>Maximum project snapshot: 256 KB across up to 40 files.</p>
-        <p>Execution timeout: 15,000 ms per run; sanitized logs capped at 64 KB.</p>
-        <p>Hourly submission quota: 20 submissions/hour per authenticated developer.</p>
-      </Card>
-    </div>
+        <Reveal as="section" delay={140} className="cz-card p-6 sm:p-8">
+          <h2 className="flex items-center gap-2 text-base font-semibold text-white">
+            <Gauge className="h-5 w-5 text-emerald-300" /> Limits for accounts
+          </h2>
+          <ul className="mt-4 space-y-2 text-sm text-zinc-400">
+            <li>Project snapshot: {kb(FREE_TIER_LIMITS.MAX_PROJECT_BYTES)} across up to {FREE_TIER_LIMITS.MAX_FILES_PER_SNAPSHOT} files.</li>
+            <li>Execution timeout: {(FREE_TIER_LIMITS.MAX_EXECUTION_DURATION_MS / 1000).toLocaleString("en-US")} s per run; logs capped at {kb(FREE_TIER_LIMITS.MAX_OUTPUT_BYTES)}.</li>
+            <li>Submissions: {FREE_TIER_LIMITS.MAX_SUBMISSIONS_PER_HOUR} per hour.</li>
+          </ul>
+        </Reveal>
+
+        <Reveal as="section" delay={80} className="cz-card p-6 sm:p-8">
+          <h2 className="flex items-center gap-2 text-base font-semibold text-white">
+            <UserRound className="h-5 w-5 text-amber-300" /> Guest mode
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+            Open any workspace without an account and run the public tests. Guests get{" "}
+            {GUEST_LIMITS.RUNS_PER_HOUR} runs per hour on{" "}
+            {GUEST_LIMITS.TIERS.map((t) => DIFFICULTY_META[t].label).join(", ")} challenges. Submitting for hidden-suite scoring,
+            points, badges, solutions, bookmarks and competitions need an account.{" "}
+            <Link href="/auth?mode=register" className="cz-focus rounded text-zinc-200 underline hover:text-white">
+              Create one
+            </Link>
+            .
+          </p>
+        </Reveal>
+
+        <Reveal as="section" delay={140} className="cz-card p-6 sm:p-8">
+          <h2 className="text-base font-semibold text-white">Difficulty tiers</h2>
+          <ol className="mt-4 space-y-2 text-sm text-zinc-400">
+            {DIFFICULTY_TIERS.map((t) => (
+              <li key={t} className="flex gap-3">
+                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${DIFFICULTY_META[t].dot}`} aria-hidden />
+                <span>
+                  <strong className="text-zinc-200">{DIFFICULTY_META[t].label}.</strong>{" "}
+                  {DIFFICULTY_META[t].blurb}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+      </Container>
+    </DarkBand>
   );
 }

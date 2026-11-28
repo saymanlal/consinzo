@@ -4,7 +4,7 @@ title: "Fix Division-Before-Multiplication Precision Loss"
 description: "Patch a staking reward distributor where integer division before multiplication truncates earned rewards to zero for small deposits."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: beginner
+difficulty: easy
 category: security-engineering
 tags:
   - patch

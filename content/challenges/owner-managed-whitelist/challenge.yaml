@@ -1,0 +1,69 @@
+id: owner-managed-whitelist
+slug: owner-managed-whitelist
+title: "Owner-Managed Address Whitelist"
+description: "Build a whitelist that its owner maintains with single and batch add/remove calls. Expose an isAllowed view, keep an accurate member count, and guard an action so that only listed addresses can perform it."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: smart-contract-engineering
+tags:
+  - solidity
+  - whitelist
+  - mappings
+  - access-control
+  - calldata-arrays
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/Whitelist.sol
+  editable_files:
+    - src/Whitelist.sol
+  readonly_files:
+    - test/Whitelist.t.sol
+tests:
+  public_suite: evaluation/public/Whitelist.t.sol
+  hidden_suite: evaluation/hidden/WhitelistHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Share the single-item logic"
+    content: "Write internal _add and _remove functions that return whether anything changed. The single and batch functions both call them."
+  - order: 2
+    title: "Idempotent updates"
+    content: "Adding an address that is already listed must not change the count or emit an event. Check the current flag before writing."
+  - order: 3
+    title: "Batch input"
+    content: "Take the list as address[] calldata and loop over it. A revert anywhere in the loop undoes the whole call, which gives all-or-nothing behaviour for free."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Mapping Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#mapping-types
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Function Modifiers"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#function-modifiers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Arrays"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

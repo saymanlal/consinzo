@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import Link from "next/link";
 import { ArrowRight, BookOpen, CheckCircle2, Cpu, ExternalLink, XCircle } from "lucide-react";
 import { ECOSYSTEM_REGISTRY, SUPPORT_LEVEL_LABELS } from "@consinzo/ecosystem-registry";
 import { Badge, Card } from "@consinzo/ui";
 import { listPublishedChallenges } from "@/lib/challenges";
 import { KNOWLEDGE_ENTRIES } from "@/lib/knowledge";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Blockchain Ecosystems and Toolchains",
+  description:
+    "Ten blockchain ecosystems with pinned toolchain versions and an honest support level for each, from reference-only to automated evaluation.",
+  path: "/ecosystems",
+});
 
 export default function EcosystemsPage() {
   const allChallenges = listPublishedChallenges();

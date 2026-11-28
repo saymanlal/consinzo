@@ -1,0 +1,11 @@
+references:
+  - title: "Enums"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#enums
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Common Patterns: State Machine"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html#state-machine
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"

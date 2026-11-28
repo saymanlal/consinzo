@@ -1,0 +1,11 @@
+references:
+  - title: "SWC-112 Delegatecall to Untrusted Callee"
+    url: https://swcregistry.io/docs/SWC-112/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Delegatecall and Libraries"
+    url: https://docs.soliditylang.org/en/v0.8.28/introduction-to-smart-contracts.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

@@ -45,7 +45,7 @@ export const ChallengeManifestSchema = z.object({
     "tezos",
   ]),
   language: z.string().min(2),
-  difficulty: z.enum(["beginner", "intermediate", "advanced", "expert"]),
+  difficulty: z.enum(["beginner", "easy", "normal", "intermediate", "hard", "legend"]),
   category: z.enum([
     "programming-fundamentals",
     "smart-contract-engineering",

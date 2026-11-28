@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import { BookOpen } from "lucide-react";
 import { KnowledgeExplorer } from "@/components/knowledge-explorer";
 import { KNOWLEDGE_ENTRIES } from "@/lib/knowledge";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Knowledge Hub",
+  description:
+    "Version-pinned reference notes on Solidity, EVM standards, security patterns, Foundry and NEAR, each with its source and the challenges that exercise it.",
+  path: "/knowledge",
+});
 
 export default function KnowledgePage() {
   const ecosystemsCovered = new Set(KNOWLEDGE_ENTRIES.map((e) => e.ecosystemId)).size;

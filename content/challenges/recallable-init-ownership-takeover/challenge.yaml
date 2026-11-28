@@ -1,0 +1,65 @@
+id: recallable-init-ownership-takeover
+slug: recallable-init-ownership-takeover
+title: "Stop a Re-callable init From Stealing Ownership"
+description: "SharedWallet is set up through an init() function instead of a constructor, and init() can be called again at any time. Patch it so the wallet can be initialised exactly once and nobody can replace the owner afterwards."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: security-engineering
+tags:
+  - patch
+  - initialization
+  - access-control
+  - ownership
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SharedWallet.sol
+  editable_files:
+    - src/SharedWallet.sol
+  readonly_files:
+    - test/SharedWallet.t.sol
+tests:
+  public_suite: evaluation/public/SharedWallet.t.sol
+  hidden_suite: evaluation/hidden/SharedWalletHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "A flag nobody reads"
+    content: "The contract records that it was initialised but never looks at that record. Find where the check belongs."
+  - order: 2
+    title: "Validate before you commit"
+    content: "Reject the zero address before marking the wallet as initialised, so a mistaken first call does not lock the wallet without an owner."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-105 Unprotected Ether Withdrawal"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "SWC-118 Incorrect Constructor Name"
+    url: https://swcregistry.io/docs/SWC-118/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Contracts: Constructors"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

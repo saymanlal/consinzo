@@ -1,0 +1,16 @@
+references:
+  - title: "ERC-5164: Cross-Chain Execution"
+    url: https://eips.ethereum.org/EIPS/eip-5164
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity ABI Specification"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

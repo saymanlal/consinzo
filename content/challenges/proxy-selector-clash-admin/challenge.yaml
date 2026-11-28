@@ -1,0 +1,64 @@
+id: proxy-selector-clash-admin
+slug: proxy-selector-clash-admin
+title: "Remove a Proxy Selector Clash That Routes User Calls to an Admin Function"
+description: "An upgradeable proxy declares its own external functions, one of which shares a 4-byte selector with the token implementation's burn(uint256) and rewrites the admin slot. Any holder who burns tokens becomes proxy admin and can swap the implementation. Rebuild the dispatch as a transparent proxy."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - proxy
+  - selector-clash
+  - upgradeability
+  - delegatecall
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ShieldedProxy.sol
+  editable_files:
+    - src/ShieldedProxy.sol
+  readonly_files:
+    - test/ShieldedProxy.t.sol
+tests:
+  public_suite: evaluation/public/ShieldedProxy.t.sol
+  hidden_suite: evaluation/hidden/ShieldedProxyHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Selectors are only four bytes"
+    content: "Compute bytes4(keccak256(signature)) for every external function of the proxy and of the implementation. Two different signatures can share a selector, and Solidity dispatches to the proxy's own function first."
+  - order: 2
+    title: "Decide by caller, not by selector"
+    content: "A transparent proxy never looks at the selector for ordinary callers. If msg.sender is not the admin the call is always delegated; if it is the admin the call is never delegated."
+  - order: 3
+    title: "No external functions on the proxy"
+    content: "Handle the admin operations inside fallback(), decoding msg.data yourself. A proxy with no declared external functions has nothing that can shadow the implementation."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1967 Proxy Storage Slots"
+    url: https://eips.ethereum.org/EIPS/eip-1967
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity ABI specification: function selector"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

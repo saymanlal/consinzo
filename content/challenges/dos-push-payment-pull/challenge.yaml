@@ -4,7 +4,7 @@ title: "Fix King-of-Ether Push-Payment Denial of Service"
 description: "Refactor a push-payment auction contract into pull-payment withdrawals so a malicious bidder cannot permanently brick outbidding by reverting on receive()."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: intermediate
+difficulty: normal
 category: security-engineering
 tags:
   - patch

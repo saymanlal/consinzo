@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-721 Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: try/catch"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#try-catch
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

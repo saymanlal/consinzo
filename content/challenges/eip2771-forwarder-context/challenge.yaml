@@ -1,0 +1,64 @@
+id: eip2771-forwarder-context
+slug: eip2771-forwarder-context
+title: "EIP-2771 Recipient: Recover the Original Sender from Calldata"
+description: "Build an EIP-2771 recipient contract that accepts meta-transactions relayed by one trusted forwarder. When the forwarder calls, the real sender is taken from the last 20 bytes of calldata; for every other caller msg.sender is used and appended bytes are ignored."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: blockchain-infrastructure
+tags:
+  - eip-2771
+  - meta-transactions
+  - trusted-forwarder
+  - calldata
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MetaTxRecipient.sol
+  editable_files:
+    - src/MetaTxRecipient.sol
+  readonly_files:
+    - test/MetaTxRecipient.t.sol
+tests:
+  public_suite: evaluation/public/MetaTxRecipient.t.sol
+  hidden_suite: evaluation/hidden/MetaTxRecipientHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two conditions, both required"
+    content: "Only read the sender from calldata when msg.sender is the trusted forwarder and the calldata is at least 20 bytes long. In every other case the sender is msg.sender."
+  - order: 2
+    title: "Read the suffix from calldata"
+    content: "The appended address occupies the last 20 bytes. In assembly, shr(96, calldataload(sub(calldatasize(), 20))) yields it; in Solidity, address(bytes20(msg.data[msg.data.length - 20:])) does the same."
+  - order: 3
+    title: "Use the helper everywhere"
+    content: "Every place that would normally use msg.sender for authorisation or accounting must use the context helper, including the address that receives withdrawn ether."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-2771: Secure Protocol for Native Meta Transactions"
+    url: https://eips.ethereum.org/EIPS/eip-2771
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Block and Transaction Properties (msg.data, msg.sender)"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

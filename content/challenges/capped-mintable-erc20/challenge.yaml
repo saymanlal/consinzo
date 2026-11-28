@@ -1,0 +1,60 @@
+id: capped-mintable-erc20
+slug: capped-mintable-erc20
+title: "Capped Mintable ERC-20"
+description: "Implement an owner-mintable token whose total supply can never exceed an immutable cap, including when the mint amount is chosen to overflow the check."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: token-standards
+tags:
+  - erc20
+  - supply-cap
+  - minting
+  - access-control
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CappedToken.sol
+  editable_files:
+    - src/CappedToken.sol
+  readonly_files:
+    - test/CappedToken.t.sol
+tests:
+  public_suite: evaluation/public/CappedToken.t.sol
+  hidden_suite: evaluation/hidden/CappedTokenHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 100000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Compare against the remaining room"
+    content: "totalSupply + amount can overflow before you compare it with the cap. Because totalSupply <= cap always holds, cap - totalSupply cannot underflow, so compare amount with that instead."
+  - order: 2
+    title: "Burning and the cap"
+    content: "The cap limits totalSupply, not the cumulative amount ever minted. Burning reduces totalSupply and therefore frees room under the cap."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Checked or Unchecked Arithmetic"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#checked-or-unchecked-arithmetic
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

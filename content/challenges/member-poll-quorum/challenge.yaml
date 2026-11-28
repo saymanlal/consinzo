@@ -1,0 +1,60 @@
+id: member-poll-quorum
+slug: member-poll-quorum
+title: "Member Poll with Quorum and Passing Threshold"
+description: "Build a token-less DAO poll: a fixed set of members creates yes/no polls, each member votes once, and a poll passes only if enough members voted and a large enough share of them said yes."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: protocol-implementation
+tags:
+  - voting
+  - dao
+  - quorum
+  - governance
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MemberPoll.sol
+  editable_files:
+    - src/MemberPoll.sol
+  readonly_files:
+    - test/MemberPoll.t.sol
+tests:
+  public_suite: evaluation/public/MemberPoll.t.sol
+  hidden_suite: evaluation/hidden/MemberPollHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two separate conditions"
+    content: "Quorum asks whether enough votes were cast at all (yes + no). The threshold asks what share of the cast votes were yes. Check quorum first, then the threshold."
+  - order: 2
+    title: "Compare without dividing"
+    content: "yes / total >= thresholdBps / 10000 loses precision in integer math. Cross-multiply instead: yes * 10000 >= thresholdBps * total."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity by Example: Voting"
+    url: https://docs.soliditylang.org/en/v0.8.28/solidity-by-example.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types: Mappings, Structs and Enums"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

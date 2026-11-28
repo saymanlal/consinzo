@@ -1,0 +1,62 @@
+id: near-ft-allowances
+slug: near-ft-allowances
+title: "NEAR Fungible Token Allowances"
+description: "Extend a fungible token ledger with allowances: owners approve a spender for an amount, and the spender moves tokens with transfer_from while the allowance is decremented."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: token-standards
+tags:
+  - near
+  - fungible-token
+  - allowance
+  - approve
+  - transfer-from
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/AllowanceToken.ts
+  editable_files:
+    - src/AllowanceToken.ts
+  readonly_files:
+    - test/AllowanceToken.t.ts
+tests:
+  public_suite: evaluation/public/AllowanceToken.t.ts
+  hidden_suite: evaluation/hidden/AllowanceTokenHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Key the allowance by both accounts"
+    content: "An allowance belongs to an (owner, spender) pair. Build a composite key such as owner + \":\" + spender for a single LookupMap."
+  - order: 2
+    title: "Who is who in transferFrom"
+    content: "The caller is the spender. Tokens leave the owner's balance, the allowance of (owner, caller) shrinks, and the receiver can be any third account."
+  - order: 3
+    title: "Approve overwrites"
+    content: "approve sets the allowance to the given amount; it does not add to the previous value. Approving 0n revokes."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Fungible Token Standard (NEP-141)"
+    url: https://docs.near.org/primitives/ft/standard
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

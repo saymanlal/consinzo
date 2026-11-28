@@ -27,6 +27,10 @@ export interface PublicProfileView {
   totalPoints: number;
   challengesCompleted: number;
   securityMissionsCompleted: number;
+  /** Public wallet address, if the account is linked to one. Never a key or phrase. */
+  walletAddress?: string;
+  phone?: string;
+  authProvider?: string;
 }
 
 async function resolveSupabaseChallengeId(slug: string): Promise<string | null> {
@@ -117,6 +121,10 @@ export async function getUserProfileById(userId: string): Promise<PublicProfileV
       totalPoints: profile.total_points ?? 0,
       challengesCompleted: profile.challenges_completed ?? 0,
       securityMissionsCompleted: profile.security_missions_completed ?? 0,
+      walletAddress: profile.wallet_address ?? undefined,
+      phone: profile.phone ?? authData?.user?.phone ?? undefined,
+      authProvider:
+        profile.auth_provider ?? authData?.user?.app_metadata?.provider ?? undefined,
     };
   }
 
@@ -135,6 +143,9 @@ export async function getUserProfileById(userId: string): Promise<PublicProfileV
     totalPoints: u.totalPoints,
     challengesCompleted: u.challengesCompleted,
     securityMissionsCompleted: u.securityMissionsCompleted,
+    walletAddress: u.walletAddress,
+    phone: u.phone,
+    authProvider: u.authProvider ?? "password",
   };
 }
 
@@ -1237,9 +1248,9 @@ async function resolveSupabaseSecurityMissionId(missionSlug: string): Promise<st
         mission_type: challenge.manifest.tags.includes("exploit") ? "exploit" : "patch",
         vulnerability_class: challenge.manifest.tags[0] ?? "smart-contract-security",
         severity:
-          challenge.manifest.difficulty === "expert"
+          challenge.manifest.difficulty === "legend"
             ? "critical"
-            : challenge.manifest.difficulty === "advanced"
+            : challenge.manifest.difficulty === "hard"
               ? "high"
               : "medium",
         requires_human_review: true,

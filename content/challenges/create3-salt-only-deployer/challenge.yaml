@@ -1,0 +1,69 @@
+id: create3-salt-only-deployer
+slug: create3-salt-only-deployer
+title: "CREATE3-Style Deployer: Addresses Independent of Init Code"
+description: "Build a deployer whose resulting contract address depends only on the deployer, the caller and a salt, not on the contract's init code. It combines CREATE2 for a tiny fixed proxy with CREATE from that proxy, and must detect failed deployments."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: advanced-blockchain-systems
+tags:
+  - create3
+  - create2
+  - deterministic-deployment
+  - address-derivation
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/Create3Deployer.sol
+  editable_files:
+    - src/Create3Deployer.sol
+  readonly_files:
+    - test/Create3Deployer.t.sol
+tests:
+  public_suite: evaluation/public/Create3Deployer.t.sol
+  hidden_suite: evaluation/hidden/Create3DeployerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 3000000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two hops"
+    content: "CREATE2 a fixed, tiny proxy whose address depends only on the salt. The proxy then CREATEs the real contract. Because the proxy is new, its nonce is 1, so the final address is a function of the proxy address alone."
+  - order: 2
+    title: "The proxy never reverts"
+    content: "The proxy's runtime code performs CREATE and stops; it does not check the result. After calling it you must check that code exists at the predicted address, otherwise a reverting constructor looks like a success."
+  - order: 3
+    title: "Bind the salt to the caller"
+    content: "Hash msg.sender together with the user's salt before using it for CREATE2. Otherwise anyone can occupy another user's address by submitting the same salt first."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1014: Skinny CREATE2"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-3171: CREATE3"
+    url: https://eips.ethereum.org/EIPS/eip-3171
+    source: "Ethereum EIPs"
+    version: "EIP-3171"
+    verified_at: "2026-11-28"
+  - title: "EIP-161: State Trie Clearing (contract nonces start at 1)"
+    url: https://eips.ethereum.org/EIPS/eip-161
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

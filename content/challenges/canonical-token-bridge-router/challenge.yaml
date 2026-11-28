@@ -1,0 +1,63 @@
+id: canonical-token-bridge-router
+slug: canonical-token-bridge-router
+title: "Canonical Token Registry and Bridge Router"
+description: "Build a bridge router that maps local tokens to their canonical remote counterparts per destination chain and keeps separate liquidity and fee books for every route, so one route can never be paid from another."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: cross-chain-development
+tags:
+  - bridge
+  - token-registry
+  - fee-accounting
+  - route-isolation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CanonicalBridgeRouter.sol
+  editable_files:
+    - src/CanonicalBridgeRouter.sol
+  readonly_files:
+    - test/CanonicalBridgeRouter.t.sol
+tests:
+  public_suite: evaluation/public/CanonicalBridgeRouter.t.sol
+  hidden_suite: evaluation/hidden/CanonicalBridgeRouterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two maps, kept in step"
+    content: "Store the route under (token, chainId) and a reverse entry under (chainId, remoteToken). Registration must refuse a remote token that already has a reverse entry on that chain."
+  - order: 2
+    title: "Which number limits a release"
+    content: "An inbound transfer is bounded by the liquidity locked on its own route, not by the router's token balance."
+  - order: 3
+    title: "Book what arrived"
+    content: "Compare the router's balance before and after transferFrom and compute the fee from that difference."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,11 @@
+references:
+  - title: "Checked or Unchecked Arithmetic"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#checked-or-unchecked-arithmetic
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Types: Integers (Division and Modulo)"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#integers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"

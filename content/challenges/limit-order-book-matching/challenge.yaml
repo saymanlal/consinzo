@@ -1,0 +1,69 @@
+id: limit-order-book-matching
+slug: limit-order-book-matching
+title: "On-Chain Limit Order Book with Price-Time Priority"
+description: "Build a two-token limit order book: incoming orders match against the best resting orders at the maker's price, partially filled orders keep their place in the queue, and the remainder rests in a price-sorted, time-ordered linked list."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - order-book
+  - matching-engine
+  - price-time-priority
+  - linked-list
+  - partial-fills
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/OrderBook.sol
+  editable_files:
+    - src/OrderBook.sol
+  readonly_files:
+    - test/OrderBook.t.sol
+tests:
+  public_suite: evaluation/public/OrderBook.t.sol
+  hidden_suite: evaluation/hidden/OrderBookHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 1200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two sorted lists"
+    content: "Keep one doubly linked list per side with the best price at the head. Matching only ever looks at the head of the opposite side, and cancelling needs the prev pointer to unlink in constant time."
+  - order: 2
+    title: "Where a new order goes"
+    content: "Walk from the head while the existing order is at least as good as the new one. Inserting after every order with an equal price is what gives earlier orders time priority."
+  - order: 3
+    title: "Who pays what"
+    content: "A resting order escrowed its own side when it was placed. During a match the taker pays the maker directly at the maker's price and receives the escrowed asset from the book, so no refund step is needed."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Expressions and Control Structures"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

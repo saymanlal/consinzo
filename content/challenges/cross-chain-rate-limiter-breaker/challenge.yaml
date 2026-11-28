@@ -1,0 +1,69 @@
+id: cross-chain-rate-limiter-breaker
+slug: cross-chain-rate-limiter-breaker
+title: "Cross-Chain Rate Limiter with Circuit Breaker"
+description: "Build an outflow guard for a bridge: a lazily refilled token bucket per destination route plus a circuit breaker that pauses a route when the outflow in a time window exceeds a threshold, and stays paused until the owner resumes it."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: cross-chain-development
+tags:
+  - bridge
+  - rate-limiting
+  - token-bucket
+  - circuit-breaker
+  - pausable
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RouteRateLimiter.sol
+  editable_files:
+    - src/RouteRateLimiter.sol
+  readonly_files:
+    - test/RouteRateLimiter.t.sol
+tests:
+  public_suite: evaluation/public/RouteRateLimiter.t.sol
+  hidden_suite: evaluation/hidden/RouteRateLimiterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Compute the bucket on demand"
+    content: "Store the content and the time it was last updated. Derive the current content from elapsed time in one helper and use it everywhere, in uint256."
+  - order: 2
+    title: "A revert forgets everything"
+    content: "When the breaker trips, the pause has to be written and survive the call. Think about what consume must do instead of reverting."
+  - order: 3
+    title: "Changing parameters mid-flight"
+    content: "Before storing a new rate or capacity, settle the time that has passed under the old ones."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Control Structures: Error Handling"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types: Explicit Conversions"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,69 @@
+id: ecrecover-zero-address-signer
+slug: ecrecover-zero-address-signer
+title: "Patch a Voucher Contract That Accepts ecrecover's Zero Address"
+description: "A voucher redeemer compares the result of ecrecover with a signer slot that is empty until configured and whenever redemptions are paused. A malformed signature recovers to address(0), matches the empty slot and drains the contract. Patch the signature check and the signer management."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - ecrecover
+  - signatures
+  - zero-address
+  - vouchers
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/VoucherRedeemer.sol
+  editable_files:
+    - src/VoucherRedeemer.sol
+  readonly_files:
+    - test/VoucherRedeemer.t.sol
+tests:
+  public_suite: evaluation/public/VoucherRedeemer.t.sol
+  hidden_suite: evaluation/hidden/VoucherRedeemerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 120000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "ecrecover does not revert"
+    content: "The ecrecover precompile returns address(0) when the inputs do not describe a recoverable signature, for example when v is neither 27 nor 28. The caller has to treat that value as a failure."
+  - order: 2
+    title: "Compare against what"
+    content: "recovered == signer is only meaningful when signer is a real address. Look at the value of the signer slot right after deployment and after clearSigner()."
+  - order: 3
+    title: "Close both sides"
+    content: "Reject a zero recovery result, refuse to verify at all while no signer is configured, and stop setSigner from storing address(0). Any one of them alone leaves a sharp edge for the next change."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-122 Lack of Proper Signature Verification"
+    url: https://swcregistry.io/docs/SWC-122/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Mathematical and Cryptographic Functions: ecrecover"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "ERC-191: Signed Data Standard"
+    url: https://eips.ethereum.org/EIPS/eip-191
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

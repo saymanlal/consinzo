@@ -1,0 +1,64 @@
+id: optimistic-bridge-bonded-relayers
+slug: optimistic-bridge-bonded-relayers
+title: "Optimistic Bridge with Bonded Relayers"
+description: "Implement the destination side of an optimistic bridge: relayers post messages backed by a bond, anyone can dispute during a challenge period, false claims are slashed in favour of the challenger, and payouts come only from deposited liquidity."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: cross-chain-development
+tags:
+  - bridge
+  - optimistic-verification
+  - bonding
+  - slashing
+  - pull-payments
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/OptimisticBridge.sol
+  editable_files:
+    - src/OptimisticBridge.sol
+  readonly_files:
+    - test/OptimisticBridge.t.sol
+tests:
+  public_suite: evaluation/public/OptimisticBridge.t.sol
+  hidden_suite: evaluation/hidden/OptimisticBridgeHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Model it as a state machine"
+    content: "Give each claim a status and make every function begin by checking the one status it accepts. Decide which statuses keep the slot occupied."
+  - order: 2
+    title: "Three pools of ETH"
+    content: "Track liquidity in its own variable. The contract balance also contains bonds and unpaid credits, which must not be used to pay messages."
+  - order: 3
+    title: "Remember the bond per claim"
+    content: "Store the bond that was posted with the claim and use that value for the challenger's stake and for the slash, not the current setting."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: Withdrawal and State Machine"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

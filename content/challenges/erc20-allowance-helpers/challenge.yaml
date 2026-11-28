@@ -1,0 +1,55 @@
+id: erc20-allowance-helpers
+slug: erc20-allowance-helpers
+title: "ERC-20 Allowance Helpers and Infinite Approvals"
+description: "Implement increaseAllowance and decreaseAllowance with explicit overflow and underflow errors, and a transferFrom that treats a maximal allowance as infinite."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: token-standards
+tags:
+  - erc20
+  - allowances
+  - approve-race
+  - infinite-approval
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/AllowanceToken.sol
+  editable_files:
+    - src/AllowanceToken.sol
+  readonly_files:
+    - test/AllowanceToken.t.sol
+tests:
+  public_suite: evaluation/public/AllowanceToken.t.sol
+  hidden_suite: evaluation/hidden/AllowanceTokenHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 90000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Relative changes need bounds"
+    content: "increaseAllowance must not wrap past type(uint256).max and decreaseAllowance must not go below zero. Check against the current value before doing the arithmetic and revert with the named error."
+  - order: 2
+    title: "Infinite means unchanged"
+    content: "In transferFrom, if the stored allowance equals type(uint256).max, skip the write entirely. For every other value subtract the amount spent."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

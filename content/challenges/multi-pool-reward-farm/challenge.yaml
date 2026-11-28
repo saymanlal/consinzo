@@ -1,0 +1,64 @@
+id: multi-pool-reward-farm
+slug: multi-pool-reward-farm
+title: "Multi-Pool Reward Farm with Allocation Points"
+description: "Implement a farm that emits a reward token at a fixed rate and splits it across several staking pools by allocation points, using accRewardPerShare and rewardDebt accounting, with pool management that never rewrites past rewards."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - yield-farming
+  - masterchef
+  - reward-debt
+  - allocation-points
+  - accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RewardFarm.sol
+  editable_files:
+    - src/RewardFarm.sol
+  readonly_files:
+    - test/RewardFarm.t.sol
+tests:
+  public_suite: evaluation/public/RewardFarm.t.sol
+  hidden_suite: evaluation/hidden/RewardFarmHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Reward debt"
+    content: "pending = user.amount * pool.accRewardPerShare / 1e18 - user.rewardDebt. After every change of user.amount, set rewardDebt = user.amount * accRewardPerShare / 1e18 using the new amount."
+  - order: 2
+    title: "Allocation changes are not retroactive"
+    content: "A pool's share of emissions is allocPoint / totalAllocPoint at the time the seconds elapse. Before add() or set() changes totalAllocPoint, every pool must be updated with the old weights."
+  - order: 3
+    title: "Idle time"
+    content: "If a pool has no stake, or the farm has not started, advance lastRewardTime without increasing accRewardPerShare. Otherwise the first staker is credited for time nobody was staked."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types: Structs and Mappings"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

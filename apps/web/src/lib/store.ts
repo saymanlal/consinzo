@@ -13,6 +13,12 @@ export interface StoredUser {
   githubUrl: string;
   websiteUrl: string;
   passwordHash: string;
+  /** Checksummed EVM address when the account signs in with a wallet. Public data only. */
+  walletAddress?: string;
+  /** E.164 phone number when the account signs in by SMS code. */
+  phone?: string;
+  /** How the account was first created. */
+  authProvider?: "password" | "wallet" | "email-code" | "phone";
   roles: RoleName[];
   totalPoints: number;
   challengesCompleted: number;
@@ -127,6 +133,23 @@ export interface StoredContestScore {
   lastAcceptedAt: string;
 }
 
+export interface StoredOtpChallenge {
+  channel: "email" | "phone";
+  identifier: string;
+  codeHash: string;
+  expiresAt: number;
+  attempts: number;
+}
+
+export interface StoredContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  topic: string;
+  message: string;
+  createdAt: string;
+}
+
 interface LocalDatabase {
   users: StoredUser[];
   submissions: StoredSubmission[];
@@ -138,6 +161,8 @@ interface LocalDatabase {
   teams: StoredTeam[];
   contestScores: StoredContestScore[];
   adminAuditLogs: StoredAuditLog[];
+  contactMessages: StoredContactMessage[];
+  otpChallenges: StoredOtpChallenge[];
 }
 
 function resolveDbPath(): string {
@@ -206,6 +231,8 @@ function initialSeedDb(): LocalDatabase {
     teams: [],
     contestScores: [],
     adminAuditLogs: [],
+    contactMessages: [],
+    otpChallenges: [],
   };
 }
 

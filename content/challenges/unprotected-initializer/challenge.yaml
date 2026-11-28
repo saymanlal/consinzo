@@ -4,7 +4,7 @@ title: "Exploit Unprotected Proxy Initializer"
 description: "Red-team mission: write an Exploit contract that takes ownership of an uninitialized upgradeable-style vault and drains its ETH balance."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: beginner
+difficulty: easy
 category: security-engineering
 tags:
   - exploit

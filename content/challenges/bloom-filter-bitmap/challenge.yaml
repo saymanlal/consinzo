@@ -1,0 +1,61 @@
+id: bloom-filter-bitmap
+slug: bloom-filter-bitmap
+title: "Bloom Filter with k Hash Functions over a Bitmap"
+description: "Implement an on-chain Bloom filter: a bitmap of m bits in which every item sets k positions derived from k hash functions. Membership queries may return false positives but never false negatives."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: blockchain-infrastructure
+tags:
+  - bloom-filter
+  - bitmap
+  - probabilistic-data-structure
+  - keccak256
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BloomFilter.sol
+  editable_files:
+    - src/BloomFilter.sol
+  readonly_files:
+    - test/BloomFilter.t.sol
+tests:
+  public_suite: evaluation/public/BloomFilter.t.sol
+  hidden_suite: evaluation/hidden/BloomFilterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Pack 256 bits per storage slot"
+    content: "Bit number n lives in word n / 256 at bit position n % 256. Setting it is an OR with 1 << (n % 256); testing it is an AND with the same mask."
+  - order: 2
+    title: "Two positions can coincide"
+    content: "Two of the k positions of one item may be the same bit, and several positions may share a word. Count a bit as newly set only when it was zero immediately before you set it, otherwise setBits drifts."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity: Operators (bitwise and shift operators)"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Mathematical and Cryptographic Functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

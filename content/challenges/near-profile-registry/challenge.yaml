@@ -1,0 +1,58 @@
+id: near-profile-registry
+slug: near-profile-registry
+title: "NEAR Profile Registry Keyed by Caller"
+description: "Build a profile registry where each account can create, update, read and delete only its own profile, keyed by the predecessor account id."
+ecosystem: near
+language: TypeScript
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - near
+  - near-sdk-js
+  - lookup-map
+  - predecessor-account
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/ProfileRegistry.ts
+  editable_files:
+    - src/ProfileRegistry.ts
+  readonly_files:
+    - test/ProfileRegistry.t.ts
+tests:
+  public_suite: evaluation/public/ProfileRegistry.t.ts
+  hidden_suite: evaluation/hidden/ProfileRegistryHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "The key is the caller"
+    content: "Never accept the account id as an argument for writes. Use near.predecessorAccountId() as the LookupMap key so a caller can only touch its own entry."
+  - order: 2
+    title: "Count creations, not writes"
+    content: "Check containsKey before writing: only a first-time setProfile increases the profile count, and only a successful delete decreases it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Contract Environment"
+    url: https://docs.near.org/smart-contracts/anatomy/environment
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

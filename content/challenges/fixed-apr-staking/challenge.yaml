@@ -1,0 +1,63 @@
+id: fixed-apr-staking
+slug: fixed-apr-staking
+title: "Fixed-APR Single-Asset Staking"
+description: "Implement a single-token staking contract that pays every staker simple interest per second at a fixed APR, with stake, unstake and claim, and a reward pool that can never spend staked principal."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: defi-engineering
+tags:
+  - staking
+  - simple-interest
+  - apr
+  - erc20
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FixedAprStaking.sol
+  editable_files:
+    - src/FixedAprStaking.sol
+  readonly_files:
+    - test/FixedAprStaking.t.sol
+tests:
+  public_suite: evaluation/public/FixedAprStaking.t.sol
+  hidden_suite: evaluation/hidden/FixedAprStakingHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 250000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Checkpoint before every balance change"
+    content: "Interest depends on the principal that was staked during the elapsed time. Fold the pending interest into a stored amount before you add to or subtract from the principal."
+  - order: 2
+    title: "One formula"
+    content: "interest = principal * aprBps * elapsed / (10_000 * 365 days). Do the three multiplications first and a single division last."
+  - order: 3
+    title: "Protect principal"
+    content: "Rewards may only come from tokens the contract holds beyond totalStaked. Compare the payout against token.balanceOf(address(this)) - totalStaked."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

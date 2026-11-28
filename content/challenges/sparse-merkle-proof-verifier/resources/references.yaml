@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-1186: RPC Method to Get Account and Storage Merkle Proofs"
+    url: https://eips.ethereum.org/EIPS/eip-1186
+    source: "Ethereum EIPs"
+    version: "Stagnant"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Mathematical and Cryptographic Functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

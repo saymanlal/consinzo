@@ -1,0 +1,64 @@
+id: delegatecall-caller-supplied-plugin
+slug: delegatecall-caller-supplied-plugin
+title: "Patch a Wallet That Delegatecalls Any Supplied Plugin"
+description: "A smart wallet extends itself by delegatecalling plugin contracts, but anyone can call run with any plugin address and have their own code execute with the wallet's storage and balance. Patch run so only the owner can execute plugins the owner has approved."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: security-engineering
+tags:
+  - patch
+  - delegatecall
+  - access-control
+  - untrusted-callee
+  - smart-wallet
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PluginWallet.sol
+  editable_files:
+    - src/PluginWallet.sol
+  readonly_files:
+    - test/PluginWallet.t.sol
+tests:
+  public_suite: evaluation/public/PluginWallet.t.sol
+  hidden_suite: evaluation/hidden/PluginWalletHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 150000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Whose storage, whose balance"
+    content: "delegatecall runs the target's code against the calling contract's storage, balance and msg.sender. Whoever chooses the target effectively chooses new code for the wallet."
+  - order: 2
+    title: "Two separate questions"
+    content: "Ask who is allowed to trigger a plugin, and which plugins may be triggered at all. The wallet already stores an approval list; check where it is read."
+  - order: 3
+    title: "Approved code is still powerful"
+    content: "Even a harmless-looking approved plugin, such as a batch payer, spends the wallet's ETH. Restricting the target is not enough if any caller can pick the arguments."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-112 Delegatecall to Untrusted Callee"
+    url: https://swcregistry.io/docs/SWC-112/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Delegatecall and Libraries"
+    url: https://docs.soliditylang.org/en/v0.8.28/introduction-to-smart-contracts.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

@@ -1,0 +1,63 @@
+id: running-statistics
+slug: running-statistics
+title: "Running Statistics Aggregator"
+description: "Accept a stream of numbers and maintain count, sum, minimum, maximum and integer average incrementally, without storing the individual values."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - state-variables
+  - arithmetic
+  - aggregation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RunningStats.sol
+  editable_files:
+    - src/RunningStats.sol
+  readonly_files:
+    - test/RunningStats.t.sol
+tests:
+  public_suite: evaluation/public/RunningStats.t.sol
+  hidden_suite: evaluation/hidden/RunningStatsHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 90000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Aggregate as you go"
+    content: "Update count, sum, min and max inside submit. No array of past values is needed, and the views never loop."
+  - order: 2
+    title: "The first value is special"
+    content: "Storage starts at zero. If the minimum is only updated when a value is smaller than the stored one, it stays 0 forever. The first submission must set both the minimum and the maximum."
+  - order: 3
+    title: "No data is not zero"
+    content: "min, max and average have no meaningful answer before the first submission. Revert with NoData() instead of returning 0."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Types: Integers (Division and Modulo)"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#integers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Errors and the Revert Statement"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#errors-and-the-revert-statement
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,63 @@
+id: nft-marketplace-pull-payments
+slug: nft-marketplace-pull-payments
+title: "NFT Marketplace with Protocol Fee and Pull Payments"
+description: "Build a fixed-price ERC-721 marketplace with escrowed listings, a protocol fee captured per listing, and pull-payment withdrawals for sellers, the fee recipient and overpaying buyers."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: ecosystem-integrations
+tags:
+  - erc721
+  - marketplace
+  - pull-payments
+  - protocol-fee
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/NftMarketplace.sol
+  editable_files:
+    - src/NftMarketplace.sol
+  readonly_files:
+    - test/NftMarketplace.t.sol
+tests:
+  public_suite: evaluation/public/NftMarketplace.t.sol
+  hidden_suite: evaluation/hidden/NftMarketplaceHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 350000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Credits, not transfers"
+    content: "buy should only increase pendingWithdrawals for the fee recipient, the seller and (for overpayment) the buyer. The only ETH transfer in the contract is in withdraw."
+  - order: 2
+    title: "Close the listing first"
+    content: "Set the listing inactive before calling the NFT contract and clear the pending balance before sending ETH."
+  - order: 3
+    title: "Store the fee in the listing"
+    content: "Copy feeBps into the listing when it is created and use that value in buy, so a later setFee cannot change the seller's proceeds."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-721 Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

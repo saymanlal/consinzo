@@ -1,0 +1,60 @@
+id: prepaid-subscription-billing
+slug: prepaid-subscription-billing
+title: "Prepaid Subscription Billing"
+description: "Build a recurring-payment contract: subscribers pre-fund an ETH balance, the merchant charges a fixed price at most once per billing period, and either side can cancel, after which the subscriber withdraws what is left."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: smart-contract-engineering
+tags:
+  - subscriptions
+  - recurring-payments
+  - pull-payments
+  - timestamps
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SubscriptionBilling.sol
+  editable_files:
+    - src/SubscriptionBilling.sol
+  readonly_files:
+    - test/SubscriptionBilling.t.sol
+tests:
+  public_suite: evaluation/public/SubscriptionBilling.t.sol
+  hidden_suite: evaluation/hidden/SubscriptionBillingHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Advance by the period, not to now"
+    content: "After a successful charge set paidUntil += period. Setting it to block.timestamp + period would give the subscriber free time whenever the merchant charges late."
+  - order: 2
+    title: "Three pots of ETH"
+    content: "Keep each subscriber's prepaid balance and the merchant's earned balance as separate numbers. A charge only moves price from one to the other; no ETH leaves the contract until someone withdraws."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

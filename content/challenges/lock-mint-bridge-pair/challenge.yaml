@@ -1,0 +1,64 @@
+id: lock-mint-bridge-pair
+slug: lock-mint-bridge-pair
+title: "Lock-and-Mint Bridge Pair"
+description: "Implement both ends of a lock-and-mint bridge: a source vault that locks the canonical token and a wrapped token minted by a trusted relayer, with burn-and-release back and nonce-based replay protection."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: cross-chain-development
+tags:
+  - bridge
+  - lock-and-mint
+  - wrapped-token
+  - replay-protection
+  - erc20
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/LockMintBridge.sol
+  editable_files:
+    - src/LockMintBridge.sol
+  readonly_files:
+    - test/LockMintBridge.t.sol
+tests:
+  public_suite: evaluation/public/LockMintBridge.t.sol
+  hidden_suite: evaluation/hidden/LockMintBridgeHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two counters, two mappings"
+    content: "Each contract numbers its own outgoing messages and separately remembers which incoming nonces it has consumed. Do not share one mapping for both directions."
+  - order: 2
+    title: "Key replay protection by nonce alone"
+    content: "A delivery with a used nonce is a replay even if the recipient or amount differs."
+  - order: 3
+    title: "Account, do not measure"
+    content: "Limit releases by the totalLocked counter rather than by the vault's token balance; direct transfers to the vault are not deposits."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

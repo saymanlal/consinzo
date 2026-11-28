@@ -1,0 +1,60 @@
+id: fee-division-before-multiplication
+slug: fee-division-before-multiplication
+title: "Fix a Fee That Rounds to Zero"
+description: "PaymentRouter computes its basis-point fee by dividing before multiplying, so small payments pay no fee and larger ones are undercharged. Patch the arithmetic so the fee is the exact floor of amount * feeBps / 10000."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: security-engineering
+tags:
+  - patch
+  - precision-loss
+  - integer-arithmetic
+  - fees
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PaymentRouter.sol
+  editable_files:
+    - src/PaymentRouter.sol
+  readonly_files:
+    - test/PaymentRouter.t.sol
+tests:
+  public_suite: evaluation/public/PaymentRouter.t.sol
+  hidden_suite: evaluation/hidden/PaymentRouterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Integer division truncates"
+    content: "amount / 10_000 throws away the remainder before the multiplication happens. For any amount below 10_000 the quotient is already zero."
+  - order: 2
+    title: "Order of operations"
+    content: "Multiply first, divide last. Check that the intermediate product cannot overflow for the values the contract handles."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Types: Integers, Division"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

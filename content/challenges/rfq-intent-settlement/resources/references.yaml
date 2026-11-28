@@ -1,0 +1,16 @@
+references:
+  - title: EIP-712 Typed Structured Data Hashing and Signing
+    url: https://eips.ethereum.org/EIPS/eip-712
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: ERC-1271 Standard Signature Validation Method for Contracts
+    url: https://eips.ethereum.org/EIPS/eip-1271
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: EIP-2 Homestead Hard-fork Changes (low-s signatures)
+    url: https://eips.ethereum.org/EIPS/eip-2
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"

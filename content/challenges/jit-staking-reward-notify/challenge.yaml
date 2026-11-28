@@ -1,0 +1,64 @@
+id: jit-staking-reward-notify
+slug: jit-staking-reward-notify
+title: "Stop Just-in-Time Staking Around Reward Notifications"
+description: "A staking pool credits each reward deposit instantly to whoever is staked in that block. An attacker stakes a large amount immediately before notifyRewardAmount and exits immediately after, taking most of the reward with no time at risk. Redesign the distribution so rewards are streamed over a period."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - staking
+  - jit-liquidity
+  - reward-distribution
+  - front-running
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/StreamedRewards.sol
+  editable_files:
+    - src/StreamedRewards.sol
+  readonly_files:
+    - test/StreamedRewards.t.sol
+tests:
+  public_suite: evaluation/public/StreamedRewards.t.sol
+  hidden_suite: evaluation/hidden/StreamedRewardsHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Measure time at risk"
+    content: "In the starter, how long must tokens be staked to receive a share of a reward deposit? The answer should not be zero seconds."
+  - order: 2
+    title: "Turn the lump into a rate"
+    content: "Instead of adding amount / totalStaked to the accumulator at once, compute a rewardRate and let the accumulator grow with elapsed time until periodFinish."
+  - order: 3
+    title: "Top-ups during a running period"
+    content: "When a new reward arrives before the current period ends, the undistributed remainder (remaining time times the current rate) must be added to the new amount before computing the new rate. Checkpoint first."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-114 Transaction Order Dependence"
+    url: https://swcregistry.io/docs/SWC-114/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Solidity block and transaction properties"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

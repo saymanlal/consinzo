@@ -1,0 +1,63 @@
+id: fixed-rate-token-sale
+slug: fixed-rate-token-sale
+title: "Build a Fixed-Rate Token Sale with Caps"
+description: "Implement an ETH-for-token sale at a fixed rate with a global hard cap, a per-buyer contribution limit and owner-only withdrawal of the proceeds."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: defi-engineering
+tags:
+  - token-sale
+  - crowdsale
+  - payable
+  - access-control
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TokenSale.sol
+  editable_files:
+    - src/TokenSale.sol
+  readonly_files:
+    - test/TokenSale.t.sol
+tests:
+  public_suite: evaluation/public/TokenSale.t.sol
+  hidden_suite: evaluation/hidden/TokenSaleHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Order of checks and effects"
+    content: "Validate the caps, then update totalRaised and contributed, and only then transfer tokens. The sale never needs to trust the token contract with stale accounting."
+  - order: 2
+    title: "Rate arithmetic"
+    content: "tokensOut = weiAmount * rate / 1e18. Multiply before dividing, otherwise small contributions round down to zero tokens."
+  - order: 3
+    title: "Caps are measured in wei"
+    content: "Both caps compare cumulative wei, not tokens. A purchase that lands exactly on a cap is allowed; one wei more is not."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

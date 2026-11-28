@@ -1,0 +1,64 @@
+id: optimal-liquidity-adder
+slug: optimal-liquidity-adder
+title: "Optimal Add-Liquidity Helper for a Constant-Product Pair"
+description: "Build a router-style helper that computes ratio-matching deposit amounts from a pair's reserves, enforces minimum amounts and a deadline, and transfers the tokens straight to the pair before minting LP shares."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: ecosystem-integrations
+tags:
+  - amm
+  - liquidity
+  - slippage
+  - router
+  - erc20
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/LiquidityAdder.sol
+  editable_files:
+    - src/LiquidityAdder.sol
+  readonly_files:
+    - test/LiquidityAdder.t.sol
+tests:
+  public_suite: evaluation/public/LiquidityAdder.t.sol
+  hidden_suite: evaluation/hidden/LiquidityAdderHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Start from token0"
+    content: "Quote the token1 amount that matches all of amount0Desired. If it fits inside amount1Desired you are done; otherwise quote the other way round."
+  - order: 2
+    title: "Which minimum applies"
+    content: "In each branch one side equals the desired amount and the other is scaled down. The minimum of the scaled-down side is the one to enforce."
+  - order: 3
+    title: "No custody"
+    content: "Use transferFrom with the pair as the recipient and check the returned bool. The helper should end every call with a zero balance."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

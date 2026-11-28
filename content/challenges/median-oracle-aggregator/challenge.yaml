@@ -1,0 +1,64 @@
+id: median-oracle-aggregator
+slug: median-oracle-aggregator
+title: "Median Oracle Aggregator with Staleness and Deviation Checks"
+description: "Aggregate prices pushed by a managed set of reporters into a median that ignores stale reports and is only published when a quorum of fresh reports agrees with it within a deviation band."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: ecosystem-integrations
+tags:
+  - oracle
+  - median
+  - staleness
+  - deviation
+  - aggregation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MedianOracle.sol
+  editable_files:
+    - src/MedianOracle.sol
+  readonly_files:
+    - test/MedianOracle.t.sol
+tests:
+  public_suite: evaluation/public/MedianOracle.t.sol
+  hidden_suite: evaluation/hidden/MedianOracleHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Filter, then sort"
+    content: "Copy only the fresh prices into a memory array and sort that copy. Stale reports must not take part in the median at all."
+  - order: 2
+    title: "Compare without dividing"
+    content: "Check the band with |price - median| * 10000 <= median * maxDeviationBps. Bounding prices to uint128 keeps the products inside uint256."
+  - order: 3
+    title: "Removal must forget"
+    content: "Delete the stored report when a reporter is removed, otherwise re-adding the address brings an old price back."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Types: Arrays and Integers"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

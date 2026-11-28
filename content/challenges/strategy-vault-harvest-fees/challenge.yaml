@@ -1,0 +1,69 @@
+id: strategy-vault-harvest-fees
+slug: strategy-vault-harvest-fees
+title: "Strategy Vault with Harvests, Fee Shares and Loss Handling"
+description: "Build a share-based vault that deploys assets into an external strategy, recognises profit and loss only at harvest, pays its performance fee by minting shares above a high-water mark, and handles shortfalls when a withdrawal has to pull funds back from the strategy."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - yield-vault
+  - strategy
+  - harvest
+  - performance-fee
+  - loss-accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/StrategyVault.sol
+  editable_files:
+    - src/StrategyVault.sol
+  readonly_files:
+    - test/StrategyVault.t.sol
+tests:
+  public_suite: evaluation/public/StrategyVault.t.sol
+  hidden_suite: evaluation/hidden/StrategyVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 900000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Account, do not measure"
+    content: "Track idle assets and strategy debt in storage. The share price is derived from those two numbers only, so tokens sent to the vault or gains inside the strategy do not move the price until a harvest reports them."
+  - order: 2
+    title: "Fee shares must not dilute the fee itself"
+    content: "The fee is a part of the assets after the profit is booked. Mint feeShares = fee * supply / (totalAssets - fee) so that the new shares are worth the fee and the old shares keep exactly the rest."
+  - order: 3
+    title: "Two kinds of loss"
+    content: "A loss reported at harvest lowers the price for everybody and must be recovered before fees are charged again. A shortfall while pulling funds for one withdrawal is carried by that withdrawer, limited by the loss tolerance it passed in."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-4626 Tokenized Vaults"
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

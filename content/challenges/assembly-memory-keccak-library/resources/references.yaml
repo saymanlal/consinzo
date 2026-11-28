@@ -1,0 +1,16 @@
+references:
+  - title: "Solidity: Inline Assembly (memory management and conventions)"
+    url: https://docs.soliditylang.org/en/v0.8.28/assembly.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Layout in Memory"
+    url: https://docs.soliditylang.org/en/v0.8.28/internals/layout_in_memory.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Yul Language Reference"
+    url: https://docs.soliditylang.org/en/v0.8.28/yul.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

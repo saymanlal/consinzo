@@ -1,0 +1,16 @@
+references:
+  - title: "Structs"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#structs
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Arrays"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Data Location and Assignment Behavior"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#data-location-and-assignment-behavior
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"

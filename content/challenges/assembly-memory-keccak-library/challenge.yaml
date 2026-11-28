@@ -1,0 +1,70 @@
+id: assembly-memory-keccak-library
+slug: assembly-memory-keccak-library
+title: "Assembly Library: Word-Wise Memory Copy and Packed Keccak-256"
+description: "Write a Yul library for byte arrays: word-wise copy, slice and concat, plus keccak256 over packed data without allocating memory. Every function must return exactly what the high-level Solidity equivalent returns while respecting Solidity's memory conventions."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: advanced-blockchain-systems
+tags:
+  - inline-assembly
+  - yul
+  - memory-layout
+  - keccak256
+  - gas-optimisation
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/AsmBytes.sol
+  editable_files:
+    - src/AsmBytes.sol
+  readonly_files:
+    - test/AsmBytes.t.sol
+tests:
+  public_suite: evaluation/public/AsmBytes.t.sol
+  hidden_suite: evaluation/hidden/AsmBytesHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 150000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Know the reserved memory"
+    content: "0x00 to 0x3f is scratch space, 0x40 holds the free memory pointer and 0x60 must stay zero. Two words fit into the scratch space; three words do not, so hash those in the unallocated region behind the free memory pointer instead."
+  - order: 2
+    title: "Copy whole words, then fix the tail"
+    content: "Copying 32 bytes at a time may write past the logical end of the destination. That is harmless in freshly allocated memory as long as you advance the free memory pointer to a 32-byte boundary beyond the data and leave the padding zeroed."
+  - order: 3
+    title: "Hashing does not need an allocation"
+    content: "To hash a concatenation, write the pieces behind the free memory pointer, call keccak256 on that range and simply do not move the pointer."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity: Inline Assembly (memory management and conventions)"
+    url: https://docs.soliditylang.org/en/v0.8.28/assembly.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Layout in Memory"
+    url: https://docs.soliditylang.org/en/v0.8.28/internals/layout_in_memory.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Yul Language Reference"
+    url: https://docs.soliditylang.org/en/v0.8.28/yul.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

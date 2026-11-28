@@ -1,0 +1,63 @@
+id: price-feed-decimal-normalizer
+slug: price-feed-decimal-normalizer
+title: "Price Feed Consumer with 18-Decimal Normalisation"
+description: "Wrap a Chainlink-style aggregator and expose its answer as an unsigned 18-decimal price, rejecting non-positive and stale answers and valuing token amounts in the quote currency."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: ecosystem-integrations
+tags:
+  - oracle
+  - price-feed
+  - fixed-point
+  - decimals
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PriceFeedConsumer.sol
+  editable_files:
+    - src/PriceFeedConsumer.sol
+  readonly_files:
+    - test/PriceFeedConsumer.t.sol
+tests:
+  public_suite: evaluation/public/PriceFeedConsumer.t.sol
+  hidden_suite: evaluation/hidden/PriceFeedConsumerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Validate before casting"
+    content: "The answer is an int256. Check that it is strictly positive before converting it to uint256."
+  - order: 2
+    title: "Two scaling directions"
+    content: "18 - decimals underflows for feeds with more than 18 decimals. Branch on which side of 18 the feed is and divide in the second case."
+  - order: 3
+    title: "Order of operations"
+    content: "In toQuote multiply the amount by the price first and divide by 10 ** baseDecimals last, otherwise small amounts round to zero."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Types: Integers and Fixed-Point Arithmetic"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

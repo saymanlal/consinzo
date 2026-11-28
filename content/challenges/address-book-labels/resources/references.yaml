@@ -1,0 +1,11 @@
+references:
+  - title: "Mapping Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#mapping-types
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Bytes and String as Arrays"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#bytes-and-string-as-arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -11,6 +12,10 @@ import {
   Shield,
 } from "lucide-react";
 import { getEcosystemById } from "@consinzo/ecosystem-registry";
+import { getDifficultyMeta } from "@/lib/difficulty";
+import { absoluteUrl, pageMetadata, SITE } from "@/lib/site";
+import { JsonLd } from "@/components/json-ld";
+import { DifficultyBadge } from "@/components/difficulty-badge";
 import { Badge, Card } from "@consinzo/ui";
 import { ChallengeDetailActions } from "@/components/challenge-detail-actions";
 import { ChallengeErrorState } from "@/components/challenge-error-state";
@@ -25,6 +30,27 @@ export const dynamicParams = true;
 
 export function generateStaticParams() {
   return getPublishedChallenges().map((c) => ({ slug: c.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const outcome = getChallengeBySlug(slug);
+  if (outcome.status === "error") return { title: "Challenge not found", robots: { index: false } };
+  const m = outcome.data.manifest;
+  const tier = getDifficultyMeta(m.difficulty).label;
+  const kind = m.is_security_mission ? "security mission" : "challenge";
+  return {
+    ...pageMetadata({
+      title: `${m.title} (${m.language}, ${tier})`,
+      description: `${tier} ${m.language} ${kind}: ${m.description}`.slice(0, 300),
+      path: `/challenges/${m.slug}`,
+    }),
+    keywords: [...m.tags, m.language, getEcosystemById(m.ecosystem)?.name ?? m.ecosystem, tier],
+  };
 }
 
 export default async function ChallengeDetailPage({
@@ -67,25 +93,52 @@ export default async function ChallengeDetailPage({
   const ecosystem = getEcosystemById(manifest.ecosystem);
   const related = getRelatedChallenges(manifest.id, 3);
   const { previous, next } = getAdjacentChallenges(manifest.slug);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "LearningResource",
+        "@id": absoluteUrl(`/challenges/${manifest.slug}#resource`),
+        name: manifest.title,
+        description: manifest.description,
+        url: absoluteUrl(`/challenges/${manifest.slug}`),
+        learningResourceType: manifest.is_security_mission
+          ? "Security exercise"
+          : "Programming exercise",
+        educationalLevel: getDifficultyMeta(manifest.difficulty).label,
+        programmingLanguage: manifest.language,
+        teaches: manifest.tags,
+        keywords: manifest.tags.join(", "),
+        inLanguage: "en",
+        isAccessibleForFree: true,
+        version: manifest.version,
+        provider: { "@type": "Organization", name: SITE.name, url: absoluteUrl("/") },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: "Challenges", item: absoluteUrl("/challenges") },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: manifest.title,
+            item: absoluteUrl(`/challenges/${manifest.slug}`),
+          },
+        ],
+      },
+    ],
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 lg:px-6 space-y-8">
+      <JsonLd data={jsonLd} />
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-200 pb-6">
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="blue">{ecosystem?.name ?? manifest.ecosystem}</Badge>
             <Badge tone="neutral">{manifest.language}</Badge>
-            <Badge
-              tone={
-                manifest.difficulty === "beginner"
-                  ? "green"
-                  : manifest.difficulty === "intermediate"
-                    ? "amber"
-                    : "red"
-              }
-            >
-              {manifest.difficulty}
-            </Badge>
+<DifficultyBadge difficulty={manifest.difficulty} />
             <Badge tone="neutral">{manifest.category}</Badge>
             <Badge tone="green">
               <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -265,7 +318,7 @@ export default async function ChallengeDetailPage({
                 </div>
                 <div className="mt-2 text-sm font-semibold text-zinc-950">{rel.title}</div>
                 <div className="mt-1 font-mono text-[11px] text-zinc-500">
-                  {rel.difficulty} · {rel.category}
+                  {getDifficultyMeta(rel.difficulty).label} · {rel.category}
                 </div>
               </Link>
             ))}

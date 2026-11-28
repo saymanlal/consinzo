@@ -1,0 +1,63 @@
+id: bounded-counter
+slug: bounded-counter
+title: "Bounded Counter With Custom Errors"
+description: "Implement a counter that can only move inside an inclusive [min, max] range fixed at deployment. Steps that would leave the range revert with custom errors instead of arithmetic panics."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - custom-errors
+  - arithmetic
+  - immutables
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BoundedCounter.sol
+  editable_files:
+    - src/BoundedCounter.sol
+  readonly_files:
+    - test/BoundedCounter.t.sol
+tests:
+  public_suite: evaluation/public/BoundedCounter.t.sol
+  hidden_suite: evaluation/hidden/BoundedCounterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 80000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Compare against the remaining room"
+    content: "Do not compute value + amount and then compare with max: the addition itself can overflow. Compare amount with the room that is left, max - value, which can never underflow because value <= max always holds."
+  - order: 2
+    title: "Mirror the logic downwards"
+    content: "For sub the available room is value - min. If amount is larger than that, revert with BelowMin(min)."
+  - order: 3
+    title: "Reuse the general functions"
+    content: "increment and decrement are add(1) and sub(1). Put the logic in internal helpers and call them from both."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Checked or Unchecked Arithmetic"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#checked-or-unchecked-arithmetic
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Errors and the Revert Statement"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#errors-and-the-revert-statement
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getEcosystemById } from "@consinzo/ecosystem-registry";
 import { ChallengeErrorState } from "@/components/challenge-error-state";
@@ -8,6 +9,22 @@ export const dynamicParams = true;
 
 export function generateStaticParams() {
   return getPublishedChallenges().map((c) => ({ slug: c.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const outcome = getChallengeBySlug(slug);
+  const title = outcome.status === "ok" ? `Workspace: ${outcome.data.manifest.title}` : "Workspace";
+  // The IDE is an app surface; search engines should index the challenge page instead.
+  return {
+    title,
+    robots: { index: false, follow: true },
+    alternates: { canonical: `/challenges/${slug}` },
+  };
 }
 
 export default async function WorkspacePage({

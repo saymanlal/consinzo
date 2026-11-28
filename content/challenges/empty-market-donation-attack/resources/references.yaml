@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-4626 Tokenized Vaults (rounding rules and security considerations)"
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity security considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

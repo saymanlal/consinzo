@@ -1,0 +1,62 @@
+id: near-fee-recipient-takeover
+slug: near-fee-recipient-takeover
+title: "Patch an Unprotected Fee Configuration Method on NEAR"
+description: "A NEAR payment router exposes a configuration method without an owner check, so anyone can redirect protocol fees to their own account or set an abusive fee. Patch the access control and bound the configurable values."
+ecosystem: near
+language: TypeScript
+difficulty: normal
+category: security-engineering
+tags:
+  - near
+  - patch
+  - access-control
+  - configuration
+  - fees
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/FeeRouter.ts
+  editable_files:
+    - src/FeeRouter.ts
+  readonly_files:
+    - test/FeeRouter.t.ts
+tests:
+  public_suite: evaluation/public/FeeRouter.t.ts
+  hidden_suite: evaluation/hidden/FeeRouterHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 150
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Find every privileged method"
+    content: "List the methods that change owner, feeRecipient or feeBps. Each one must compare near.predecessorAccountId() with the stored owner before writing."
+  - order: 2
+    title: "Validate privileged input too"
+    content: "An owner check is not enough. A fee above MAX_FEE_BPS or an empty recipient must be rejected even when the owner sends it."
+  - order: 3
+    title: "Do not rewrite history"
+    content: "Fees that were already credited belong to the recipient configured at the time of the payment. Changing the configuration must not move them."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Smart Contract Security Checklist"
+    url: https://docs.near.org/smart-contracts/security/checklist
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "Updating NEAR Contracts"
+    url: https://docs.near.org/smart-contracts/release/upgrade
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

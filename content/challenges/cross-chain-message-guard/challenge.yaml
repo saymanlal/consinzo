@@ -4,7 +4,7 @@ title: "Secure Cross-Chain Bridge Message Verification"
 description: "Patch a cross-chain receiver that forgets to validate source chain ID, trusted remote sender, and message replay status."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: legend
 category: security-engineering
 tags:
   - patch

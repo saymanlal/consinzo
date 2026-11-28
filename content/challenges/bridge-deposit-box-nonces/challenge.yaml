@@ -1,0 +1,63 @@
+id: bridge-deposit-box-nonces
+slug: bridge-deposit-box-nonces
+title: "Bridge Deposit Box with Per-Destination Nonces"
+description: "Implement the source side of a token bridge: lock ERC-20 tokens, number every deposit with a per-destination-chain nonce and expose a domain-separated deposit identifier for relayers."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: cross-chain-development
+tags:
+  - bridge
+  - erc20
+  - nonces
+  - cross-chain
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BridgeDepositBox.sol
+  editable_files:
+    - src/BridgeDepositBox.sol
+  readonly_files:
+    - test/BridgeDepositBox.t.sol
+tests:
+  public_suite: evaluation/public/BridgeDepositBox.t.sol
+  hidden_suite: evaluation/hidden/BridgeDepositBoxHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One counter per destination"
+    content: "Use a mapping from destination chain id to the next nonce and post-increment it inside deposit."
+  - order: 2
+    title: "Check the boolean"
+    content: "transferFrom may return false instead of reverting. Treat that as a failure, otherwise you record deposits that locked nothing."
+  - order: 3
+    title: "Use abi.encode for the identifier"
+    content: "Include block.chainid and address(this) in the hash so the same deposit data from another box cannot collide."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity ABI Specification"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

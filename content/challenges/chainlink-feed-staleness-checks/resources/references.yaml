@@ -1,0 +1,16 @@
+references:
+  - title: "Units and Globally Available Variables: block.timestamp"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Types: Explicit Conversions Between Integers"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-116 Block Values as a Proxy for Time"
+    url: https://swcregistry.io/docs/SWC-116/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"

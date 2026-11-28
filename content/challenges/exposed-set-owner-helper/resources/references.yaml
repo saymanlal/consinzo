@@ -1,0 +1,11 @@
+references:
+  - title: "SWC-100 Function Default Visibility"
+    url: https://swcregistry.io/docs/SWC-100/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Contracts: Visibility and Getters"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

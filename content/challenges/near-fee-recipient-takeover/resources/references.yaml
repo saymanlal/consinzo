@@ -1,0 +1,11 @@
+references:
+  - title: "NEAR Smart Contract Security Checklist"
+    url: https://docs.near.org/smart-contracts/security/checklist
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "Updating NEAR Contracts"
+    url: https://docs.near.org/smart-contracts/release/upgrade
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"

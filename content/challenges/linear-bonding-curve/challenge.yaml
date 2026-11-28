@@ -1,0 +1,64 @@
+id: linear-bonding-curve
+slug: linear-bonding-curve
+title: "Linear Bonding Curve with an Exact Reserve Invariant"
+description: "Implement a token that is minted and burned against an ETH reserve along a linear price curve. Buys and sells are priced as differences of one reserve function so that the reserve always equals the area under the curve, for any sequence of trades."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: defi-engineering
+tags:
+  - bonding-curve
+  - pricing
+  - reserve-invariant
+  - fixed-point
+  - eth
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BondingCurve.sol
+  editable_files:
+    - src/BondingCurve.sol
+  readonly_files:
+    - test/BondingCurve.t.sol
+tests:
+  public_suite: evaluation/public/BondingCurve.t.sol
+  hidden_suite: evaluation/hidden/BondingCurveHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Price trades as a difference"
+    content: "Do not integrate each trade separately. Implement reserveFor(supply) once and price a buy as reserveFor(S + a) - reserveFor(S) and a sell as reserveFor(S) - reserveFor(S - a). Rounding errors then cancel exactly."
+  - order: 2
+    title: "Units"
+    content: "Supply is in 1e18 base units, basePrice is wei per whole token and slope is wei per whole token per whole token. The quadratic term therefore divides by 2 * 1e36."
+  - order: 3
+    title: "ETH handling in buy"
+    content: "msg.value is the buyer's maximum. Keep exactly the cost and send the rest back; revert if msg.value is below the cost."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Units and Globally Available Variables"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

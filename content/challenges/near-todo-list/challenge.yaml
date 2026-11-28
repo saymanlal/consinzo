@@ -1,0 +1,58 @@
+id: near-todo-list
+slug: near-todo-list
+title: "NEAR Per-Account Todo List"
+description: "Build a todo list contract where each account adds, completes and lists its own tasks, using composite storage keys and per-account counters."
+ecosystem: near
+language: TypeScript
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - near
+  - near-sdk-js
+  - composite-keys
+  - state-management
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/TodoList.ts
+  editable_files:
+    - src/TodoList.ts
+  readonly_files:
+    - test/TodoList.t.ts
+tests:
+  public_suite: evaluation/public/TodoList.t.ts
+  hidden_suite: evaluation/hidden/TodoListHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Composite keys"
+    content: "Store each task under a key that combines the account and the task id, for example account + \":\" + id, and keep one task counter per account."
+  - order: 2
+    title: "State transitions"
+    content: "completeTask must distinguish a missing task from one that is already done, and it must write the updated task back to the map."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Smart Contract Anatomy"
+    url: https://docs.near.org/smart-contracts/anatomy/anatomy
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false
