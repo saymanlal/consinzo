@@ -4,7 +4,7 @@ title: Defend a Vault Against Donation & Share Inflation Attacks
 description: Patch a share-based vault that relies on address(this).balance so an attacker cannot inflate share price via direct ETH donation to steal subsequent depositors' funds.
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: hard
 category: security-engineering
 tags:
   - inflation-attack

@@ -11,6 +11,8 @@ import {
   Shield,
 } from "lucide-react";
 import { getEcosystemById } from "@consinzo/ecosystem-registry";
+import { getDifficultyMeta } from "@/lib/difficulty";
+import { DifficultyBadge } from "@/components/difficulty-badge";
 import { Badge, Card } from "@consinzo/ui";
 import { ChallengeDetailActions } from "@/components/challenge-detail-actions";
 import { ChallengeErrorState } from "@/components/challenge-error-state";
@@ -75,17 +77,7 @@ export default async function ChallengeDetailPage({
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="blue">{ecosystem?.name ?? manifest.ecosystem}</Badge>
             <Badge tone="neutral">{manifest.language}</Badge>
-            <Badge
-              tone={
-                manifest.difficulty === "beginner"
-                  ? "green"
-                  : manifest.difficulty === "intermediate"
-                    ? "amber"
-                    : "red"
-              }
-            >
-              {manifest.difficulty}
-            </Badge>
+<DifficultyBadge difficulty={manifest.difficulty} />
             <Badge tone="neutral">{manifest.category}</Badge>
             <Badge tone="green">
               <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -265,7 +257,7 @@ export default async function ChallengeDetailPage({
                 </div>
                 <div className="mt-2 text-sm font-semibold text-zinc-950">{rel.title}</div>
                 <div className="mt-1 font-mono text-[11px] text-zinc-500">
-                  {rel.difficulty} · {rel.category}
+                  {getDifficultyMeta(rel.difficulty).label} · {rel.category}
                 </div>
               </Link>
             ))}

@@ -8,7 +8,7 @@ export type RoleName =
   | "platform_admin"
   | "super_admin";
 
-export type Difficulty = "beginner" | "intermediate" | "advanced" | "expert";
+export type Difficulty = "beginner" | "easy" | "normal" | "intermediate" | "hard" | "legend";
 
 export type ChallengeCategory =
   | "programming-fundamentals"

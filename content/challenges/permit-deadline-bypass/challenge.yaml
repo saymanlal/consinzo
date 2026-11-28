@@ -4,7 +4,7 @@ title: "Enforce Permit Deadline & Nonce Invariants"
 description: "Patch an EIP-2612-style permit handler that forgets to check deadline expiry and increment per-owner nonces."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: beginner
+difficulty: easy
 category: security-engineering
 tags:
   - patch

@@ -4,7 +4,7 @@ title: "Protect View Price Queries Against Read-Only Reentrancy"
 description: "Fix an ETH liquidity pool whose view sharePrice() reads stale ETH balance vs totalShares mid-withdrawal during an external ETH callback."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: legend
 category: security-engineering
 tags:
   - patch

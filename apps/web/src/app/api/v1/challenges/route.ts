@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPublishedChallengesResult } from "@/lib/challenges";
+import { normalizeDifficulty } from "@/lib/difficulty";
 
 export async function GET(req: Request) {
   const result = getPublishedChallengesResult();
@@ -23,7 +24,7 @@ export async function GET(req: Request) {
     items = items.filter((c) => c.ecosystem === ecosystem);
   }
   if (difficulty && difficulty !== "all") {
-    items = items.filter((c) => c.difficulty === difficulty);
+    items = items.filter((c) => c.difficulty === normalizeDifficulty(difficulty));
   }
   if (category && category !== "all") {
     items = items.filter((c) => c.category === category);

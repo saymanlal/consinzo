@@ -4,7 +4,7 @@ title: "Enforce Slippage & Deadline Bounds Against Sandwich MEV"
 description: "Patch a swap router wrapper that lacks minimum output and transaction deadline enforcement, protecting trades from front-running."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: intermediate
+difficulty: normal
 category: security-engineering
 tags:
   - patch

@@ -150,9 +150,9 @@ async function main() {
           mission_type: m.tags.includes("exploit") ? "exploit" : "patch",
           vulnerability_class: m.tags[0] ?? "smart-contract-security",
           severity:
-            m.difficulty === "expert"
+            m.difficulty === "legend"
               ? "critical"
-              : m.difficulty === "advanced"
+              : m.difficulty === "hard"
                 ? "high"
                 : "medium",
           requires_human_review: true,

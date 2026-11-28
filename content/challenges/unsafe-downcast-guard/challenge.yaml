@@ -4,7 +4,7 @@ title: "Prevent Silent Integer Truncation on Unsafe Downcast"
 description: "Fix a staking contract that silently casts uint256 deposit amounts into uint96 storage slots without bounds validation."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: beginner
+difficulty: easy
 category: security-engineering
 tags:
   - patch

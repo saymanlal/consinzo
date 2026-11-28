@@ -4,7 +4,7 @@ title: "Eliminate Weak On-Chain Randomness & Revert-on-Loss"
 description: "Replace predictable block.timestamp randomness with a two-phase commit-reveal lottery so contracts cannot deterministically win or revert on loss."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: intermediate
+difficulty: normal
 category: security-engineering
 tags:
   - patch

@@ -4,7 +4,7 @@ title: "EIP-3156 Flash Loan Provider"
 description: "Build an ERC-20 flash loan lender implementing EIP-3156 callback magic-value verification and principal + fee repayment invariant checks."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: hard
 category: defi-engineering
 tags:
   - eip3156

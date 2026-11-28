@@ -4,7 +4,7 @@ title: "Gas-Efficient 256-Bit Bitmap Whitelist Registry"
 description: "Store and query boolean whitelist flags packed 256-per-slot using bitwise masks instead of per-index mappings."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: intermediate
+difficulty: normal
 category: programming-fundamentals
 tags:
   - bitmap

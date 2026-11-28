@@ -4,7 +4,7 @@ title: NEAR Timelocked Escrow & Deposit Vault
 description: Implement a multi-party NEAR escrow contract using LookupMap storage, attachedDeposit verification, and strict timelock release/refund state transitions.
 ecosystem: near
 language: TypeScript
-difficulty: intermediate
+difficulty: normal
 category: smart-contract-engineering
 tags:
   - near

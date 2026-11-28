@@ -4,7 +4,7 @@ title: NEAR Weighted DAO Proposal & Quorum Engine
 description: Implement a weighted-voting NEAR DAO governance contract supporting member weights, double-vote prevention, deadline enforcement, and quorum finalization.
 ecosystem: near
 language: TypeScript
-difficulty: intermediate
+difficulty: normal
 category: protocol-implementation
 tags:
   - near

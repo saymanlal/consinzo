@@ -405,7 +405,7 @@ export const LEARNING_PATHS: readonly LearningPathSpec[] = [
     slug: "evm-solidity-core",
     title: "EVM & Solidity Core Engineering",
     ecosystemId: "ethereum-evm",
-    difficulty: "beginner -> intermediate",
+    difficulty: "Beginner → Intermediate",
     description:
       "Master ERC-20, ERC-721, Merkle verification, and multi-signature treasury patterns with real Solidity compilation and EVM execution.",
     challengeSlugs: [
@@ -419,7 +419,7 @@ export const LEARNING_PATHS: readonly LearningPathSpec[] = [
     slug: "defi-protocol-engineering",
     title: "DeFi & Protocol Invariant Engineering",
     ecosystemId: "ethereum-evm",
-    difficulty: "intermediate -> advanced",
+    difficulty: "Intermediate → Hard",
     description:
       "Build production-grade constant-product AMMs, ERC-4626 vaults, flash lenders, and linear Dutch auctions from scratch.",
     challengeSlugs: [
@@ -434,7 +434,7 @@ export const LEARNING_PATHS: readonly LearningPathSpec[] = [
     slug: "security-defense-arena",
     title: "Smart Contract Security & Exploit Defense",
     ecosystemId: "ethereum-evm",
-    difficulty: "intermediate -> advanced",
+    difficulty: "Intermediate → Hard",
     description:
       "Diagnose and patch real-world vulnerabilities including reentrancy, signature replay, flash-loan governance manipulation, and read-only oracle exploits.",
     challengeSlugs: [
@@ -449,7 +449,7 @@ export const LEARNING_PATHS: readonly LearningPathSpec[] = [
     slug: "near-typescript-builder",
     title: "NEAR Smart Contract & Security Engineering (TypeScript)",
     ecosystemId: "near",
-    difficulty: "beginner -> advanced",
+    difficulty: "Beginner → Hard",
     description:
       "Write and verify NEAR TypeScript contracts using predecessor attribution, LookupMap storage, DAO quorum mechanics, and async callback defense.",
     challengeSlugs: [

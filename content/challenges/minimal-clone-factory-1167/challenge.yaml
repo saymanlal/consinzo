@@ -4,7 +4,7 @@ title: "EIP-1167 Minimal Proxy Clone Factory"
 description: "Assemble EIP-1167 minimal proxy bytecode in inline assembly to deploy ultra-cheap delegating contract clones."
 ecosystem: ethereum-evm
 language: Solidity
-difficulty: advanced
+difficulty: hard
 category: advanced-blockchain-systems
 tags:
   - eip1167

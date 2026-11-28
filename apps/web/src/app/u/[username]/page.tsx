@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Award, CheckCircle2, ExternalLink, Github, Shield, Trophy } from "lucide-react";
+import { DifficultyBadge } from "@/components/difficulty-badge";
 import { Badge, Card } from "@consinzo/ui";
 import { getAchievementMeta } from "@/lib/achievements";
 import { getPublicDeveloperPortfolio } from "@/lib/data-adapter";
@@ -104,7 +105,7 @@ export default async function PublicDeveloperProfilePage({
                     <div className="font-medium text-zinc-950">{c.title}</div>
                     <div className="font-mono text-[11px] text-zinc-500">{c.category}</div>
                   </div>
-                  <Badge tone="neutral">{c.difficulty}</Badge>
+                  <DifficultyBadge difficulty={c.difficulty} />
                 </Link>
               ))
             )}

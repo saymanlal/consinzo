@@ -4,7 +4,7 @@ title: Patch NEAR Signer vs Predecessor Confused-Deputy Vault
 description: Fix an authentication bypass where a NEAR vault authenticates signerAccountId() instead of predecessorAccountId(), enabling malicious intermediary contracts to drain user deposits.
 ecosystem: near
 language: TypeScript
-difficulty: intermediate
+difficulty: normal
 category: security-engineering
 tags:
   - near
