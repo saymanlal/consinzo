@@ -1,167 +1,168 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Award, CheckCircle2, ExternalLink, Github, Shield, Trophy } from "lucide-react";
+import { CheckCircle2, ExternalLink, Github, Trophy } from "lucide-react";
+import { Avatar } from "@/components/avatar";
+import { BadgeShowcase } from "@/components/badge-showcase";
 import { DifficultyBadge } from "@/components/difficulty-badge";
-import { Badge, Card } from "@consinzo/ui";
+import { Container, DarkBand } from "@/components/marketing/blocks";
 import { getAchievementMeta } from "@/lib/achievements";
 import { getPublicDeveloperPortfolio } from "@/lib/data-adapter";
+import { SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-export default async function PublicDeveloperProfilePage({
-  params,
-}: {
+type Props = {
   params: Promise<{ username: string }>;
-}) {
+  searchParams: Promise<{ badge?: string }>;
+};
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { username } = await params;
+  const { badge } = await searchParams;
+  const portfolio = await getPublicDeveloperPortfolio(username);
+  if (!portfolio) return { title: "Developer not found", robots: { index: false } };
+
+  const sharedBadge =
+    badge && portfolio.achievements.some((a) => a.achievementId === badge)
+      ? getAchievementMeta(badge)
+      : null;
+  const title = sharedBadge
+    ? `${portfolio.displayName} earned “${sharedBadge.title}”`
+    : `${portfolio.displayName} (@${portfolio.username})`;
+  const description = sharedBadge
+    ? `${sharedBadge.description} Verified on ${SITE.name}.`
+    : `${portfolio.displayName} on ${SITE.name}: ${portfolio.challengesCompleted} challenges passed, ${portfolio.securityMissionsCompleted} security missions cleared, ${portfolio.totalPoints} verified points, ${portfolio.achievements.length} badges.`;
+  const path = `/u/${portfolio.username}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: "profile", title, description, url: path, siteName: SITE.name },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
+
+export default async function PublicDeveloperProfilePage({ params, searchParams }: Props) {
+  const { username } = await params;
+  const { badge } = await searchParams;
   const portfolio = await getPublicDeveloperPortfolio(username);
   if (!portfolio) notFound();
 
+  const stats = [
+    { label: "Verified score", value: portfolio.totalPoints.toLocaleString("en-US") },
+    { label: "Challenges passed", value: portfolio.challengesCompleted },
+    { label: "Security missions", value: portfolio.securityMissionsCompleted },
+    { label: "Badges", value: portfolio.achievements.length },
+  ];
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 lg:px-6 space-y-8">
-      <Card className="p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-zinc-950">{portfolio.displayName}</h1>
-            <p className="font-mono text-xs text-zinc-500">
-              @{portfolio.username} · Joined {new Date(portfolio.joinedAt).toLocaleDateString()}
-            </p>
-            {portfolio.bio && (
-              <p className="mt-3 max-w-2xl text-sm text-zinc-700">{portfolio.bio}</p>
-            )}
+    <DarkBand>
+      <Container className="py-10 sm:py-14">
+        <header className="cz-card p-6 sm:p-8">
+          <div className="flex flex-wrap items-start gap-5">
+            <Avatar username={portfolio.username} displayName={portfolio.displayName} />
+            <div className="min-w-0 flex-1">
+              <h1 className="break-words text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                {portfolio.displayName}
+              </h1>
+              <p className="mt-1 font-mono text-xs text-zinc-500">
+                @{portfolio.username} · Joined{" "}
+                <time dateTime={portfolio.joinedAt}>
+                  {new Date(portfolio.joinedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    timeZone: "UTC",
+                  })}
+                </time>
+              </p>
+              {portfolio.bio && (
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300">{portfolio.bio}</p>
+              )}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {portfolio.githubUrl && (
+                  <a href={portfolio.githubUrl} target="_blank" rel="noopener noreferrer nofollow" className="cz-btn cz-btn-ghost px-3 py-1.5 text-xs">
+                    <Github className="h-3.5 w-3.5" /> GitHub
+                  </a>
+                )}
+                {portfolio.websiteUrl && (
+                  <a href={portfolio.websiteUrl} target="_blank" rel="noopener noreferrer nofollow" className="cz-btn cz-btn-ghost px-3 py-1.5 text-xs">
+                    <ExternalLink className="h-3.5 w-3.5" /> Website
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
+          <dl className="mt-7 grid grid-cols-2 gap-3 border-t border-white/10 pt-6 sm:grid-cols-4">
+            {stats.map((s) => (
+              <div key={s.label}>
+                <dt className="text-xs text-zinc-500">{s.label}</dt>
+                <dd className="mt-1 font-mono text-2xl font-semibold text-white">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </header>
 
-          <div className="flex flex-wrap gap-2">
-            {portfolio.githubUrl && (
-              <a
-                href={portfolio.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
-              >
-                <Github className="h-3.5 w-3.5" />
-                GitHub
-              </a>
-            )}
-            {portfolio.websiteUrl && (
-              <a
-                href={portfolio.websiteUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Website
-              </a>
-            )}
-          </div>
+        <div className="mt-10">
+          <BadgeShowcase
+            profile={{
+              username: portfolio.username,
+              displayName: portfolio.displayName,
+              totalPoints: portfolio.totalPoints,
+              challengesCompleted: portfolio.challengesCompleted,
+              securityMissionsCompleted: portfolio.securityMissionsCompleted,
+            }}
+            earned={portfolio.achievements}
+            highlightId={badge}
+          />
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-zinc-100 pt-5 sm:grid-cols-4">
-          <div>
-            <div className="text-xs text-zinc-500">Verified Score</div>
-            <div className="mt-1 font-mono text-xl font-semibold text-zinc-950">
-              {portfolio.totalPoints}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-zinc-500">Challenges Passed</div>
-            <div className="mt-1 font-mono text-xl font-semibold text-zinc-950">
-              {portfolio.challengesCompleted}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-zinc-500">Security Missions</div>
-            <div className="mt-1 font-mono text-xl font-semibold text-zinc-950">
-              {portfolio.securityMissionsCompleted}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-zinc-500">Achievements</div>
-            <div className="mt-1 font-mono text-xl font-semibold text-zinc-950">
-              {portfolio.achievements.length}
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2 p-6">
-          <h2 className="text-sm font-semibold text-zinc-950 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-700" />
-            Verified Challenge Completions ({portfolio.completedChallenges.length})
-          </h2>
-          <div className="mt-4 space-y-2">
-            {portfolio.completedChallenges.length === 0 ? (
-              <p className="text-xs text-zinc-500">No verified challenge completions yet.</p>
-            ) : (
-              portfolio.completedChallenges.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/challenges/${c.slug}`}
-                  className="flex items-center justify-between rounded border border-zinc-200 px-3 py-2.5 text-xs hover:bg-zinc-50"
-                >
-                  <div>
-                    <div className="font-medium text-zinc-950">{c.title}</div>
-                    <div className="font-mono text-[11px] text-zinc-500">{c.category}</div>
-                  </div>
-                  <DifficultyBadge difficulty={c.difficulty} />
-                </Link>
-              ))
-            )}
-          </div>
-        </Card>
-
-        <div className="space-y-6">
-          <Card className="p-5">
-            <h2 className="text-sm font-semibold text-zinc-950 flex items-center gap-2">
-              <Award className="h-4 w-4 text-amber-600" />
-              Verified Achievements
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          <section className="cz-card p-6 lg:col-span-2">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              Verified completions ({portfolio.completedChallenges.length})
             </h2>
-            <div className="mt-3 space-y-2 text-xs">
-              {portfolio.achievements.length === 0 ? (
-                <p className="text-zinc-500">No achievements unlocked yet.</p>
+            <div className="mt-4 space-y-2">
+              {portfolio.completedChallenges.length === 0 ? (
+                <p className="text-sm text-zinc-500">No verified completions yet.</p>
               ) : (
-                portfolio.achievements.map((a) => {
-                  const meta = getAchievementMeta(a.achievementId);
-                  return (
-                    <div
-                      key={a.achievementId}
-                      className="rounded border border-zinc-200 p-2.5 space-y-1"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-zinc-950">{meta.title}</span>
-                        <span className="text-[11px] text-zinc-500 shrink-0">
-                          {new Date(a.awardedAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-zinc-600">{meta.description}</p>
-                    </div>
-                  );
-                })
+                portfolio.completedChallenges.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/challenges/${c.slug}`}
+                    className="cz-focus flex items-center justify-between gap-3 rounded-xl border border-white/10 px-4 py-3 text-sm transition hover:border-white/25 hover:bg-white/[0.04]"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium text-white">{c.title}</span>
+                      <span className="font-mono text-[11px] text-zinc-500">{c.category}</span>
+                    </span>
+                    <DifficultyBadge difficulty={c.difficulty} surface="dark" className="shrink-0" />
+                  </Link>
+                ))
               )}
             </div>
-          </Card>
+          </section>
 
-          <Card className="p-5">
-            <h2 className="text-sm font-semibold text-zinc-950 flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-blue-700" />
+          <section className="cz-card p-6">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+              <Trophy className="h-4 w-4 text-violet-300" />
               Competitions ({portfolio.contests.length})
             </h2>
-            <div className="mt-3 space-y-2 text-xs">
+            <div className="mt-4 space-y-2 text-sm">
               {portfolio.contests.length === 0 ? (
-                <p className="text-zinc-500">No competition registrations yet.</p>
+                <p className="text-zinc-500">No competition entries yet.</p>
               ) : (
                 portfolio.contests.map((ct) => (
-                  <div key={ct.slug} className="rounded border border-zinc-200 p-2.5 font-medium">
+                  <div key={ct.slug} className="rounded-xl border border-white/10 px-4 py-3 font-medium text-zinc-200">
                     {ct.title}
                   </div>
                 ))
               )}
             </div>
-          </Card>
+          </section>
         </div>
-      </div>
-    </div>
+      </Container>
+    </DarkBand>
   );
 }
