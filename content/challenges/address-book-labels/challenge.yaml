@@ -1,0 +1,63 @@
+id: address-book-labels
+slug: address-book-labels
+title: "Address Book With Mapping Existence Checks"
+description: "Build a personal address book in which each caller keeps a text label per address. Support setting, reading and deleting labels, and tell missing entries apart from stored ones."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - mappings
+  - strings
+  - custom-errors
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/AddressBook.sol
+  editable_files:
+    - src/AddressBook.sol
+  readonly_files:
+    - test/AddressBook.t.sol
+tests:
+  public_suite: evaluation/public/AddressBook.t.sol
+  hidden_suite: evaluation/hidden/AddressBookHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Mappings have no notion of 'missing'"
+    content: "Reading an unset key returns the default value, an empty string here. Because empty labels are rejected on write, an empty stored label can serve as the 'no entry' marker."
+  - order: 2
+    title: "Check the length through bytes"
+    content: "A string has no length member. Convert it first: bytes(label).length."
+  - order: 3
+    title: "Count only real changes"
+    content: "entryCount goes up when a label is stored for an address that had none, and down on removal. Overwriting an existing label must not change it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Mapping Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#mapping-types
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Bytes and String as Arrays"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#bytes-and-string-as-arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

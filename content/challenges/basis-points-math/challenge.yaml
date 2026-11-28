@@ -1,0 +1,64 @@
+id: basis-points-math
+slug: basis-points-math
+title: "Basis-Points Math With Explicit Rounding"
+description: "Write a basis-points helper that computes a percentage of an amount with separate round-down and round-up functions, validates the rate, and never overflows for any uint256 amount."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - fixed-point
+  - rounding
+  - arithmetic
+  - pure-functions
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BpsMath.sol
+  editable_files:
+    - src/BpsMath.sol
+  readonly_files:
+    - test/BpsMath.t.sol
+tests:
+  public_suite: evaluation/public/BpsMath.t.sol
+  hidden_suite: evaluation/hidden/BpsMathHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 30000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Integer division truncates"
+    content: "a * b / 10000 rounds down. To round up, add denominator - 1 to the numerator before dividing, or add one when the remainder is non-zero."
+  - order: 2
+    title: "Avoid the overflowing product"
+    content: "amount * bps overflows for very large amounts. Split the amount first: amount = q * 10000 + r with q = amount / 10000 and r = amount % 10000. Then amount * bps / 10000 equals q * bps plus (r * bps) / 10000, and both parts are small."
+  - order: 3
+    title: "Make the split add up"
+    content: "In splitFee compute the fee once and derive net as amount - fee. Computing both sides independently can lose or create a wei."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Checked or Unchecked Arithmetic"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#checked-or-unchecked-arithmetic
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Types: Integers (Division and Modulo)"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#integers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

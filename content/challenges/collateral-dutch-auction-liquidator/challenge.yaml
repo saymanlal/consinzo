@@ -1,0 +1,64 @@
+id: collateral-dutch-auction-liquidator
+slug: collateral-dutch-auction-liquidator
+title: Dutch-Auction Collateral Liquidator
+description: Build an auction house that sells seized collateral for a quote token at a price that decays linearly over time, supports partial takes, never raises more than the outstanding debt, refunds leftover collateral and records bad debt.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - liquidation
+  - dutch-auction
+  - collateral
+  - rounding
+  - accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CollateralAuctionHouse.sol
+  editable_files:
+    - src/CollateralAuctionHouse.sol
+  readonly_files:
+    - test/CollateralAuctionHouse.t.sol
+tests:
+  public_suite: evaluation/public/CollateralAuctionHouse.t.sol
+  hidden_suite: evaluation/hidden/CollateralAuctionHouseHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 500000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Two caps on every take
+    content: A take is limited by the collateral left in the lot and by the debt left to raise. Apply the collateral cap first, compute what that slice costs, and if the cost exceeds the remaining debt, shrink the slice so that the taker pays exactly the remaining debt.
+  - order: 2
+    title: Round against the taker
+    content: The quote amount owed rounds up, and when the slice is recomputed from the debt cap the collateral rounds down. Either way the auction never gives away collateral for free.
+  - order: 3
+    title: Two ways to finish
+    content: An auction ends when the debt reaches zero (leftover collateral goes back to the liquidated user) or when the lot reaches zero with debt outstanding (the remainder is bad debt).
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-20 Token Standard
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: Block and Transaction Properties
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,63 @@
+id: commit-reveal-bid-binding
+slug: commit-reveal-bid-binding
+title: "Bind Sealed-Bid Commitments to the Bidder"
+description: "A commit-reveal auction hashes only the bid amount and salt, so anyone can copy a commitment and reveal a rival's bid as their own. Patch the commitment scheme so a reveal only works for the account that committed."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - commit-reveal
+  - front-running
+  - auction
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SealedBidAuction.sol
+  editable_files:
+    - src/SealedBidAuction.sol
+  readonly_files:
+    - test/SealedBidAuction.t.sol
+tests:
+  public_suite: evaluation/public/SealedBidAuction.t.sol
+  hidden_suite: evaluation/hidden/SealedBidAuctionHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "What does the hash commit to?"
+    content: "List every value that goes into the commitment preimage. Ask which of them an observer of the mempool learns when the honest bidder reveals."
+  - order: 2
+    title: "Who can open a copied commitment?"
+    content: "A commitment is public as soon as it is stored. If the preimage does not contain the committing account, the same amount and salt open it for anybody."
+  - order: 3
+    title: "Domain separation"
+    content: "Include the auction address as well as the bidder, so a commitment made for one auction cannot be opened in another instance."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-114 Transaction Order Dependence"
+    url: https://swcregistry.io/docs/SWC-114/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Solidity ABI encoding functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

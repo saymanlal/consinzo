@@ -1,0 +1,63 @@
+id: unchecked-eth-send-return
+slug: unchecked-eth-send-return
+title: "Check the Result of an ETH Send"
+description: "PayoutBox zeroes a user's balance and then ignores whether the ETH send succeeded, so a failed transfer destroys the user's claim. Patch withdraw() so a failed send reverts and the balance survives."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - unchecked-call
+  - ether-transfer
+  - low-level-call
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PayoutBox.sol
+  editable_files:
+    - src/PayoutBox.sol
+  readonly_files:
+    - test/PayoutBox.t.sol
+tests:
+  public_suite: evaluation/public/PayoutBox.t.sol
+  hidden_suite: evaluation/hidden/PayoutBoxHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "send does not revert"
+    content: "address.send returns false on failure instead of reverting. If nobody looks at the returned bool, execution carries on as if the payment happened."
+  - order: 2
+    title: "Forward enough gas"
+    content: "send and transfer give the receiver only 2300 gas. Use call{value: amount}(\"\") and revert with TransferFailed() when it returns false."
+  - order: 3
+    title: "Keep the order"
+    content: "Zeroing the balance before the external call is correct. A revert undoes that write, so the user keeps the claim when the payment fails."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-104 Unchecked Call Return Value"
+    url: https://swcregistry.io/docs/SWC-104/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations: Sending and Receiving Ether"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

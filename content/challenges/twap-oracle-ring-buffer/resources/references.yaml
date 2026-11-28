@@ -1,0 +1,11 @@
+references:
+  - title: Solidity Types - Integers and Structs
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: Solidity Documentation
+    version: 0.8.28
+    verified_at: "2026-11-28"
+  - title: Block and Transaction Properties
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: Solidity Documentation
+    version: 0.8.28
+    verified_at: "2026-11-28"

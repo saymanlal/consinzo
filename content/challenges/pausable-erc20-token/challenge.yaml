@@ -1,0 +1,60 @@
+id: pausable-erc20-token
+slug: pausable-erc20-token
+title: "Pausable ERC-20 Token"
+description: "Implement a token with an owner-controlled emergency pause that blocks transfers and burns while leaving approvals and owner minting available."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: token-standards
+tags:
+  - erc20
+  - pausable
+  - access-control
+  - emergency-stop
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PausableToken.sol
+  editable_files:
+    - src/PausableToken.sol
+  readonly_files:
+    - test/PausableToken.t.sol
+tests:
+  public_suite: evaluation/public/PausableToken.t.sol
+  hidden_suite: evaluation/hidden/PausableTokenHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 100000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One gate, used consistently"
+    content: "Write a single modifier or internal check that reverts with EnforcedPause() when paused, and apply it to exactly the functions the rules list as blocked."
+  - order: 2
+    title: "Pause state transitions"
+    content: "pause() and unpause() are not idempotent in this specification: pausing twice or unpausing while running must revert with the stated error."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Function Modifiers"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#function-modifiers
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

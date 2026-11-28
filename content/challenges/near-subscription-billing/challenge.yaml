@@ -1,0 +1,62 @@
+id: near-subscription-billing
+slug: near-subscription-billing
+title: "NEAR Prepaid Subscription Billing"
+description: "Implement recurring billing on NEAR: subscribers pre-fund a balance, a keeper charges one plan price per elapsed period, subscriptions lapse when the balance runs out and cancellation takes effect at the end of the paid period."
+ecosystem: near
+language: TypeScript
+difficulty: normal
+category: smart-contract-engineering
+tags:
+  - near
+  - subscriptions
+  - billing
+  - recurring-payments
+  - bigint
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/SubscriptionBilling.ts
+  editable_files:
+    - src/SubscriptionBilling.ts
+  readonly_files:
+    - test/SubscriptionBilling.t.ts
+tests:
+  public_suite: evaluation/public/SubscriptionBilling.t.ts
+  hidden_suite: evaluation/hidden/SubscriptionBillingHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 150
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One settle routine"
+    content: "Write a private settle(account) that loops while the subscription is ACTIVE and now >= paidUntil. charge, subscribe, cancel and withdrawBalance all call it first so nobody can act on stale state."
+  - order: 2
+    title: "Advance by the period, not to now"
+    content: "After a successful charge set paidUntil += periodNs. Setting it to now + periodNs would give away the time between the due date and the keeper's call."
+  - order: 3
+    title: "Order of checks inside the loop"
+    content: "A period that is due is first checked for a pending cancellation (stop, no charge), then for insufficient funds (lapse, no charge), and only then charged."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR SDK Environment: block timestamp and attached deposit"
+    url: https://docs.near.org/smart-contracts/anatomy/environment
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

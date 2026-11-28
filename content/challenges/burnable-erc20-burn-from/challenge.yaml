@@ -1,0 +1,58 @@
+id: burnable-erc20-burn-from
+slug: burnable-erc20-burn-from
+title: "Burnable ERC-20 with burnFrom"
+description: "Add burn and burnFrom to a token so holders can destroy their own tokens and approved spenders can destroy tokens on a holder's behalf by consuming allowance."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: token-standards
+tags:
+  - erc20
+  - burn
+  - allowances
+  - total-supply
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BurnableToken.sol
+  editable_files:
+    - src/BurnableToken.sol
+  readonly_files:
+    - test/BurnableToken.t.sol
+tests:
+  public_suite: evaluation/public/BurnableToken.t.sol
+  hidden_suite: evaluation/hidden/BurnableTokenHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 90000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "burnFrom is transferFrom to nowhere"
+    content: "Treat burnFrom exactly like a spender moving tokens: first consume the caller's allowance from the account, then remove the tokens from the account's balance and from totalSupply."
+  - order: 2
+    title: "No shortcut for the account itself"
+    content: "The specification does not exempt msg.sender == account. If a holder wants to burn its own tokens without an allowance it calls burn, not burnFrom."
+  - order: 3
+    title: "Infinite approvals"
+    content: "An allowance of type(uint256).max means unlimited. Skip the allowance write in that case so it stays at the maximum."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

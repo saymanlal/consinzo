@@ -1,0 +1,16 @@
+references:
+  - title: "Types: Integers (Division and Modulo)"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#integers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Arrays"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Mapping Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#mapping-types
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"

@@ -1,0 +1,60 @@
+id: multicall-batch-aggregator
+slug: multicall-batch-aggregator
+title: "Multicall Aggregator with Per-Call Failure Flags"
+description: "Build a multicall contract that executes a batch of calls in order and returns each call's success flag and return data. Each call carries an allowFailure flag that decides whether a failing call aborts the whole batch."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: blockchain-infrastructure
+tags:
+  - multicall
+  - low-level-call
+  - batching
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/Multicall.sol
+  editable_files:
+    - src/Multicall.sol
+  readonly_files:
+    - test/Multicall.t.sol
+tests:
+  public_suite: evaluation/public/Multicall.t.sol
+  hidden_suite: evaluation/hidden/MulticallHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "A call to an address without code succeeds"
+    content: "A low-level call to an address that has no code returns success with empty return data. Check target.code.length before calling so a typo in a target is not reported as a success."
+  - order: 2
+    title: "Keep the raw return data"
+    content: "Do not decode or re-wrap what the target returned. Store the bytes as they are for both successful and failed calls, and pass them into CallFailed when a mandatory call fails."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity: Members of Address Types (call)"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Contract ABI Specification"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

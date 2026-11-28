@@ -1,0 +1,55 @@
+id: minimal-erc721-core
+slug: minimal-erc721-core
+title: "Minimal ERC-721: Ownership, Approval and Transfer"
+description: "Implement the core of a non-fungible token: minting, ownerOf, balanceOf, single-token approval and transferFrom with correct authorisation and approval clearing."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: token-standards
+tags:
+  - erc721
+  - nft
+  - approvals
+  - ownership
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MinimalNFT.sol
+  editable_files:
+    - src/MinimalNFT.sol
+  readonly_files:
+    - test/MinimalNFT.t.sol
+tests:
+  public_suite: evaluation/public/MinimalNFT.t.sol
+  hidden_suite: evaluation/hidden/MinimalNFTHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Existence is ownership"
+    content: "A token exists exactly when its owner slot is non-zero. Use that single fact for the existence checks in ownerOf, getApproved, approve and transferFrom."
+  - order: 2
+    title: "Approvals belong to the owner, not the token"
+    content: "A per-token approval was granted by the current owner. When the token changes hands the approval must be deleted, otherwise the old owner's delegate could take the token back."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-721 Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

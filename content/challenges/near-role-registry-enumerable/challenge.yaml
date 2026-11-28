@@ -1,0 +1,62 @@
+id: near-role-registry-enumerable
+slug: near-role-registry-enumerable
+title: "NEAR Role-Based Access Registry with Role Admins"
+description: "Implement an enumerable role-based access control registry for NEAR in which every role has an admin role, members can be listed with pagination, and the last root admin can never be removed."
+ecosystem: near
+language: TypeScript
+difficulty: normal
+category: smart-contract-engineering
+tags:
+  - near
+  - access-control
+  - rbac
+  - enumeration
+  - storage-collections
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/RoleRegistry.ts
+  editable_files:
+    - src/RoleRegistry.ts
+  readonly_files:
+    - test/RoleRegistry.t.ts
+tests:
+  public_suite: evaluation/public/RoleRegistry.t.ts
+  hidden_suite: evaluation/hidden/RoleRegistryHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 150
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "LookupMap cannot be iterated"
+    content: "Keep one string[] of members per role plus a second map from (role, account) to the member's position in that array. hasRole then is a single lookup."
+  - order: 2
+    title: "Swap and pop"
+    content: "To remove a member in O(1), move the last member into the removed slot, update that member's stored index, then pop the array and delete the removed member's index entry."
+  - order: 3
+    title: "Check before you mutate"
+    content: "Evaluate the last-admin rule before touching storage. Count the members of the admin role and reject the removal when it would drop to zero."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Smart Contract Security Checklist"
+    url: https://docs.near.org/smart-contracts/security/checklist
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

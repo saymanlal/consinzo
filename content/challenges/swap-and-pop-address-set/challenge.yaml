@@ -1,0 +1,64 @@
+id: swap-and-pop-address-set
+slug: swap-and-pop-address-set
+title: "Enumerable Address Set With Swap-and-Pop"
+description: "Implement an enumerable set of addresses with constant-time add, remove and membership checks, using an array for enumeration, an index mapping for lookup and swap-and-pop for removal."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: programming-fundamentals
+tags:
+  - solidity
+  - data-structures
+  - enumerable-set
+  - arrays
+  - mappings
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/AddressSet.sol
+  editable_files:
+    - src/AddressSet.sol
+  readonly_files:
+    - test/AddressSet.t.sol
+tests:
+  public_suite: evaluation/public/AddressSet.t.sol
+  hidden_suite: evaluation/hidden/AddressSetHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 150000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Store index plus one"
+    content: "Keep mapping(address => uint256) with the element's array position plus one. Zero then means 'not in the set', and position 0 is still representable."
+  - order: 2
+    title: "Swap, then pop"
+    content: "To remove an element, copy the last array element into its position, update that moved element's stored index, pop the array and delete the removed element's index."
+  - order: 3
+    title: "Removing the last element"
+    content: "When the element to remove is already last, there is nothing to move. Make sure the code path does not leave a stale index behind for it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Arrays (Array Members: push and pop)"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#arrays
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Mapping Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#mapping-types
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

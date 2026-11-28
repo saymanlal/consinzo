@@ -1,0 +1,64 @@
+id: amm-protocol-fee-switch
+slug: amm-protocol-fee-switch
+title: AMM Protocol Fee Switch with kLast Accounting
+description: Add a protocol fee switch to a constant-product pair. When the switch is on, the pair mints LP shares to the fee recipient equal to one sixth of the growth in sqrt(k) since the last liquidity event, without charging traders anything extra.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - amm
+  - protocol-fee
+  - k-last
+  - lp-shares
+  - integer-math
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FeeSwitchPair.sol
+  editable_files:
+    - src/FeeSwitchPair.sol
+  readonly_files:
+    - test/FeeSwitchPair.t.sol
+tests:
+  public_suite: evaluation/public/FeeSwitchPair.t.sol
+  hidden_suite: evaluation/hidden/FeeSwitchPairHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 600000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Fees show up as growth in sqrt(k)
+    content: Swap fees stay in the reserves, so reserve0 * reserve1 grows while the LP supply does not. Comparing sqrt(k) now with sqrt(kLast) measures the fees earned since the last mint or burn.
+  - order: 2
+    title: Order of operations in mint and burn
+    content: Mint the protocol shares first, using the reserves and total supply from before the liquidity change. Only then compute the caller's shares or payout against the diluted supply, and finally refresh kLast from the new reserves.
+  - order: 3
+    title: Turning the switch on and off
+    content: With the switch off, kLast must be reset to zero so that growth earned while it was off is never charged later. With the switch on and kLast equal to zero, the first liquidity event only records kLast.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-20 Token Standard
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: Solidity Types - Integers
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,64 @@
+id: incremental-merkle-tree
+slug: incremental-merkle-tree
+title: "Append-Only Incremental Merkle Tree with Root History"
+description: "Implement a fixed-depth, append-only Merkle tree that updates its root in O(depth) per insertion by caching one node per level. The contract also remembers a bounded window of recent roots so that proofs built against a slightly older root stay usable."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: blockchain-infrastructure
+tags:
+  - merkle-tree
+  - incremental-merkle-tree
+  - root-history
+  - keccak256
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/IncrementalMerkleTree.sol
+  editable_files:
+    - src/IncrementalMerkleTree.sol
+  readonly_files:
+    - test/IncrementalMerkleTree.t.sol
+tests:
+  public_suite: evaluation/public/IncrementalMerkleTree.t.sol
+  hidden_suite: evaluation/hidden/IncrementalMerkleTreeHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 600000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One cached node per level is enough"
+    content: "On the path from a new leaf to the root, the sibling is either an all-empty subtree to the right (a precomputed zero hash) or a completed subtree to the left. Remember the most recent left node of every level and you never need to read any other node."
+  - order: 2
+    title: "Use the index bits"
+    content: "At level i the current node is a left child when bit i of the leaf index is 0 and a right child when it is 1."
+  - order: 3
+    title: "Ring buffer for the history"
+    content: "Keep the roots in a ring buffer of historySize slots and a cursor to the newest one. Unused slots are zero, so make sure isKnownRoot(0) is false."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-4881: Deposit Contract Snapshot Interface (incremental Merkle tree)"
+    url: https://eips.ethereum.org/EIPS/eip-4881
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Mathematical and Cryptographic Functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

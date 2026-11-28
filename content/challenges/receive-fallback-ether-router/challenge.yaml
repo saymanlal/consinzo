@@ -1,0 +1,64 @@
+id: receive-fallback-ether-router
+slug: receive-fallback-ether-router
+title: "Ether Router with receive and fallback"
+description: "Implement a contract that tells plain Ether transfers apart from calls to unknown functions by using the receive and fallback functions, and keeps separate counters for each."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - receive
+  - fallback
+  - ether
+  - calldata
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/EtherRouter.sol
+  editable_files:
+    - src/EtherRouter.sol
+  readonly_files:
+    - test/EtherRouter.t.sol
+tests:
+  public_suite: evaluation/public/EtherRouter.t.sol
+  hidden_suite: evaluation/hidden/EtherRouterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two special functions"
+    content: "receive() runs only when the calldata is empty. fallback() runs when the calldata is not empty and matches no function. Both must be external, and both must be payable to accept value here."
+  - order: 2
+    title: "Reading the selector"
+    content: "Inside fallback, msg.sig holds the first four bytes of the calldata. If fewer than four bytes were sent, the missing bytes read as zero."
+  - order: 3
+    title: "Known functions are not unknown calls"
+    content: "A call that matches a declared function never reaches fallback, so ping() must leave every counter untouched without any extra code."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Receive Ether Function"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#receive-ether-function
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Fallback Function"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#fallback-function
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

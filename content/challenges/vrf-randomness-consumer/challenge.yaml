@@ -1,0 +1,63 @@
+id: vrf-randomness-consumer
+slug: vrf-randomness-consumer
+title: "VRF Randomness Consumer: Dice Roller"
+description: "Build a dice roller on the request/fulfil randomness pattern: request words from a VRF-style coordinator mock, accept the callback only from the coordinator, settle each request exactly once and let players cancel requests that time out."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: ecosystem-integrations
+tags:
+  - vrf
+  - randomness
+  - oracle-callback
+  - state-machine
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/DiceRoller.sol
+  editable_files:
+    - src/DiceRoller.sol
+  readonly_files:
+    - test/DiceRoller.t.sol
+tests:
+  public_suite: evaluation/public/DiceRoller.t.sol
+  hidden_suite: evaluation/hidden/DiceRollerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Who may call the callback"
+    content: "rawFulfillRandomWords is a public entry point. The only thing that makes its input random is that the coordinator is the caller."
+  - order: 2
+    title: "Use the status as a guard"
+    content: "Give every request a status whose zero value means it does not exist, and require Pending at the top of both the callback and cancelRoll."
+  - order: 3
+    title: "Ids come from outside"
+    content: "Do not assume the coordinator hands out fresh sequential ids. Check that the slot for the returned id is unused before writing to it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: State Machine"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

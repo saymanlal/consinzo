@@ -1,0 +1,62 @@
+id: near-minimal-fungible-token
+slug: near-minimal-fungible-token
+title: "NEAR Minimal Fungible Token"
+description: "Implement a minimal fungible token with balances, transfer, burn and total supply, where every failure path has a precise error and supply is conserved."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: token-standards
+tags:
+  - near
+  - fungible-token
+  - nep-141
+  - balances
+  - bigint
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/SimpleToken.ts
+  editable_files:
+    - src/SimpleToken.ts
+  readonly_files:
+    - test/SimpleToken.t.ts
+tests:
+  public_suite: evaluation/public/SimpleToken.t.ts
+  hidden_suite: evaluation/hidden/SimpleTokenHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Order of checks"
+    content: "The tests distinguish every failure. Validate in the documented order: receiver, self-transfer, amount, then balance."
+  - order: 2
+    title: "Conservation"
+    content: "A transfer subtracts from one balance and adds the same amount to another, so the sum of balances never changes. Only burn changes the total supply."
+  - order: 3
+    title: "bigint only"
+    content: "Token amounts are bigint. Compare with 0n and never convert to number."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Fungible Token Standard (NEP-141)"
+    url: https://docs.near.org/primitives/ft/standard
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

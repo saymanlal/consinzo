@@ -1,0 +1,58 @@
+id: near-guestbook
+slug: near-guestbook
+title: "NEAR Guestbook with Latest Messages"
+description: "Build a guestbook contract that appends signed messages with the caller account and block timestamp, and returns the latest N entries newest first."
+ecosystem: near
+language: TypeScript
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - near
+  - near-sdk-js
+  - storage-collections
+  - append-only-log
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/Guestbook.ts
+  editable_files:
+    - src/Guestbook.ts
+  readonly_files:
+    - test/Guestbook.t.ts
+tests:
+  public_suite: evaluation/public/Guestbook.t.ts
+  hidden_suite: evaluation/hidden/GuestbookHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Index the log"
+    content: "A LookupMap cannot be iterated. Keep a message counter and store each message under its index converted to a string."
+  - order: 2
+    title: "Walk backwards"
+    content: "latest(n) starts at count - 1 and stops after n messages or when it reaches index 0, whichever comes first."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Smart Contract Anatomy"
+    url: https://docs.near.org/smart-contracts/anatomy/anatomy
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

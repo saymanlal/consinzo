@@ -1,0 +1,62 @@
+id: near-vesting-cliff-revocable
+slug: near-vesting-cliff-revocable
+title: "NEAR Revocable Vesting Grants with Cliff"
+description: "Implement a NEAR vesting vault where a grantor locks an attached deposit for a beneficiary, tokens vest linearly after a cliff, and a revocable grant can be cancelled with the unvested part returned to the grantor."
+ecosystem: near
+language: TypeScript
+difficulty: normal
+category: smart-contract-engineering
+tags:
+  - near
+  - vesting
+  - cliff
+  - revocation
+  - bigint
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/VestingVault.ts
+  editable_files:
+    - src/VestingVault.ts
+  readonly_files:
+    - test/VestingVault.t.ts
+tests:
+  public_suite: evaluation/public/VestingVault.t.ts
+  hidden_suite: evaluation/hidden/VestingVaultHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 150
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Compute vested from elapsed time"
+    content: "Vested is zero while blockTimestamp < startNs + cliffNs, the full total once blockTimestamp >= startNs + durationNs, and total * (now - startNs) / durationNs in between. Multiply before dividing."
+  - order: 2
+    title: "Freeze a revoked grant"
+    content: "On revoke, compute the vested amount once, shrink the grant total to that value and mark it revoked. vestedAmount() can then simply return the stored total for revoked grants."
+  - order: 3
+    title: "Track released separately"
+    content: "release() pays vested minus released. Never recompute what was already paid from balances; keep a released counter on the grant."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR SDK Environment: block timestamp and attached deposit"
+    url: https://docs.near.org/smart-contracts/anatomy/environment
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

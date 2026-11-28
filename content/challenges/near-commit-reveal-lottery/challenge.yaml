@@ -1,0 +1,62 @@
+id: near-commit-reveal-lottery
+slug: near-commit-reveal-lottery
+title: "NEAR Commit-Reveal Lottery with No-Reveal Penalty"
+description: "Implement a NEAR lottery whose randomness comes from player seeds submitted with a commit-reveal scheme. Players post a bond that is forfeited to the pot if they commit but never reveal."
+ecosystem: near
+language: TypeScript
+difficulty: normal
+category: protocol-implementation
+tags:
+  - near
+  - commit-reveal
+  - randomness
+  - lottery
+  - state-machine
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/CommitRevealLottery.ts
+  editable_files:
+    - src/CommitRevealLottery.ts
+  readonly_files:
+    - test/CommitRevealLottery.t.ts
+tests:
+  public_suite: evaluation/public/CommitRevealLottery.t.ts
+  hidden_suite: evaluation/hidden/CommitRevealLotteryHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 150
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Three phases from two timestamps"
+    content: "Commit while now < commitEndNs, reveal while commitEndNs <= now < revealEndNs, finalize once now >= revealEndNs. Check the phase first in every method."
+  - order: 2
+    title: "Bind the commitment to the account"
+    content: "Recompute hashCommitment(caller, seed, salt) on reveal and compare it with the stored hash. Because the caller's account id is part of the hash, a copied commitment can never be revealed by someone else."
+  - order: 3
+    title: "Account for every unit"
+    content: "The pot is ticketPrice times all players plus one bond for each player who did not reveal. Revealers get their bond back at reveal time."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Security: Random Numbers"
+    url: https://docs.near.org/smart-contracts/security/random
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Security: Front Running"
+    url: https://docs.near.org/smart-contracts/security/frontrunning
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

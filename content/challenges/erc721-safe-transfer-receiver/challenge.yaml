@@ -1,0 +1,64 @@
+id: erc721-safe-transfer-receiver
+slug: erc721-safe-transfer-receiver
+title: "ERC-721 Safe Transfers and the Receiver Check"
+description: "Implement safeTransferFrom and safeMint for an ERC-721 token, calling onERC721Received on contract recipients and rejecting any recipient that does not return the magic value."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: token-standards
+tags:
+  - erc721
+  - safe-transfer
+  - receiver-hook
+  - nft
+  - callbacks
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SafeNFT.sol
+  editable_files:
+    - src/SafeNFT.sol
+  readonly_files:
+    - test/SafeNFT.t.sol
+tests:
+  public_suite: evaluation/public/SafeNFT.t.sol
+  hidden_suite: evaluation/hidden/SafeNFTHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 180000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Who gets called, and with what"
+    content: "Only recipients with code are called. The hook receives the operator (msg.sender of the token call), the previous owner (address(0) for a mint), the token id and the data bytes unchanged."
+  - order: 2
+    title: "Finish the transfer first"
+    content: "Update owner, balances and approvals before calling the recipient. The recipient is allowed to use the token inside the hook, so it must already own it at that point."
+  - order: 3
+    title: "Every failure is the same failure"
+    content: "A recipient that reverts, returns a different value or has no such function must all end in UnsafeRecipient(). try/catch around the interface call covers the revert case."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-721 Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: try/catch"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#try-catch
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

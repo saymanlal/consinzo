@@ -1,0 +1,64 @@
+id: usd-priced-eth-payment-gateway
+slug: usd-priced-eth-payment-gateway
+title: "USD-Priced Payment Gateway Accepting ETH"
+description: "Build a payment gateway whose orders are priced in USD and paid in ETH: convert with a Chainlink-style feed, round in the merchant's favour, refund overpayment safely and let the merchant pull the proceeds."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: ecosystem-integrations
+tags:
+  - oracle
+  - price-feed
+  - payments
+  - refunds
+  - pull-payments
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/EthPaymentGateway.sol
+  editable_files:
+    - src/EthPaymentGateway.sol
+  readonly_files:
+    - test/EthPaymentGateway.t.sol
+tests:
+  public_suite: evaluation/public/EthPaymentGateway.t.sol
+  hidden_suite: evaluation/hidden/EthPaymentGatewayHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Decimals cancel"
+    content: "The USD amount has 18 decimals and so does wei, so weiDue is usdAmount * 10 ** feedDecimals / answer. Use a ceiling division."
+  - order: 2
+    title: "Credit only what is due"
+    content: "Add weiDue, not msg.value, to proceeds. The difference belongs to the payer."
+  - order: 3
+    title: "State before refund"
+    content: "The refund runs the payer's code. Mark the order paid before sending it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Security Considerations: Reentrancy"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

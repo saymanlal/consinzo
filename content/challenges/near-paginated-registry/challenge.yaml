@@ -1,0 +1,62 @@
+id: near-paginated-registry
+slug: near-paginated-registry
+title: "NEAR Paginated Item Registry"
+description: "Build an append-only item registry with from_index and limit pagination over all items and over the items of a single owner, with correct bounds handling and a capped page size."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: programming-fundamentals
+tags:
+  - near
+  - pagination
+  - storage-collections
+  - view-methods
+  - bounds-checking
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/ItemRegistry.ts
+  editable_files:
+    - src/ItemRegistry.ts
+  readonly_files:
+    - test/ItemRegistry.t.ts
+tests:
+  public_suite: evaluation/public/ItemRegistry.t.ts
+  hidden_suite: evaluation/hidden/ItemRegistryHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Compute the end once"
+    content: "The last index to read is min(fromIndex + effectiveLimit, total). A fromIndex at or past the total simply yields an empty page."
+  - order: 2
+    title: "Cap, do not reject"
+    content: "A limit above the maximum page size is reduced to the maximum. Only non-integers and values below 1 are errors."
+  - order: 3
+    title: "Index per owner"
+    content: "To page through one owner's items without scanning everything, store a second list per owner that maps the owner's n-th item to its global id."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Contract Functions"
+    url: https://docs.near.org/smart-contracts/anatomy/functions
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

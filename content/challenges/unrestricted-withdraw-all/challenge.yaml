@@ -1,0 +1,60 @@
+id: unrestricted-withdraw-all
+slug: unrestricted-withdraw-all
+title: "Lock Down an Open withdrawAll"
+description: "TipJar collects ETH tips for its owner, but withdrawAll() sends the whole balance to whoever calls it. Patch the contract so only the owner can sweep the jar."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: security-engineering
+tags:
+  - patch
+  - access-control
+  - ether-withdrawal
+  - ownership
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TipJar.sol
+  editable_files:
+    - src/TipJar.sol
+  readonly_files:
+    - test/TipJar.t.sol
+tests:
+  public_suite: evaluation/public/TipJar.t.sol
+  hidden_suite: evaluation/hidden/TipJarHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Follow the money"
+    content: "withdrawAll() pays msg.sender. Ask who msg.sender is allowed to be before any ETH leaves the contract."
+  - order: 2
+    title: "Check first, pay last"
+    content: "Put the owner check at the top of the function, before reading the balance or making the external call."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-105 Unprotected Ether Withdrawal"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Common Patterns: Restricting Access"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

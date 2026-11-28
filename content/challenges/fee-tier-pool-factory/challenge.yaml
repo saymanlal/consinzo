@@ -1,0 +1,64 @@
+id: fee-tier-pool-factory
+slug: fee-tier-pool-factory
+title: Fee Tier Pool Factory with Per-Pool Fee Accounting
+description: Build a factory that deploys one swap pool per (token pair, fee tier), enforces uniqueness regardless of token order, and a pool that splits every swap fee between liquidity providers and a separately tracked protocol balance.
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - factory
+  - fee-tiers
+  - amm
+  - protocol-fees
+  - accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PoolFactory.sol
+  editable_files:
+    - src/PoolFactory.sol
+  readonly_files:
+    - test/PoolFactory.t.sol
+tests:
+  public_suite: evaluation/public/PoolFactory.t.sol
+  hidden_suite: evaluation/hidden/PoolFactoryHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 900000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: Canonical token order
+    content: Sort the two token addresses before touching any mapping. Store the pool under both key orders so lookups work either way, but run the existence check on the sorted pair.
+  - order: 2
+    title: Three buckets for the input amount
+    content: The input of a swap splits into the net amount that is priced, the liquidity-provider part of the fee that joins the reserve, and the protocol part that must never be counted as reserve.
+  - order: 3
+    title: Price with the reserves from before the swap
+    content: Compute the output from the reserves as they were before this swap and the net input only. Add the liquidity-provider fee to the reserve after the output has been computed.
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: EIP-20 Token Standard
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: Ethereum EIPs
+    version: Final
+    verified_at: "2026-11-28"
+  - title: Creating Contracts via new
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

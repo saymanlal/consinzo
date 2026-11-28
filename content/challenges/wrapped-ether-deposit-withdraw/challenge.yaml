@@ -1,0 +1,60 @@
+id: wrapped-ether-deposit-withdraw
+slug: wrapped-ether-deposit-withdraw
+title: "Wrapped Ether: 1:1 Deposit and Withdraw"
+description: "Build a wrapped Ether token that mints one unit per wei deposited, burns on withdrawal, and lets holders transfer their wrapped balance."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: token-standards
+tags:
+  - weth
+  - erc20
+  - payable
+  - receive-function
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/WrappedEther.sol
+  editable_files:
+    - src/WrappedEther.sol
+  readonly_files:
+    - test/WrappedEther.t.sol
+tests:
+  public_suite: evaluation/public/WrappedEther.t.sol
+  hidden_suite: evaluation/hidden/WrappedEtherHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 120000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two entry points, one rule"
+    content: "A plain Ether transfer reaches receive(); make it do exactly what deposit() does so both paths credit msg.sender with msg.value."
+  - order: 2
+    title: "Order of operations in withdraw"
+    content: "Reduce the caller's balance and totalSupply before you send Ether out. Then check the boolean returned by the low-level call and revert if it is false."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity: Receive Ether Function"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#receive-ether-function
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

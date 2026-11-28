@@ -1,0 +1,11 @@
+references:
+  - title: "Function Modifiers"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#function-modifiers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-173: Contract Ownership Standard"
+    url: https://eips.ethereum.org/EIPS/eip-173
+    source: Ethereum EIPs
+    version: "Final"
+    verified_at: "2026-11-28"

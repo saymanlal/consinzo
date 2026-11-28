@@ -1,0 +1,62 @@
+id: near-pausable-roles
+slug: near-pausable-roles
+title: "NEAR Pausable Ledger with Admin and Pauser Roles"
+description: "Build a deposit ledger with an emergency pause: a pauser or the admin can pause, only the admin can unpause, deposits stop while paused and withdrawals always work."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: smart-contract-engineering
+tags:
+  - near
+  - pausable
+  - access-control
+  - roles
+  - emergency-stop
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/PausableLedger.ts
+  editable_files:
+    - src/PausableLedger.ts
+  readonly_files:
+    - test/PausableLedger.t.ts
+tests:
+  public_suite: evaluation/public/PausableLedger.t.ts
+  hidden_suite: evaluation/hidden/PausableLedgerHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Asymmetric roles"
+    content: "Pausing is the cheap, fast action and may be done by the pauser or the admin. Unpausing and role changes are admin only."
+  - order: 2
+    title: "What the pause covers"
+    content: "Only deposit is blocked while paused. Users must always be able to withdraw their own funds."
+  - order: 3
+    title: "State checks after role checks"
+    content: "Check the caller's role first, then whether the contract is already in the requested state."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Smart Contract Security Checklist"
+    url: https://docs.near.org/smart-contracts/security/checklist
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Contract Environment"
+    url: https://docs.near.org/smart-contracts/anatomy/environment
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

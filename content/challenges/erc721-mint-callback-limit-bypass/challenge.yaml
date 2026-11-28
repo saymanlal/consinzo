@@ -1,0 +1,69 @@
+id: erc721-mint-callback-limit-bypass
+slug: erc721-mint-callback-limit-bypass
+title: "Patch a Mint Limit Bypass Through onERC721Received"
+description: "An NFT sale caps mints per wallet, but it records the minted count only after the safe-mint callback has run. Patch the contract so a receiver contract cannot re-enter mint and exceed the wallet limit or the supply cap."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: security-engineering
+tags:
+  - patch
+  - reentrancy
+  - erc721
+  - safe-mint
+  - mint-limit
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/LimitedMint.sol
+  editable_files:
+    - src/LimitedMint.sol
+  readonly_files:
+    - test/LimitedMint.t.sol
+tests:
+  public_suite: evaluation/public/LimitedMint.t.sol
+  hidden_suite: evaluation/hidden/LimitedMintHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Follow the callback"
+    content: "_safeMint hands control to the recipient through onERC721Received. List every state variable that mint() still has to write after that call returns."
+  - order: 2
+    title: "Account before you interact"
+    content: "If the per-wallet counter is increased before any token is minted, a nested mint() sees the updated count and fails the limit check on its own."
+  - order: 3
+    title: "The supply cap is checked once"
+    content: "The cap is validated before the loop, so nested calls made during the loop can push the total past it. Fixing the ordering of the wallet counter also bounds the nesting depth; a reentrancy lock is a valid second layer."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-721: Non-Fungible Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-721
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "SWC-107 Reentrancy"
+    url: https://swcregistry.io/docs/SWC-107/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations: Reentrancy"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

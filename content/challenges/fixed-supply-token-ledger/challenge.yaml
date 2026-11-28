@@ -1,0 +1,60 @@
+id: fixed-supply-token-ledger
+slug: fixed-supply-token-ledger
+title: "Fixed-Supply Token Ledger"
+description: "Write a token ledger whose constructor mints the entire supply to the deployer and whose only state-changing function is a checked transfer."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: token-standards
+tags:
+  - erc20
+  - balances
+  - events
+  - custom-errors
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FixedSupplyLedger.sol
+  editable_files:
+    - src/FixedSupplyLedger.sol
+  readonly_files:
+    - test/FixedSupplyLedger.t.sol
+tests:
+  public_suite: evaluation/public/FixedSupplyLedger.t.sol
+  hidden_suite: evaluation/hidden/FixedSupplyLedgerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 80000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Mint once, in the constructor"
+    content: "Set totalSupply and the deployer's balance in the constructor. By convention a mint is announced as a Transfer event whose from field is address(0)."
+  - order: 2
+    title: "Self-transfers"
+    content: "If you read both balances into memory before writing either, a transfer to yourself can overwrite one write with the other. Subtract from the sender in storage first, then add to the recipient in storage."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Errors and the Revert Statement"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#errors-and-the-revert-statement
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

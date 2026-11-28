@@ -1,0 +1,63 @@
+id: pausable-switch-modifiers
+slug: pausable-switch-modifiers
+title: "Pausable Switch With Modifiers"
+description: "Write whenNotPaused and whenPaused modifiers and use them to guard two functions: a normal action that works only while running and an emergency action that works only while paused."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: smart-contract-engineering
+tags:
+  - solidity
+  - modifiers
+  - pausable
+  - access-control
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PausableSwitch.sol
+  editable_files:
+    - src/PausableSwitch.sol
+  readonly_files:
+    - test/PausableSwitch.t.sol
+tests:
+  public_suite: evaluation/public/PausableSwitch.t.sol
+  hidden_suite: evaluation/hidden/PausableSwitchHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 80000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Modifiers are preconditions"
+    content: "Each modifier checks one condition, reverts with its own error and then runs the function body with the placeholder statement."
+  - order: 2
+    title: "Order matters"
+    content: "Modifiers run left to right. To report NotOwner before a pause-state error, list onlyOwner first."
+  - order: 3
+    title: "Pausing is itself guarded"
+    content: "pause may only run while not paused and unpause only while paused, so the same two modifiers protect the switch."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Function Modifiers"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#function-modifiers
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Errors and the Revert Statement"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#errors-and-the-revert-statement
+    source: Solidity Documentation
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

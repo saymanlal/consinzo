@@ -1,0 +1,69 @@
+id: multisig-attested-bridge
+slug: multisig-attested-bridge
+title: "M-of-N Relayer-Attested Bridge with Rate Limits"
+description: "Build the destination side of a committee bridge: relayers attest to transfers from their own addresses, a transfer executes once a threshold of current relayers agree, replays and conflicting nonces are rejected, and each token has a per-window release limit."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: cross-chain-development
+tags:
+  - bridge
+  - multisig
+  - replay-protection
+  - rate-limit
+  - cross-chain
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/AttestedBridge.sol
+  editable_files:
+    - src/AttestedBridge.sol
+  readonly_files:
+    - test/AttestedBridge.t.sol
+tests:
+  public_suite: evaluation/public/AttestedBridge.t.sol
+  hidden_suite: evaluation/hidden/AttestedBridgeHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Count at execution time"
+    content: "Store who attested, not how many. Count the flags of the current relayer list when execute runs, so removed relayers lose their weight."
+  - order: 2
+    title: "Two replay flags"
+    content: "The transfer id covers recipient and amount, so two ids can share one source nonce. Track the (source chain, nonce) pair separately."
+  - order: 3
+    title: "Do not consume on rate limit"
+    content: "A transfer that exceeds the window must revert without being marked executed, so that it can run in a later window."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-5164 Cross-Chain Execution"
+    url: https://eips.ethereum.org/EIPS/eip-5164
+    source: "Ethereum EIPs"
+    version: "ERC-5164"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

@@ -1,0 +1,63 @@
+id: revenue-splitter-pull-payments
+slug: revenue-splitter-pull-payments
+title: "Share-Based Revenue Splitter with Pull Payments"
+description: "Implement an ETH revenue splitter whose payees and shares are fixed at construction. Each payee pulls its cumulative entitlement, so one failing payee can never block the others."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: easy
+category: defi-engineering
+tags:
+  - payment-splitter
+  - pull-payments
+  - revenue-share
+  - eth
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RevenueSplitter.sol
+  editable_files:
+    - src/RevenueSplitter.sol
+  readonly_files:
+    - test/RevenueSplitter.t.sol
+tests:
+  public_suite: evaluation/public/RevenueSplitter.t.sol
+  hidden_suite: evaluation/hidden/RevenueSplitterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 200000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Use total received, not the balance"
+    content: "The balance shrinks as payees withdraw. Entitlements must be computed from everything ever received: address(this).balance + totalReleased."
+  - order: 2
+    title: "Cumulative entitlement minus already released"
+    content: "releasable = totalReceived * shares[account] / totalShares - released[account]. This stays correct across any order of deposits and withdrawals."
+  - order: 3
+    title: "Update before sending"
+    content: "Increase released[account] and totalReleased before the ETH transfer, and revert the whole call if the transfer fails."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

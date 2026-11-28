@@ -1,0 +1,58 @@
+id: near-single-vote-poll
+slug: near-single-vote-poll
+title: "NEAR One-Account-One-Vote Poll"
+description: "Build a poll with a fixed list of options where each account may vote exactly once, with a per-option tally and a deterministic leading option."
+ecosystem: near
+language: TypeScript
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - near
+  - near-sdk-js
+  - voting
+  - input-validation
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/Poll.ts
+  editable_files:
+    - src/Poll.ts
+  readonly_files:
+    - test/Poll.t.ts
+tests:
+  public_suite: evaluation/public/Poll.t.ts
+  hidden_suite: evaluation/hidden/PollHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Remember who voted"
+    content: "Store each voter's chosen option in a LookupMap keyed by account. containsKey tells you whether the account has voted, even when it chose option 0."
+  - order: 2
+    title: "Validate the index"
+    content: "An option index is valid only if it is an integer in the range 0 to optionCount - 1. Check Number.isInteger before the range."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Smart Contract Anatomy"
+    url: https://docs.near.org/smart-contracts/anatomy/anatomy
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

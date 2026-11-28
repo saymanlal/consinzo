@@ -1,0 +1,11 @@
+references:
+  - title: "Receive Ether Function"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#receive-ether-function
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Fallback Function"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#fallback-function
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

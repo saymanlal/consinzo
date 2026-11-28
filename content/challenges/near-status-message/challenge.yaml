@@ -1,0 +1,58 @@
+id: near-status-message
+slug: near-status-message
+title: "NEAR Status Message with Length Limit and Update Counter"
+description: "Build a status board where each account sets a length-limited status message and the contract counts how many times each account has updated its status."
+ecosystem: near
+language: TypeScript
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - near
+  - near-sdk-js
+  - input-validation
+  - state-management
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/StatusBoard.ts
+  editable_files:
+    - src/StatusBoard.ts
+  readonly_files:
+    - test/StatusBoard.t.ts
+tests:
+  public_suite: evaluation/public/StatusBoard.t.ts
+  hidden_suite: evaluation/hidden/StatusBoardHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Keep message and counter apart"
+    content: "Use one LookupMap for the current status and another for the update counter. clearStatus removes the status but must leave the counter alone."
+  - order: 2
+    title: "Validate against the configured limit"
+    content: "The maximum length is a constructor argument. Compare message.length with the stored limit, not with a hard-coded number."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Smart Contract Anatomy"
+    url: https://docs.near.org/smart-contracts/anatomy/anatomy
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

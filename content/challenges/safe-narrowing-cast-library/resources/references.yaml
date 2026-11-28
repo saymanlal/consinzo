@@ -1,0 +1,11 @@
+references:
+  - title: "Explicit Conversions"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html#explicit-conversions
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Libraries"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#libraries
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

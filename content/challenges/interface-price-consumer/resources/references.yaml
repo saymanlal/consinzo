@@ -1,0 +1,11 @@
+references:
+  - title: "Interfaces"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#interfaces
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "External Function Calls"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#external-function-calls
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

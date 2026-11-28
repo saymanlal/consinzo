@@ -1,0 +1,63 @@
+id: interface-price-consumer
+slug: interface-price-consumer
+title: "Price Feed Interface, Provider and Consumer"
+description: "Implement a price feed that satisfies a given interface and a consumer contract that is wired to a provider at construction and reads prices only through that interface."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: beginner
+category: programming-fundamentals
+tags:
+  - solidity
+  - interfaces
+  - external-calls
+  - composition
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PriceConsumer.sol
+  editable_files:
+    - src/PriceConsumer.sol
+  readonly_files:
+    - test/PriceConsumer.t.sol
+tests:
+  public_suite: evaluation/public/PriceConsumer.t.sol
+  hidden_suite: evaluation/hidden/PriceConsumerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 100
+  gas_budget: 90000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Program against the interface"
+    content: "The consumer stores an IPriceFeed, not a FixedPriceFeed. Any contract with the same two functions must work as a provider, including ones written by other people."
+  - order: 2
+    title: "Do not cache the price"
+    content: "The provider's price can change after the consumer is deployed. Call feed.latestPrice() every time a value is needed instead of copying it into storage."
+  - order: 3
+    title: "Scaling by decimals"
+    content: "A price with d decimals means that one whole unit costs price / 10**d. Multiply the amount by the price first and divide by 10**d last."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Interfaces"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html#interfaces
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "External Function Calls"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html#external-function-calls
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

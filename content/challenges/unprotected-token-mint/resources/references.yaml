@@ -1,0 +1,11 @@
+references:
+  - title: "Common Patterns: Restricting Access"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-105 Unprotected Ether Withdrawal (missing access control)"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"

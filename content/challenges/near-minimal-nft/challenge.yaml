@@ -1,0 +1,58 @@
+id: near-minimal-nft
+slug: near-minimal-nft
+title: "NEAR Minimal Non-Fungible Token"
+description: "Implement a minimal NFT contract where a fixed minter mints unique token ids, anyone can query owner_of and balances, and only the current owner can transfer a token."
+ecosystem: near
+language: TypeScript
+difficulty: easy
+category: token-standards
+tags:
+  - near
+  - non-fungible-token
+  - nep-171
+  - ownership
+toolchain:
+  compiler: tsc
+  version: "5.9.3"
+  runner: near-ts-vm
+starter:
+  entry_file: src/SimpleNft.ts
+  editable_files:
+    - src/SimpleNft.ts
+  readonly_files:
+    - test/SimpleNft.t.ts
+tests:
+  public_suite: evaluation/public/SimpleNft.t.ts
+  hidden_suite: evaluation/hidden/SimpleNftHidden.t.ts
+  timeout_ms: 10000
+scoring:
+  max_points: 100
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Two maps"
+    content: "Keep token id to owner in one LookupMap and account to token count in another. Every mint and transfer must update both."
+  - order: 2
+    title: "Who may transfer"
+    content: "Compare near.predecessorAccountId() with the stored owner of that specific token. The minter has no special rights over tokens it no longer owns."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "NEAR Non-Fungible Token Standard (NEP-171)"
+    url: https://docs.near.org/primitives/nft/standard
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+  - title: "NEAR Storage Collections"
+    url: https://docs.near.org/smart-contracts/anatomy/collections
+    source: NEAR Protocol Docs
+    version: "2026"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

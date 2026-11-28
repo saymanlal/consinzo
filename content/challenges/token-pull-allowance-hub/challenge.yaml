@@ -1,0 +1,64 @@
+id: token-pull-allowance-hub
+slug: token-pull-allowance-hub
+title: "Token Pull Hub with Expiring, Revocable Allowances"
+description: "Build a Permit2-style hub in which owners grant spenders amount-limited, time-limited token allowances, revoke them per token or per spender through an epoch nonce, and spenders pull tokens singly or in atomic batches."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: ecosystem-integrations
+tags:
+  - allowances
+  - erc20
+  - revocation
+  - nonces
+  - safe-transfer
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/AllowanceHub.sol
+  editable_files:
+    - src/AllowanceHub.sol
+  readonly_files:
+    - test/AllowanceHub.t.sol
+tests:
+  public_suite: evaluation/public/AllowanceHub.t.sol
+  hidden_suite: evaluation/hidden/AllowanceHubHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 350000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Stamp the epoch"
+    content: "Store the current nonces[owner][spender] inside each allowance when it is granted and compare the two when it is spent."
+  - order: 2
+    title: "Write before you call"
+    content: "Reduce the stored amount before calling the token. A token is arbitrary code and may call the hub again."
+  - order: 3
+    title: "Three outcomes of a token call"
+    content: "Use a low-level call. Treat a revert, a false return and a target without code as failure, and empty return data from a real contract as success."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

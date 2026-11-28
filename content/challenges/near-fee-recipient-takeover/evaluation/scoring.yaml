@@ -1,0 +1,6 @@
+max_points: 150
+weights:
+  functional_correctness: 50
+  security_invariants: 35
+  efficiency: 10
+  code_quality: 5

@@ -1,0 +1,16 @@
+references:
+  - title: "Solidity by Example: Simple Open Auction"
+    url: https://docs.soliditylang.org/en/v0.8.28/solidity-by-example.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Common Patterns: Withdrawal from Contracts"
+    url: https://docs.soliditylang.org/en/v0.8.28/common-patterns.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-113: DoS with Failed Call"
+    url: https://swcregistry.io/docs/SWC-113/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
