@@ -1,0 +1,63 @@
+id: reward-rate-retroactive-checkpoint
+slug: reward-rate-retroactive-checkpoint
+title: "Checkpoint Rewards Before Changing the Reward Rate"
+description: "A staking pool lets its owner change the reward rate without first settling the time that has already elapsed, so the new rate is applied retroactively. Patch the pool so every second is paid at the rate that was in force during that second."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - staking
+  - reward-accounting
+  - checkpoint
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/RateStaking.sol
+  editable_files:
+    - src/RateStaking.sol
+  readonly_files:
+    - test/RateStaking.t.sol
+tests:
+  public_suite: evaluation/public/RateStaking.t.sol
+  hidden_suite: evaluation/hidden/RateStakingHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Which interval uses which rate?"
+    content: "rewardPerToken() multiplies the current rate by the time since lastUpdateTime. Ask what that interval contains at the moment the rate changes."
+  - order: 2
+    title: "Every state change is a checkpoint"
+    content: "stake, withdraw and claim all run the accrual first. The rate is one more input to the accrual formula and needs the same treatment."
+  - order: 3
+    title: "Both directions are bugs"
+    content: "Raising the rate over-pays and can leave the pool unable to honour claims. Lowering it takes away rewards stakers had already earned."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity function modifiers"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity security considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

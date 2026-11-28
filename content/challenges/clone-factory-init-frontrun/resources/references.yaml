@@ -1,0 +1,16 @@
+references:
+  - title: "ERC-1167: Minimal Proxy Contract"
+    url: https://eips.ethereum.org/EIPS/eip-1167
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "EIP-1014: Skinny CREATE2"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "SWC-114 Transaction Order Dependence"
+    url: https://swcregistry.io/docs/SWC-114/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"

@@ -1,0 +1,64 @@
+id: eip1271-caller-named-signer
+slug: eip1271-caller-named-signer
+title: "Bind EIP-1271 Validation to the Account That Owns the Funds"
+description: "A vault for smart-contract wallets releases funds when a signer contract returns the EIP-1271 magic value, but the relayer chooses which signer contract is asked. An attacker names a contract that approves everything. Patch the vault so only the account or its registered delegates can authorise a withdrawal."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - eip-1271
+  - signature-validation
+  - smart-accounts
+  - authorization
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SignedWithdrawVault.sol
+  editable_files:
+    - src/SignedWithdrawVault.sol
+  readonly_files:
+    - test/SignedWithdrawVault.t.sol
+tests:
+  public_suite: evaluation/public/SignedWithdrawVault.t.sol
+  hidden_suite: evaluation/hidden/SignedWithdrawVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Who is being asked?"
+    content: "isValidSignature answers the question 'does this contract accept this hash'. Look at which contract the vault asks, and who picked it."
+  - order: 2
+    title: "Authority comes from the account"
+    content: "A signer is only meaningful if the account whose balance is debited has said so. The vault already has a per-account delegate registry; it is just never read."
+  - order: 3
+    title: "Treat the signer as hostile"
+    content: "A signer contract may revert, return too little data or have no code. None of those may abort with someone else's error or be mistaken for approval. Use a low-level staticcall and inspect the result."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1271 Standard Signature Validation Method for Contracts"
+    url: https://eips.ethereum.org/EIPS/eip-1271
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "SWC-122 Lack of Proper Signature Verification"
+    url: https://swcregistry.io/docs/SWC-122/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

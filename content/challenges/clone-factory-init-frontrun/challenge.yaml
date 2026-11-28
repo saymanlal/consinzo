@@ -1,0 +1,70 @@
+id: clone-factory-init-frontrun
+slug: clone-factory-init-frontrun
+title: "Patch a Clone Factory Whose Wallets Can Be Initialised by Anyone"
+description: "A factory deploys minimal-proxy wallets and leaves initialisation to a second transaction, so a front-runner can claim ownership of a fresh clone or squat its deterministic address. Patch the factory and wallet so every clone is initialised atomically for its creator at an address only that creator can deploy."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: security-engineering
+tags:
+  - patch
+  - clones
+  - eip-1167
+  - initializer
+  - front-running
+  - create2
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/WalletFactory.sol
+  editable_files:
+    - src/WalletFactory.sol
+  readonly_files:
+    - test/WalletFactory.t.sol
+tests:
+  public_suite: evaluation/public/WalletFactory.t.sol
+  hidden_suite: evaluation/hidden/WalletFactoryHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Close the window"
+    content: "Any gap between deploying a clone and initialising it is a public race. The factory already knows who the creator is; it can make the initialise call itself in the same transaction."
+  - order: 2
+    title: "Who can deploy to this address"
+    content: "A CREATE2 address depends on the deployer, the salt and the init code. If the salt is the raw user input, anyone can deploy to the address another user planned to use. Mix the creator into the salt."
+  - order: 3
+    title: "The template is a contract too"
+    content: "Clones never run the implementation's constructor, but the implementation itself does. That constructor is the place to make sure the template can never be initialised."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-1167: Minimal Proxy Contract"
+    url: https://eips.ethereum.org/EIPS/eip-1167
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "EIP-1014: Skinny CREATE2"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "SWC-114 Transaction Order Dependence"
+    url: https://swcregistry.io/docs/SWC-114/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

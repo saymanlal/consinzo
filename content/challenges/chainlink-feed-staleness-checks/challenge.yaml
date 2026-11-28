@@ -1,0 +1,69 @@
+id: chainlink-feed-staleness-checks
+slug: chainlink-feed-staleness-checks
+title: "Patch a Price Feed Consumer That Trusts Stale and Incomplete Rounds"
+description: "A collateral valuer reads a Chainlink-style aggregator and uses only the answer, ignoring the round's timestamp, completeness, sign and circuit-breaker bounds. Patch the consumer so it rejects stale, unfinished, carried-over, non-positive and clamped prices before any value is computed."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - oracle
+  - price-feed
+  - staleness
+  - validation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CollateralValuer.sol
+  editable_files:
+    - src/CollateralValuer.sol
+  readonly_files:
+    - test/CollateralValuer.t.sol
+tests:
+  public_suite: evaluation/public/CollateralValuer.t.sol
+  hidden_suite: evaluation/hidden/CollateralValuerHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 80000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Five values, one used"
+    content: "latestRoundData returns roundId, answer, startedAt, updatedAt and answeredInRound. Go through them one by one and decide what each tells you about whether the answer can be trusted."
+  - order: 2
+    title: "int256 to uint256"
+    content: "The answer is signed. Converting a negative int256 to uint256 does not revert; it produces a number close to 2**256. Validate the sign while the value is still an int256."
+  - order: 3
+    title: "Boundaries matter"
+    content: "A price that is exactly maxStaleness seconds old is still fresh, one second more is stale. An answer equal to the feed's minimum or maximum means the feed has clamped the real price and must be rejected."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Units and Globally Available Variables: block.timestamp"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Types: Explicit Conversions Between Integers"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-116 Block Values as a Proxy for Time"
+    url: https://swcregistry.io/docs/SWC-116/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

@@ -1,0 +1,11 @@
+references:
+  - title: "EIP-2771: Secure Protocol for Native Meta Transactions"
+    url: https://eips.ethereum.org/EIPS/eip-2771
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Block and Transaction Properties (msg.data, msg.sender)"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

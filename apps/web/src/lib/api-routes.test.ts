@@ -125,6 +125,8 @@ describe("Multi-Ecosystem API Route & Dispatch Integration", () => {
       total: number;
       challenges: Array<{ slug: string }>;
     };
-    expect(nearSecJson.total).toBe(2);
+    expect(nearSecJson.total).toBeGreaterThanOrEqual(2);
+    expect(nearSecJson.total).toBe(nearSecJson.challenges.length);
+    expect(nearSecJson.challenges.every((c) => c.slug.startsWith("near-"))).toBe(true);
   });
 });

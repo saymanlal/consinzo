@@ -1,0 +1,65 @@
+id: erc7201-namespaced-storage
+slug: erc7201-namespaced-storage
+title: "ERC-7201 Namespaced Storage Across Modules"
+description: "Compute ERC-7201 storage locations from namespace ids and build a contract whose two modules keep their state in namespaced structs instead of sequential slots. The contract must run correctly behind a proxy that already occupies the low storage slots."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: advanced-blockchain-systems
+tags:
+  - erc-7201
+  - storage-layout
+  - namespaced-storage
+  - delegatecall
+  - upgradeability
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/NamespacedApp.sol
+  editable_files:
+    - src/NamespacedApp.sol
+  readonly_files:
+    - test/NamespacedApp.t.sol
+tests:
+  public_suite: evaluation/public/NamespacedApp.t.sol
+  hidden_suite: evaluation/hidden/NamespacedAppHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "The formula has two hashes and a mask"
+    content: "location = keccak256(abi.encode(uint256(keccak256(bytes(id))) - 1)) & ~bytes32(uint256(0xff)). The subtraction removes the known preimage, the mask clears the last byte so the struct starts at a slot that ends in 00."
+  - order: 2
+    title: "Storage pointers are set in assembly"
+    content: "Declare a function that returns `Struct storage $` and assign `$.slot := LOCATION` in assembly. Every read and write then goes through that pointer and the compiler lays the struct members out from the base slot."
+  - order: 3
+    title: "No state variables at contract level"
+    content: "Any ordinary state variable is placed at slot 0, 1, ... and defeats the purpose. Keep all state inside the two namespaced structs."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-7201: Namespaced Storage Layout"
+    url: https://eips.ethereum.org/EIPS/eip-7201
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Layout of State Variables in Storage"
+    url: https://docs.soliditylang.org/en/v0.8.28/internals/layout_in_storage.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

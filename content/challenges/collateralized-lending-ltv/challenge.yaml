@@ -1,0 +1,64 @@
+id: collateralized-lending-ltv
+slug: collateralized-lending-ltv
+title: "Collateralised Lending at a Fixed Price and LTV"
+description: "Implement a minimal lending desk: users deposit a collateral token, borrow a debt token up to a loan-to-value limit at a fixed price, repay, and withdraw collateral only while the remaining position stays within the limit."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: defi-engineering
+tags:
+  - lending
+  - collateral
+  - loan-to-value
+  - erc20
+  - accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CollateralLender.sol
+  editable_files:
+    - src/CollateralLender.sol
+  readonly_files:
+    - test/CollateralLender.t.sol
+tests:
+  public_suite: evaluation/public/CollateralLender.t.sol
+  hidden_suite: evaluation/hidden/CollateralLenderHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One solvency rule"
+    content: "Both borrow and withdrawCollateral must leave the position satisfying debt <= maxBorrow(collateral). Write the limit once as a function of a collateral amount and reuse it."
+  - order: 2
+    title: "Round against the borrower"
+    content: "collateral value and the borrow limit are both rounded down. Never round a limit up: a position of a few wei must not be able to borrow anything it cannot back."
+  - order: 3
+    title: "Repay is capped"
+    content: "Repaying more than the outstanding debt takes only the debt. Compute the amount actually paid before pulling tokens."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

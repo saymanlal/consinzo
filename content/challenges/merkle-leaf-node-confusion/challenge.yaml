@@ -1,0 +1,64 @@
+id: merkle-leaf-node-confusion
+slug: merkle-leaf-node-confusion
+title: "Patch a Merkle Airdrop That Accepts Internal Nodes as Leaves"
+description: "An airdrop hashes a 64-byte leaf once, the same shape as an internal tree node, so the two children of any node can be replayed as a fake claim that pays out to an address nobody controls. Patch the leaf encoding so leaves and nodes can never be confused while honest claims keep working."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - merkle-tree
+  - second-preimage
+  - airdrop
+  - domain-separation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MerkleDrop.sol
+  editable_files:
+    - src/MerkleDrop.sol
+  readonly_files:
+    - test/MerkleDrop.t.sol
+tests:
+  public_suite: evaluation/public/MerkleDrop.t.sol
+  hidden_suite: evaluation/hidden/MerkleDropHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 200000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Count the bytes"
+    content: "abi.encodePacked(uint256, address, uint96) is 32 + 20 + 12 = 64 bytes. An internal node is the hash of two 32-byte children, also 64 bytes. The verifier cannot tell which of the two it was given."
+  - order: 2
+    title: "Read a node as a leaf"
+    content: "Take the sorted children (lo, hi) of any node. Interpret lo as the index, the first 20 bytes of hi as the account and the last 12 bytes as the amount. The remaining proof for that node verifies the forged leaf."
+  - order: 3
+    title: "Separate the domains"
+    content: "Make the leaf preimage structurally different from a node preimage: hash the encoded leaf data twice, or give leaves a prefix or a length that a node can never have. Only leafHash needs to change; tests build their trees through it."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-133 Hash Collisions With Multiple Variable Length Arguments"
+    url: https://swcregistry.io/docs/SWC-133/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Contract ABI Specification: Non-standard Packed Mode"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

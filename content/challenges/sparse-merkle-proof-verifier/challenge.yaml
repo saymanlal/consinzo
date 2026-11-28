@@ -1,0 +1,64 @@
+id: sparse-merkle-proof-verifier
+slug: sparse-merkle-proof-verifier
+title: "Sparse Merkle Tree Verifier: Inclusion and Non-Inclusion Proofs"
+description: "Verify compressed proofs against the root of a depth-256 sparse Merkle tree that maps 32-byte keys to 32-byte values. The same routine proves that a key holds a value and that a key is absent, using a bitmask to skip the default hashes of empty subtrees."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: advanced-blockchain-systems
+tags:
+  - sparse-merkle-tree
+  - merkle-proof
+  - non-inclusion-proof
+  - keccak256
+  - solidity
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SparseMerkleVerifier.sol
+  editable_files:
+    - src/SparseMerkleVerifier.sol
+  readonly_files:
+    - test/SparseMerkleVerifier.t.sol
+tests:
+  public_suite: evaluation/public/SparseMerkleVerifier.t.sol
+  hidden_suite: evaluation/hidden/SparseMerkleVerifierHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 400000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Absence is an empty leaf"
+    content: "A key is absent exactly when the leaf at its position is the empty leaf, bytes32(0). A non-inclusion proof is an ordinary path proof that starts from the empty leaf instead of a leaf hash."
+  - order: 2
+    title: "Carry the default hash upwards"
+    content: "Keep a running value for the root of an empty subtree at the current height: start with zero and replace it by nodeHash(d, d) after every level. Use it as the sibling whenever the bitmask bit for that height is clear."
+  - order: 3
+    title: "Count what you consume"
+    content: "Each set bit of the bitmask consumes one sibling. Running out of siblings and having siblings left over are both malformed proofs."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1186: RPC Method to Get Account and Storage Merkle Proofs"
+    url: https://eips.ethereum.org/EIPS/eip-1186
+    source: "Ethereum EIPs"
+    version: "Stagnant"
+    verified_at: "2026-11-28"
+  - title: "Solidity: Mathematical and Cryptographic Functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

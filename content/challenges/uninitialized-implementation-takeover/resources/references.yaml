@@ -1,0 +1,16 @@
+references:
+  - title: "ERC-1967: Proxy Storage Slots"
+    url: https://eips.ethereum.org/EIPS/eip-1967
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "ERC-1822: Universal Upgradeable Proxy Standard (UUPS)"
+    url: https://eips.ethereum.org/EIPS/eip-1822
+    source: "Ethereum Improvement Proposals"
+    version: "stagnant"
+    verified_at: "2026-11-28"
+  - title: "SWC-106 Unprotected SELFDESTRUCT Instruction"
+    url: https://swcregistry.io/docs/SWC-106/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"

@@ -1,0 +1,69 @@
+id: uniform-price-batch-auction
+slug: uniform-price-batch-auction
+title: "Batch Auction with a Uniform Clearing Price"
+description: "Build a sealed-phase batch auction for a token pair: bids and asks are collected until a deadline, a single clearing price that maximises traded volume is computed on-chain, and every matched order settles at that one price with price-time rationing on the long side."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - batch-auction
+  - clearing-price
+  - order-matching
+  - escrow
+  - price-discovery
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/BatchAuction.sol
+  editable_files:
+    - src/BatchAuction.sol
+  readonly_files:
+    - test/BatchAuction.t.sol
+tests:
+  public_suite: evaluation/public/BatchAuction.t.sol
+  hidden_suite: evaluation/hidden/BatchAuctionHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 1500000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Only order prices can be the answer"
+    content: "Demand and supply only change at prices that appear in an order, so it is enough to evaluate each submitted price as a candidate."
+  - order: 2
+    title: "Demand falls, supply rises"
+    content: "At a candidate price, demand is the total amount of bids priced at or above it and supply is the total amount of asks priced at or below it. The executable volume is the smaller of the two."
+  - order: 3
+    title: "Allocate after choosing the price"
+    content: "Once the price and volume are fixed, hand the volume to each side separately: best price first, earlier order first, until the volume is used up. Store the result per order so that claims are simple lookups."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Expressions and Control Structures"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

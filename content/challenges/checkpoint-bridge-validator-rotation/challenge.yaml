@@ -1,0 +1,64 @@
+id: checkpoint-bridge-validator-rotation
+slug: checkpoint-bridge-validator-rotation
+title: "Checkpoint Bridge with Validator-Set Rotation"
+description: "Implement a bridge exit contract where a rotating validator set attests to Merkle roots of withdrawals, roots are accepted above a two-thirds quorum, stale attestations die with the set that made them, and users withdraw with positional inclusion proofs."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: cross-chain-development
+tags:
+  - bridge
+  - validator-set
+  - quorum
+  - merkle-proof
+  - rotation
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/CheckpointBridge.sol
+  editable_files:
+    - src/CheckpointBridge.sol
+  readonly_files:
+    - test/CheckpointBridge.t.sol
+tests:
+  public_suite: evaluation/public/CheckpointBridge.t.sol
+  hidden_suite: evaluation/hidden/CheckpointBridgeHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 500000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Where do old votes go"
+    content: "Key every tally and voter flag by the epoch in which the vote was cast. Then a rotation invalidates all pending votes by changing one number."
+  - order: 2
+    title: "Strictly more than two thirds"
+    content: "For three validators the answer is three, not two. Check your formula against sizes 1, 3, 4 and 6."
+  - order: 3
+    title: "Finish the index"
+    content: "After consuming the proof, the shifted index must be zero. And think about what identifies a withdrawal when the same leaf can appear under two roots."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity ABI Specification"
+    url: https://docs.soliditylang.org/en/v0.8.28/abi-spec.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

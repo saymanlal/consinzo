@@ -1,0 +1,65 @@
+id: constant-sum-stable-pool
+slug: constant-sum-stable-pool
+title: "Constant-Sum Stable Pool with Fees and Proportional Liquidity"
+description: "Implement a two-token x + y = k pool for pegged assets: 1:1 swaps minus a fee that accrues to liquidity providers, proportional liquidity deposits and withdrawals, and rounding that never lets the value of a share decrease."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: defi-engineering
+tags:
+  - amm
+  - constant-sum
+  - stable-swap
+  - liquidity-shares
+  - rounding
+  - fees
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ConstantSumPool.sol
+  editable_files:
+    - src/ConstantSumPool.sol
+  readonly_files:
+    - test/ConstantSumPool.t.sol
+tests:
+  public_suite: evaluation/public/ConstantSumPool.t.sol
+  hidden_suite: evaluation/hidden/ConstantSumPoolHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 350000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Liquidity must be proportional"
+    content: "If a provider could add only the cheap side and withdraw both sides, that would be a free swap. After the first deposit, shares are limited by the scarcer of the two contributions relative to the reserves, and only the matching amounts are pulled."
+  - order: 2
+    title: "A side can be empty"
+    content: "Unlike x * y = k, a constant-sum pool can be drained of one token completely. Skip a token whose reserve is zero when computing shares, and never divide by a zero reserve."
+  - order: 3
+    title: "Rounding directions"
+    content: "Shares minted and assets paid out round down; assets pulled in and the swap fee round up. With these directions (reserve0 + reserve1) / totalSupply can only stay equal or grow."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Control Structures: Checked Arithmetic"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

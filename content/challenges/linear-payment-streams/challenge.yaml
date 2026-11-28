@@ -1,0 +1,64 @@
+id: linear-payment-streams
+slug: linear-payment-streams
+title: "Linear Payment Streams with Pro-Rata Cancellation"
+description: "Implement token payment streams that unlock linearly between a start and a stop time. The recipient withdraws what has accrued, and either party can cancel, which pays the recipient the accrued part and refunds the rest to the sender."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: defi-engineering
+tags:
+  - streaming
+  - payments
+  - linear-vesting
+  - erc20
+  - escrow
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PaymentStreams.sol
+  editable_files:
+    - src/PaymentStreams.sol
+  readonly_files:
+    - test/PaymentStreams.t.sol
+tests:
+  public_suite: evaluation/public/PaymentStreams.t.sol
+  hidden_suite: evaluation/hidden/PaymentStreamsHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One function for accrual"
+    content: "streamedAmount is 0 up to the start, the whole deposit from the stop time on, and deposit * (now - start) / (stop - start) in between. Everything else is derived from it."
+  - order: 2
+    title: "Track what was withdrawn"
+    content: "withdrawable = streamedAmount - withdrawn. Never reduce the deposit when the recipient withdraws, or the rate of the stream changes."
+  - order: 3
+    title: "Cancellation conserves the deposit"
+    content: "The recipient gets streamed - withdrawn and the sender gets deposit - streamed. Together with earlier withdrawals this adds up to exactly the deposit, whatever the rounding."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-1620 Money Streaming"
+    url: https://eips.ethereum.org/EIPS/eip-1620
+    source: "Ethereum EIPs"
+    version: "Stagnant"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

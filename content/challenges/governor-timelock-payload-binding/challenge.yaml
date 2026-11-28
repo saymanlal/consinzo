@@ -1,0 +1,63 @@
+id: governor-timelock-payload-binding
+slug: governor-timelock-payload-binding
+title: "Bind Governor and Timelock Execution to the Voted Payload"
+description: "A governor and its timelock identify a queued operation by proposal id only, while the call to execute is supplied by whoever triggers execution. After any proposal passes, an attacker can execute different calldata from the treasury. Patch both contracts so only the voted payload can run."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - governance
+  - timelock
+  - calldata-binding
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/PayloadGovernor.sol
+  editable_files:
+    - src/PayloadGovernor.sol
+  readonly_files:
+    - test/PayloadGovernor.t.sol
+tests:
+  public_suite: evaluation/public/PayloadGovernor.t.sol
+  hidden_suite: evaluation/hidden/PayloadGovernorHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 400000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "What did the voters approve?"
+    content: "Trace a proposal from propose to execute and write down where the target, value and calldata are stored. Compare that with what execute actually uses."
+  - order: 2
+    title: "Commit at proposal time"
+    content: "Store a hash of (target, value, data) when the proposal is created, before anyone votes. Everything later is a check against that hash."
+  - order: 3
+    title: "Two contracts, two checks"
+    content: "The timelock holds the funds. It should refuse a payload that does not match what was queued even if the governor forgets to check."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity ABI encoding and hashing functions"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-105 Unprotected Ether Withdrawal"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

@@ -50,8 +50,13 @@ describe("Challenge Routing, Data Access & Regression Suite", () => {
 
   it("ensures every published catalogue challenge has a valid detail record, starter files, and static param", () => {
     const published = getPublishedChallenges();
-    expect(published.length).toBe(40);
-    expect(published.filter((c) => c.is_security_mission).length).toBe(22);
+    // The catalogue must expose exactly the packages on disk (all are published).
+    const onDisk = fs
+      .readdirSync(path.resolve(process.cwd(), "../../content/challenges"), { withFileTypes: true })
+      .filter((d) => d.isDirectory()).length;
+    expect(published.length).toBe(onDisk);
+    expect(published.length).toBeGreaterThanOrEqual(40);
+    expect(published.filter((c) => c.is_security_mission).length).toBeGreaterThanOrEqual(22);
 
     const detailSlugs = new Set(generateDetailStaticParams().map((p) => p.slug));
     const workspaceSlugs = new Set(generateWorkspaceStaticParams().map((p) => p.slug));
@@ -67,8 +72,11 @@ describe("Challenge Routing, Data Access & Regression Suite", () => {
   });
 
   it("supports ecosystem, difficulty, search, related, and adjacent queries consistently", () => {
-    expect(getChallengesByEcosystem("ethereum-evm").length).toBe(35);
-    expect(getChallengesByEcosystem("near").length).toBe(5);
+    const evmCount = getChallengesByEcosystem("ethereum-evm").length;
+    const nearCount = getChallengesByEcosystem("near").length;
+    expect(evmCount).toBeGreaterThanOrEqual(35);
+    expect(nearCount).toBeGreaterThanOrEqual(5);
+    expect(evmCount + nearCount).toBe(getPublishedChallenges().length);
     expect(getChallengesByDifficulty("beginner").length).toBeGreaterThanOrEqual(1);
     expect(searchChallenges("flash-loan").some((c) => c.slug === "flash-loan-arbitrage-guard")).toBe(
       true

@@ -1,0 +1,16 @@
+references:
+  - title: "EIP-1014: Skinny CREATE2"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-3171: CREATE3"
+    url: https://eips.ethereum.org/EIPS/eip-3171
+    source: "Ethereum EIPs"
+    version: "EIP-3171"
+    verified_at: "2026-11-28"
+  - title: "EIP-161: State Trie Clearing (contract nonces start at 1)"
+    url: https://eips.ethereum.org/EIPS/eip-161
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"

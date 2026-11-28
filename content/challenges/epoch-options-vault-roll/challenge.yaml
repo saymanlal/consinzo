@@ -1,0 +1,69 @@
+id: epoch-options-vault-roll
+slug: epoch-options-vault-roll
+title: "Epoch Options Vault with Queued Deposits and Rolls"
+description: "Build a covered-call style vault that works in epochs: deposits wait for the next epoch, withdrawals are requested and paid after the current epoch settles, and each roll fixes a price per share from the premium earned and the payout owed."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: defi-engineering
+tags:
+  - options-vault
+  - epochs
+  - queued-deposits
+  - share-accounting
+  - withdrawal-queue
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/EpochVault.sol
+  editable_files:
+    - src/EpochVault.sol
+  readonly_files:
+    - test/EpochVault.t.sol
+tests:
+  public_suite: evaluation/public/EpochVault.t.sol
+  hidden_suite: evaluation/hidden/EpochVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 800000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One price per epoch"
+    content: "Everything that happens at a roll uses the same price per share: queued withdrawals are converted to assets with it and pending deposits are converted to shares with it. Store it per epoch so users can convert lazily later."
+  - order: 2
+    title: "Deposits are not shares yet"
+    content: "A pending deposit earns nothing in the epoch in which it was made. Mint the aggregate shares at the roll, and let each user turn its own deposit into shares on its next interaction using the stored price of the deposit epoch."
+  - order: 3
+    title: "Three buckets"
+    content: "Track locked assets, pending deposits and the withdrawal reserve separately. Their sum must always equal the vault's token balance."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-4626 Tokenized Vaults"
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Types"
+    url: https://docs.soliditylang.org/en/v0.8.28/types.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

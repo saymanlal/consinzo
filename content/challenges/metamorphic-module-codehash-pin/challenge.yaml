@@ -1,0 +1,69 @@
+id: metamorphic-module-codehash-pin
+slug: metamorphic-module-codehash-pin
+title: "Pin Trusted Modules by Code Hash, Not by Address"
+description: "A treasury vault approves strategy modules by their deployment identity. A module developer who can redeploy different code at the same identity (the CREATE2 metamorphic pattern) replaces an audited module with a thief. Patch the vault to pin and verify the runtime code hash."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - create2
+  - metamorphic-contract
+  - codehash
+  - trust-boundary
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ModuleVault.sol
+  editable_files:
+    - src/ModuleVault.sol
+  readonly_files:
+    - test/ModuleVault.t.sol
+tests:
+  public_suite: evaluation/public/ModuleVault.t.sol
+  hidden_suite: evaluation/hidden/ModuleVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "What exactly was audited?"
+    content: "Governance reviewed bytecode. The vault remembers an identity. List the ways the bytecode behind that identity can change after approval."
+  - order: 2
+    title: "EXTCODEHASH"
+    content: "address.codehash returns the keccak256 of an account's runtime code. Record it when the module is approved and compare it every time the vault is about to trust the module."
+  - order: 3
+    title: "Approval itself can be raced"
+    content: "If approveModule records whatever code is present when the transaction is mined, the developer can swap the code just before. Make the owner state the hash that was audited."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-1014 Skinny CREATE2"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-1052 EXTCODEHASH opcode"
+    url: https://eips.ethereum.org/EIPS/eip-1052
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-6780 SELFDESTRUCT only in same transaction"
+    url: https://eips.ethereum.org/EIPS/eip-6780
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

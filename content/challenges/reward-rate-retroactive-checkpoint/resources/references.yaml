@@ -1,0 +1,11 @@
+references:
+  - title: "Solidity function modifiers"
+    url: https://docs.soliditylang.org/en/v0.8.28/contracts.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity security considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"

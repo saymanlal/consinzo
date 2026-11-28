@@ -1,0 +1,64 @@
+id: router-arbitrary-call-approval-drain
+slug: router-arbitrary-call-approval-drain
+title: "Patch a Swap Router That Executes Arbitrary Calls"
+description: "A swap router forwards a caller-supplied call to a caller-supplied target. Because users approve the router to spend their tokens, an attacker can point the call at a token's transferFrom and drain every approval. Patch the router so it only calls exchanges the owner has allowlisted."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: security-engineering
+tags:
+  - patch
+  - arbitrary-call
+  - token-approvals
+  - router
+  - allowlist
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/SwapRouter.sol
+  editable_files:
+    - src/SwapRouter.sol
+  readonly_files:
+    - test/SwapRouter.t.sol
+tests:
+  public_suite: evaluation/public/SwapRouter.t.sol
+  hidden_suite: evaluation/hidden/SwapRouterHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 250000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Who is msg.sender in the forwarded call"
+    content: "When the router executes target.call(data), the target sees the router as msg.sender. Think about which contracts treat the router as a privileged address, and why."
+  - order: 2
+    title: "Approvals are standing permissions"
+    content: "Every user who approved the router has told the token that the router may call transferFrom on their behalf. If a caller can choose both target and data, the caller can make that exact call."
+  - order: 3
+    title: "Constrain the destination"
+    content: "The router already stores an allowlist that only the owner can change. Enforce it before any tokens move, and keep the minimum-output check as it is."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "ERC-20: Token Standard (approve and transferFrom)"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum Improvement Proposals"
+    version: "final"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

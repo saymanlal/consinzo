@@ -1,0 +1,63 @@
+id: multisig-duplicate-confirmation
+slug: multisig-duplicate-confirmation
+title: "Count Each Multisig Owner Only Once"
+description: "A multisig wallet increments a confirmation counter every time an owner confirms, and accepts the same owner twice in its constructor. One owner can reach the threshold alone and drain the wallet. Patch the confirmation accounting."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: intermediate
+category: security-engineering
+tags:
+  - patch
+  - multisig
+  - threshold
+  - access-control
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/ConfirmationWallet.sol
+  editable_files:
+    - src/ConfirmationWallet.sol
+  readonly_files:
+    - test/ConfirmationWallet.t.sol
+tests:
+  public_suite: evaluation/public/ConfirmationWallet.t.sol
+  hidden_suite: evaluation/hidden/ConfirmationWalletHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Counter versus set"
+    content: "The threshold is a statement about distinct owners. A bare counter knows how many confirmations happened, not who made them."
+  - order: 2
+    title: "Use the mapping that is already there"
+    content: "confirmed[txId][owner] is written but never read on the confirm path. Check it before you count."
+  - order: 3
+    title: "The owner list is input too"
+    content: "If the constructor accepts the same address twice, a 2-of-2 wallet can really be a 1-of-1 wallet. Validate the list and the threshold together."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "SWC-105 Unprotected Ether Withdrawal"
+    url: https://swcregistry.io/docs/SWC-105/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+  - title: "Solidity security considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

@@ -1,0 +1,16 @@
+references:
+  - title: "EIP-1014 Skinny CREATE2"
+    url: https://eips.ethereum.org/EIPS/eip-1014
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-1052 EXTCODEHASH opcode"
+    url: https://eips.ethereum.org/EIPS/eip-1052
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-6780 SELFDESTRUCT only in same transaction"
+    url: https://eips.ethereum.org/EIPS/eip-6780
+    source: "Ethereum Improvement Proposals"
+    version: "Final"
+    verified_at: "2026-11-28"

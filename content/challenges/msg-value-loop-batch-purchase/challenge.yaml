@@ -1,0 +1,64 @@
+id: msg-value-loop-batch-purchase
+slug: msg-value-loop-batch-purchase
+title: "Patch a Batch Purchase That Reuses msg.value"
+description: "A ticket booth checks msg.value against each item's price inside a loop, so one payment buys every item in a batch. Patch the batch path so the caller pays the exact sum of all prices and the recorded proceeds always match the ETH held."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: security-engineering
+tags:
+  - patch
+  - msg-value
+  - batch
+  - payments
+  - accounting
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/TicketBooth.sol
+  editable_files:
+    - src/TicketBooth.sol
+  readonly_files:
+    - test/TicketBooth.t.sol
+tests:
+  public_suite: evaluation/public/TicketBooth.t.sol
+  hidden_suite: evaluation/hidden/TicketBoothHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 200000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "msg.value does not shrink"
+    content: "msg.value is a property of the whole call. It has the same value in every loop iteration and in every internal function, no matter how much of it you have already accounted for."
+  - order: 2
+    title: "Separate pricing from payment"
+    content: "Let the internal purchase routine update stock and return the price, and compare msg.value once against the total after the loop."
+  - order: 3
+    title: "Check the books"
+    content: "After any sequence of purchases, the proceeds counter must equal the contract's ETH balance. A test that asserts this equality catches both underpayment and overpayment."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Units and Globally Available Variables: msg.value"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true

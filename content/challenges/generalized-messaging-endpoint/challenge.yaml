@@ -1,0 +1,70 @@
+id: generalized-messaging-endpoint
+slug: generalized-messaging-endpoint
+title: "Generalised Messaging Endpoint"
+description: "Implement a cross-chain messaging endpoint with ordered and unordered channels, recorded failures with retry and skip, fee quoting with overpayment refunds, a gas floor for receivers and reentrancy-safe delivery to untrusted applications."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: legend
+category: cross-chain-development
+tags:
+  - messaging
+  - cross-chain
+  - reentrancy
+  - ordered-delivery
+  - retry
+  - fees
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/MessagingEndpoint.sol
+  editable_files:
+    - src/MessagingEndpoint.sol
+  readonly_files:
+    - test/MessagingEndpoint.t.sol
+tests:
+  public_suite: evaluation/public/MessagingEndpoint.t.sol
+  hidden_suite: evaluation/hidden/MessagingEndpointHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 250
+  gas_budget: 600000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "One status per packet id"
+    content: "Hash the whole packet into an id and keep a status for it. Decide which statuses are terminal, and let retry and skip find the message only through that id."
+  - order: 2
+    title: "Failure is a result, not a revert"
+    content: "deliver must finish normally when the receiver fails, and remember it. On an ordered channel also remember which message is in the way."
+  - order: 3
+    title: "Who controls the gas"
+    content: "The caller of deliver decides how much gas is left when the receiver is called, and only 63/64 of it can be forwarded. Check before calling, and think about what a huge revert payload costs you."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-5164: Cross-Chain Execution"
+    url: https://eips.ethereum.org/EIPS/eip-5164
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "Solidity Security Considerations"
+    url: https://docs.soliditylang.org/en/v0.8.28/security-considerations.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "Solidity Control Structures: External Calls and Error Handling"
+    url: https://docs.soliditylang.org/en/v0.8.28/control-structures.html
+    source: "Solidity Documentation"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

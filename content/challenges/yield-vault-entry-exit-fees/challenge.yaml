@@ -1,0 +1,64 @@
+id: yield-vault-entry-exit-fees
+slug: yield-vault-entry-exit-fees
+title: "Yield Vault Shares with Deposit and Withdrawal Fees"
+description: "Implement share accounting for a yield vault that charges a deposit fee and a withdrawal fee to a fee recipient, tracks its assets internally, and prices shares correctly as yield is added."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: normal
+category: defi-engineering
+tags:
+  - vault
+  - shares
+  - fees
+  - yield
+  - erc20
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/FeeVault.sol
+  editable_files:
+    - src/FeeVault.sol
+  readonly_files:
+    - test/FeeVault.t.sol
+tests:
+  public_suite: evaluation/public/FeeVault.t.sol
+  hidden_suite: evaluation/hidden/FeeVaultHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 150
+  gas_budget: 300000
+  weights:
+    functional_correctness: 60
+    security_invariants: 25
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "Fees never enter totalAssets"
+    content: "On deposit, only the net amount (assets minus fee) backs the new shares. On redeem, the gross value leaves totalAssets and is then split between the fee recipient and the user."
+  - order: 2
+    title: "Price shares before changing state"
+    content: "Compute shares from totalSupply and totalAssets as they were before the deposit. The same applies to the gross amount on redeem."
+  - order: 3
+    title: "Do not read the token balance"
+    content: "totalAssets is a storage variable changed only by deposit, redeem and addYield. Tokens sent to the vault directly must not move the share price."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "EIP-4626 Tokenized Vaults"
+    url: https://eips.ethereum.org/EIPS/eip-4626
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+  - title: "EIP-20 Token Standard"
+    url: https://eips.ethereum.org/EIPS/eip-20
+    source: "Ethereum EIPs"
+    version: "Final"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-core
+reviewer: consinzo-security
+publication_status: published
+is_security_mission: false

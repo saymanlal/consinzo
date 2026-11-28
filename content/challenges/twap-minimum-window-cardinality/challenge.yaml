@@ -1,0 +1,64 @@
+id: twap-minimum-window-cardinality
+slug: twap-minimum-window-cardinality
+title: "Enforce a Minimum Window and Cardinality on a TWAP Oracle"
+description: "A TWAP oracle keeps a single observation that anyone can refresh, so its averaging window can be shrunk to one block and the reported price manipulated across two blocks. Patch it to keep a ring of spaced observations and to average over at least thirty minutes."
+ecosystem: ethereum-evm
+language: Solidity
+difficulty: hard
+category: security-engineering
+tags:
+  - patch
+  - oracle
+  - twap
+  - price-manipulation
+  - ring-buffer
+toolchain:
+  compiler: solc
+  version: "0.8.28"
+  runner: evm-foundry-solc
+  evm_version: paris
+starter:
+  entry_file: src/WindowedTwapOracle.sol
+  editable_files:
+    - src/WindowedTwapOracle.sol
+  readonly_files:
+    - test/WindowedTwapOracle.t.sol
+tests:
+  public_suite: evaluation/public/WindowedTwapOracle.t.sol
+  hidden_suite: evaluation/hidden/WindowedTwapOracleHidden.t.sol
+  timeout_ms: 15000
+scoring:
+  max_points: 200
+  gas_budget: 300000
+  weights:
+    functional_correctness: 50
+    security_invariants: 35
+    efficiency: 10
+    code_quality: 5
+hints:
+  - order: 1
+    title: "How long is the window really?"
+    content: "consult averages from the stored observation to now. Find out who decides when that observation is taken."
+  - order: 2
+    title: "One observation is not enough"
+    content: "To always have an observation that is at least MIN_WINDOW old while still recording fresh ones, you need several. Work out how many, given a minimum spacing between them."
+  - order: 3
+    title: "Do not let the attacker write history"
+    content: "If every update() call stores an observation, an attacker can overwrite the whole buffer in one block. Space stored observations by GRANULARITY."
+solution_unlock_policy: after_pass
+documentation_references:
+  - title: "Solidity block and transaction properties"
+    url: https://docs.soliditylang.org/en/v0.8.28/units-and-global-variables.html
+    source: "Solidity Docs"
+    version: "0.8.28"
+    verified_at: "2026-11-28"
+  - title: "SWC-116 Block values as a proxy for time"
+    url: https://swcregistry.io/docs/SWC-116/
+    source: "SWC Registry"
+    version: "1.0"
+    verified_at: "2026-11-28"
+version: "1.0.0"
+maintainer: consinzo-security
+reviewer: consinzo-core
+publication_status: published
+is_security_mission: true
