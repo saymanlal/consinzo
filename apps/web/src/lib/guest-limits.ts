@@ -4,4 +4,13 @@ export const GUEST_LIMITS = {
   RUNS_PER_HOUR: 10,
   /** Execution timeout applied to guest runs. */
   EXECUTION_TIMEOUT_MS: 8_000,
+  /** Difficulty tiers a guest may run. Higher tiers need an account. */
+  TIERS: ["beginner", "easy", "normal"],
 } as const;
+
+/** Public-test runs per hour for a signed-in account (submissions have their own quota). */
+export const ACCOUNT_RUNS_PER_HOUR = 120;
+
+export function isGuestTier(difficulty: string): boolean {
+  return (GUEST_LIMITS.TIERS as readonly string[]).includes(difficulty);
+}

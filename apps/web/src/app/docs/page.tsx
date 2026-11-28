@@ -81,7 +81,8 @@ pnpm validate:challenges`}
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
             Open any workspace without an account and run the public tests. Guests get{" "}
-            {GUEST_LIMITS.RUNS_PER_HOUR} runs per hour. Submitting for hidden-suite scoring,
+            {GUEST_LIMITS.RUNS_PER_HOUR} runs per hour on{" "}
+            {GUEST_LIMITS.TIERS.map((t) => DIFFICULTY_META[t].label).join(", ")} challenges. Submitting for hidden-suite scoring,
             points, badges, solutions, bookmarks and competitions need an account.{" "}
             <Link href="/auth?mode=register" className="cz-focus rounded text-zinc-200 underline hover:text-white">
               Create one

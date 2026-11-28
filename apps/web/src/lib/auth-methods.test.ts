@@ -185,3 +185,63 @@ describe("Method availability", () => {
     expect(safeNextPath("/workspace/erc20-token-vault")).toBe("/workspace/erc20-token-vault");
   });
 });
+
+describe("Guest mode on the public-test runner", () => {
+  const snapshot = (slug: string) => ({
+    challengeSlug: slug,
+    mode: "local-cli",
+    files: [{ path: "src/Placeholder.sol", content: "// guest probe\n" }],
+  });
+
+  it("lets a guest run an entry-tier challenge and reports the remaining budget", async () => {
+    jar.clear();
+    const { POST } = await import("@/app/api/v1/execution/compile/route");
+    const res = await POST(
+      req("/api/v1/execution/compile", {
+        method: "POST",
+        body: JSON.stringify(snapshot("erc20-token-vault")),
+        headers: { "x-forwarded-for": "203.0.113.10" },
+      })
+    );
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as {
+      access: { guest: boolean; limit: number; remaining: number };
+      hiddenTestsSummary: { evaluated: boolean };
+    };
+    expect(json.access).toMatchObject({ guest: true, limit: 10, remaining: 9 });
+    expect(json.hiddenTestsSummary.evaluated).toBe(false);
+  });
+
+  it("blocks guests from tiers above Normal", async () => {
+    jar.clear();
+    const { POST } = await import("@/app/api/v1/execution/compile/route");
+    const res = await POST(
+      req("/x", {
+        method: "POST",
+        body: JSON.stringify(snapshot("constant-product-amm")),
+        headers: { "x-forwarded-for": "203.0.113.11" },
+      })
+    );
+    expect(res.status).toBe(403);
+    expect(((await res.json()) as { error: { code: string } }).error.code).toBe("GUEST_TIER_LOCKED");
+  });
+
+  it("stops a guest after the hourly run budget", async () => {
+    jar.clear();
+    const { POST } = await import("@/app/api/v1/execution/compile/route");
+    const call = () =>
+      POST(
+        req("/x", {
+          method: "POST",
+          body: JSON.stringify(snapshot("erc20-token-vault")),
+          headers: { "x-forwarded-for": "203.0.113.12" },
+        })
+      );
+    for (let i = 0; i < 10; i++) expect((await call()).status).toBe(200);
+    const blocked = await call();
+    expect(blocked.status).toBe(429);
+    expect(((await blocked.json()) as { error: { code: string } }).error.code).toBe(
+      "GUEST_LIMIT_REACHED"
+    );
+  }, 60_000);
+});

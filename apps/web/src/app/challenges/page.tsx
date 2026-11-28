@@ -1,5 +1,6 @@
 import { listPublishedChallenges } from "@/lib/challenges";
 import { ChallengeCatalogueClient } from "@/components/challenge-catalogue";
+import { GuestNotice } from "@/components/guest-notice";
 
 export default function ChallengesPage() {
   const challenges = listPublishedChallenges();
@@ -15,6 +16,7 @@ export default function ChallengesPage() {
           NEAR TypeScript compilation, and isolated evaluation tests.
         </p>
       </div>
+      <GuestNotice />
       <ChallengeCatalogueClient initialChallenges={challenges} />
     </div>
   );
