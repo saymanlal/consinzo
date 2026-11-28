@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, CheckCircle2, Code2, Search, Shield } from "lucide-react";
-import type { ChallengeManifest } from "@consinzo/challenge-spec";
 import { CHALLENGE_CATEGORIES } from "@consinzo/shared";
 import { ECOSYSTEM_REGISTRY } from "@consinzo/ecosystem-registry";
 import { Badge, Card, Input } from "@consinzo/ui";
@@ -17,6 +16,22 @@ import {
   type DifficultyTier,
 } from "@/lib/difficulty";
 
+/** Only what a catalogue card needs, so the page payload stays small with hundreds of challenges. */
+export interface CatalogueItem {
+  slug: string;
+  title: string;
+  description: string;
+  ecosystem: string;
+  language: string;
+  difficulty: string;
+  category: string;
+  tags: string[];
+  is_security_mission: boolean;
+  max_points: number;
+}
+
+const PAGE_SIZE = 24;
+
 type SortKey = "recommended" | "easiest" | "hardest" | "points" | "title";
 type KindFilter = "all" | "engineering" | "security";
 
@@ -26,7 +41,7 @@ const SELECT =
 export function ChallengeCatalogueClient({
   initialChallenges,
 }: {
-  initialChallenges: ChallengeManifest[];
+  initialChallenges: CatalogueItem[];
 }) {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
@@ -37,6 +52,7 @@ export function ChallengeCatalogueClient({
   const [kind, setKind] = useState<KindFilter>("all");
   const [sort, setSort] = useState<SortKey>("recommended");
   const [hydrated, setHydrated] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   // Read filters from the URL once, so links like /challenges?difficulty=hard work.
   useEffect(() => {
@@ -128,7 +144,7 @@ export function ChallengeCatalogueClient({
   }, [matchesOtherFilters]);
 
   const filtered = useMemo(() => {
-    const rank = (c: ChallengeManifest) => DIFFICULTY_META[normalizeDifficulty(c.difficulty)].rank;
+    const rank = (c: CatalogueItem) => DIFFICULTY_META[normalizeDifficulty(c.difficulty)].rank;
     const list = matchesOtherFilters.filter(
       (c) => difficulty === "all" || normalizeDifficulty(c.difficulty) === difficulty
     );
@@ -138,12 +154,19 @@ export function ChallengeCatalogueClient({
     } else if (sort === "hardest") {
       sorted.sort((a, b) => rank(b) - rank(a) || a.title.localeCompare(b.title));
     } else if (sort === "points") {
-      sorted.sort((a, b) => b.scoring.max_points - a.scoring.max_points || rank(b) - rank(a));
+      sorted.sort((a, b) => b.max_points - a.max_points || rank(b) - rank(a));
     } else {
       sorted.sort((a, b) => a.title.localeCompare(b.title));
     }
     return sorted;
   }, [matchesOtherFilters, difficulty, sort]);
+
+  // Any change to the result set starts again from the first page.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [query, ecosystem, difficulty, category, language, kind, sort]);
+
+  const visible = filtered.slice(0, visibleCount);
 
   const activeFilterCount =
     Number(Boolean(query.trim())) +
@@ -327,7 +350,7 @@ export function ChallengeCatalogueClient({
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((c) => (
+          {visible.map((c) => (
             <Card key={c.slug} className="flex flex-col justify-between p-5">
               <div>
                 <div className="flex items-center justify-between gap-2">
@@ -382,7 +405,7 @@ export function ChallengeCatalogueClient({
               <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 pt-3">
                 <div className="flex items-center gap-2 text-xs text-zinc-500">
                   <DifficultyBadge difficulty={c.difficulty} />
-                  <span className="font-mono">{c.scoring.max_points} pts</span>
+                  <span className="font-mono">{c.max_points} pts</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Link
@@ -402,6 +425,21 @@ export function ChallengeCatalogueClient({
               </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {filtered.length > visible.length && (
+        <div className="flex flex-col items-center gap-2 pt-2">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+            className="cursor-pointer rounded-md border border-zinc-300 bg-white px-5 py-2.5 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
+          >
+            Show {Math.min(PAGE_SIZE, filtered.length - visible.length)} more
+          </button>
+          <p className="text-xs text-zinc-500">
+            {visible.length} of {filtered.length} shown
+          </p>
         </div>
       )}
     </div>

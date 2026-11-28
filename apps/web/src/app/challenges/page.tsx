@@ -26,7 +26,20 @@ export default function ChallengesPage() {
         </p>
       </div>
       <GuestNotice />
-      <ChallengeCatalogueClient initialChallenges={challenges} />
+      <ChallengeCatalogueClient
+        initialChallenges={challenges.map((c) => ({
+          slug: c.slug,
+          title: c.title,
+          description: c.description,
+          ecosystem: c.ecosystem,
+          language: c.language,
+          difficulty: c.difficulty,
+          category: c.category,
+          tags: c.tags,
+          is_security_mission: c.is_security_mission,
+          max_points: c.scoring.max_points,
+        }))}
+      />
     </div>
   );
 }
