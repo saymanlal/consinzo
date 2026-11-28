@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ConsinzoError } from "@consinzo/shared";
 import {
-  SESSION_COOKIE_NAME,
-  signSessionToken,
+  setLocalSessionCookie,
   toSessionUser,
   verifyPassword,
 } from "@/lib/auth";
 import { getUserProfileById } from "@/lib/data-adapter";
 import { getServerEnv } from "@/lib/env";
 import { handleApiError } from "@/lib/http";
+import { enforceRateLimit, getClientIp } from "@/lib/rate-limit";
 import { readDb } from "@/lib/store";
 import { getSupabaseServerAuthClient } from "@/lib/supabase";
 
@@ -20,6 +20,7 @@ const LoginSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    enforceRateLimit(`login:${getClientIp(req)}`, 20, 15 * 60 * 1000, "sign-in attempts");
     const body = LoginSchema.parse(await req.json());
     const env = getServerEnv();
 
@@ -49,23 +50,13 @@ export async function POST(req: Request) {
 
     const db = readDb();
     const user = db.users.find((u) => u.email === body.email.trim().toLowerCase());
-    if (!user || !verifyPassword(body.password, user.passwordHash)) {
+    // Accounts created by wallet, email code or phone have no password to check.
+    if (!user || !user.passwordHash || !verifyPassword(body.password, user.passwordHash)) {
       throw new ConsinzoError("INVALID_CREDENTIALS", "Invalid email or password.", 401);
     }
 
-    const token = signSessionToken({
-      userId: user.id,
-      exp: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    });
-
     const res = NextResponse.json({ user: toSessionUser(user) });
-    res.cookies.set(SESSION_COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    });
+    setLocalSessionCookie(res, user.id);
     return res;
   } catch (err) {
     return handleApiError(err);

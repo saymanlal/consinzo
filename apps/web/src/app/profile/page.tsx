@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
 import { Button, Card, Input, Textarea } from "@consinzo/ui";
+import { WalletCard } from "@/components/wallet-card";
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
@@ -120,6 +121,12 @@ export default function ProfilePage() {
           <Button type="submit">Save Profile</Button>
         </form>
       </Card>
+
+      {data.profile.walletAddress && (
+        <div className="mt-6">
+          <WalletCard address={data.profile.walletAddress} />
+        </div>
+      )}
     </div>
   );
 }

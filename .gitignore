@@ -22,6 +22,7 @@ content/**/out/
 content/**/cache/
 content/**/broadcast/
 apps/web/.data/
+.data/
 .vercel/
 
 # OS & Editor
