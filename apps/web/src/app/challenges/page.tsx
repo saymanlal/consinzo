@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import { listPublishedChallenges } from "@/lib/challenges";
 import { ChallengeCatalogueClient } from "@/components/challenge-catalogue";
 import { GuestNotice } from "@/components/guest-notice";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Smart Contract Challenges",
+  description:
+    "Browse validated smart-contract engineering challenges in Solidity and NEAR TypeScript. Filter by six difficulty tiers, language, category and type, then solve in the browser IDE.",
+  path: "/challenges",
+});
 
 export default function ChallengesPage() {
   const challenges = listPublishedChallenges();

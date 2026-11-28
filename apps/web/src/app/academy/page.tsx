@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import { GraduationCap } from "lucide-react";
 import { AcademyTracks } from "@/components/academy-tracks";
 import { LEARNING_PATHS } from "@/lib/knowledge";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Academy Learning Tracks",
+  description:
+    "Guided smart-contract engineering tracks for EVM, DeFi, security and NEAR that order the challenges into a path with visible progress.",
+  path: "/academy",
+});
 
 export default function AcademyPage() {
   return (

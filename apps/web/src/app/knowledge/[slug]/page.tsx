@@ -1,3 +1,6 @@
+import type { Metadata } from "next";
+import { JsonLd } from "@/components/json-ld";
+import { absoluteUrl, pageMetadata, SITE } from "@/lib/site";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, BookOpen, ExternalLink, Terminal } from "lucide-react";
@@ -6,6 +9,21 @@ import { KNOWLEDGE_ENTRIES, getKnowledgeEntryBySlug } from "@/lib/knowledge";
 
 export function generateStaticParams() {
   return KNOWLEDGE_ENTRIES.map((entry) => ({ slug: entry.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = getKnowledgeEntryBySlug(slug);
+  if (!entry) return { title: "Entry not found", robots: { index: false } };
+  return pageMetadata({
+    title: entry.title,
+    description: entry.summary.slice(0, 300),
+    path: `/knowledge/${entry.slug}`,
+  });
 }
 
 export default async function KnowledgeDetailPage({
@@ -19,8 +37,40 @@ export default async function KnowledgeDetailPage({
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        headline: entry.title,
+        description: entry.summary,
+        url: absoluteUrl(`/knowledge/${entry.slug}`),
+        dateModified: entry.lastVerifiedAt,
+        inLanguage: "en",
+        isBasedOn: entry.sourceUrl,
+        about: entry.applicableVersion,
+        author: { "@type": "Organization", name: SITE.name, url: absoluteUrl("/") },
+        publisher: { "@type": "Organization", name: SITE.name, url: absoluteUrl("/") },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: "Knowledge", item: absoluteUrl("/knowledge") },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: entry.title,
+            item: absoluteUrl(`/knowledge/${entry.slug}`),
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 lg:px-6">
+      <JsonLd data={jsonLd} />
       <Link
         href="/knowledge"
         className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-950"

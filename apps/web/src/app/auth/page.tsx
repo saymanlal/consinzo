@@ -2,22 +2,23 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AuthPanel } from "@/components/auth-panel";
 import { Container, DarkBand, LogoOrb } from "@/components/marketing/blocks";
+import { describeSignInMethods } from "@/lib/auth-methods";
 import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Sign in or create an account",
-  description:
-    "Sign in to CONSINZO with a wallet, Google, GitHub, email or phone. No wallet yet? Create one in your browser in seconds.",
-  path: "/auth",
-});
-
-const POINTS = [
-  "Sign in with a wallet, Google, GitHub, email or phone",
-  "No wallet? Create one here. Your recovery phrase never leaves your device",
-  "Keep your scores, badges and solved challenges in one profile",
-];
+export function generateMetadata(): Metadata {
+  return pageMetadata({
+    title: "Sign in or create an account",
+    description: `Sign in to CONSINZO with ${describeSignInMethods()}. No wallet yet? Create one in your browser in seconds.`,
+    path: "/auth",
+  });
+}
 
 export default function AuthPage() {
+  const POINTS = [
+    `Sign in with ${describeSignInMethods()}`,
+    "No wallet? Create one here. Your recovery phrase never leaves your device",
+    "Keep your scores, badges and solved challenges in one profile",
+  ];
   return (
     <DarkBand className="min-h-[calc(100dvh-3.5rem)]">
       <Container className="grid items-start gap-10 py-10 sm:py-16 lg:grid-cols-[1fr_28rem] lg:gap-16">

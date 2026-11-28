@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import Link from "next/link";
 import { ArrowRight, Layers } from "lucide-react";
 import { Badge, Card } from "@consinzo/ui";
 import { ProtocolSimulators } from "@/components/protocol-simulators";
 import { PROTOCOL_LABS } from "@/lib/knowledge";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Protocol Lab",
+  description:
+    "Interactive simulators and invariants for core DeFi protocols: constant-product AMMs, ERC-4626 vaults, Dutch auctions and EIP-3156 flash loans.",
+  path: "/protocols",
+});
 
 export default function ProtocolsPage() {
   return (

@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
 
-const ALLOW = ["/", "/challenges", "/ecosystems", "/knowledge", "/docs"];
-const DISALLOW = ["/api/", "/admin/", "/dashboard/", "/settings/"];
+const ALLOW = ["/"];
+// Signed-in surfaces. /workspace/ is deliberately NOT listed: it carries a noindex tag and a
+// canonical to its challenge page, which crawlers can only honour if they may fetch it.
+const DISALLOW = ["/api/", "/admin", "/dashboard", "/profile", "/auth/callback"];
 
 // Answer-engine crawlers are named explicitly so public pages stay eligible for AI answers
 // even if the wildcard rule is tightened later. Private surfaces stay disallowed for all.

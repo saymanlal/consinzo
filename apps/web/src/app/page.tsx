@@ -25,7 +25,10 @@ import {
   SectionHeading,
 } from "@/components/marketing/blocks";
 import { CountUp, Reveal, TerminalDemo, type TerminalLine } from "@/components/marketing/motion";
+import { JsonLd } from "@/components/json-ld";
+import { describeSignInMethods } from "@/lib/auth-methods";
 import { listPublishedChallenges } from "@/lib/challenges";
+import { GUEST_LIMITS } from "@/lib/guest-limits";
 import { DIFFICULTY_META, DIFFICULTY_TIERS, normalizeDifficulty } from "@/lib/difficulty";
 import { KNOWLEDGE_ENTRIES, PROTOCOL_LABS } from "@/lib/knowledge";
 
@@ -128,6 +131,38 @@ export default function OverviewPage() {
     tier,
     count: challenges.filter((c) => normalizeDifficulty(c.difficulty) === tier).length,
   }));
+
+  const signIn = describeSignInMethods();
+  const runningNames = activeExecution
+    .map((e) => `${e.primaryLanguages[0]} on ${e.name}`)
+    .join(" and ");
+  const guestTiers = GUEST_LIMITS.TIERS.map((t) => DIFFICULTY_META[t].label).join(", ");
+  const faqs = [
+    {
+      q: "What is CONSINZO?",
+      a: `CONSINZO is an engineering platform for smart-contract developers. You write real contracts in a browser IDE, the platform compiles and runs them against public tests, and submissions are scored against hidden test suites. It currently has ${challenges.length} validated challenges, ${securityCount} of them security missions.`,
+    },
+    {
+      q: "Which languages and blockchains can I practise?",
+      a: `Code runs today for ${runningNames}. ${ECOSYSTEM_REGISTRY.length - activeExecution.length} more ecosystems are mapped with their toolchains and an honest support level, and are not runnable yet.`,
+    },
+    {
+      q: "Do I need an account or a wallet to try it?",
+      a: `No. Guest mode lets you open a workspace and run the public tests for ${guestTiers} challenges, up to ${GUEST_LIMITS.RUNS_PER_HOUR} runs an hour. To submit for scoring, earn points and badges, and unlock every tier, create an account with ${signIn}.`,
+    },
+    {
+      q: "I do not have a crypto wallet. Can I still sign up with one?",
+      a: "Yes. CONSINZO can create a wallet for you in your browser. You get a standard 12-word recovery phrase that stays on your device; CONSINZO never receives it. Signing in only signs a message. It is not a transaction and costs no gas.",
+    },
+    {
+      q: "How is my solution checked?",
+      a: "Your code is compiled with the real compiler and executed on a real virtual machine. Public tests run whenever you ask. On submit, a hidden suite runs on the server and the score combines functional correctness, security invariants, efficiency and code quality.",
+    },
+    {
+      q: "What do the difficulty levels mean?",
+      a: `There are six tiers: ${DIFFICULTY_TIERS.map((t) => DIFFICULTY_META[t].label).join(", ")}. Beginner covers first contracts and single invariants; Legend covers multi-contract systems and exploit chains at audit depth.`,
+    },
+  ];
 
   const stats = [
     { label: "Validated challenges", value: challenges.length, note: "public + hidden suites" },
@@ -448,6 +483,39 @@ export default function OverviewPage() {
         </Reveal>
       </Container>
 
+      {/* ── FAQ ── */}
+      <Container className="pb-20 sm:pb-24">
+        <Reveal>
+          <SectionHeading eyebrow="FAQ" title="Questions people ask first" />
+        </Reveal>
+        <div className="mt-8 grid gap-3 lg:grid-cols-2">
+          {faqs.map((f, i) => (
+            <Reveal key={f.q} delay={(i % 2) * 80}>
+              <details className="cz-card group p-5 open:border-white/20">
+                <summary className="cz-focus flex cursor-pointer list-none items-start justify-between gap-4 rounded text-sm font-semibold text-white [&::-webkit-details-marker]:hidden">
+                  <h3>{f.q}</h3>
+                  <span aria-hidden className="mt-0.5 text-lg leading-none text-cyan-300 transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-400">{f.a}</p>
+              </details>
+            </Reveal>
+          ))}
+        </div>
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          }}
+        />
+      </Container>
+
       {/* ── CTA ── */}
       <Container className="pb-24">
         <Reveal className="cz-card relative overflow-hidden px-6 py-12 text-center sm:px-12 sm:py-16">
@@ -459,8 +527,8 @@ export default function OverviewPage() {
             Your first passing test is one click away
           </h2>
           <p className="relative mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
-            Open a workspace as a guest, or create an account with a wallet, Google, GitHub, email
-            or phone to keep your score. {PROTOCOL_LABS.length} protocol labs are waiting too.
+            Open a workspace as a guest, or create an account with {signIn} to keep your score.{" "}
+            {PROTOCOL_LABS.length} protocol labs are waiting too.
           </p>
           <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/auth?mode=register" className="cz-btn cz-btn-primary">

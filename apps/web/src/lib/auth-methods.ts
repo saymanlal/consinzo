@@ -53,3 +53,18 @@ export function getRequestOrigin(req: Request): { origin: string; host: string }
   const proto = req.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "");
   return { origin: `${proto}://${host}`, host };
 }
+
+/** Human list of the sign-in methods this deployment offers, for public copy. */
+export function describeSignInMethods(): string {
+  const m = getAuthMethodAvailability();
+  const names = [
+    m.wallet ? "a wallet" : null,
+    m.google ? "Google" : null,
+    m.github ? "GitHub" : null,
+    m.emailCode ? "an email code" : null,
+    m.phone ? "a phone code" : null,
+    m.password ? "email and password" : null,
+  ].filter((n): n is string => Boolean(n));
+  if (names.length <= 1) return names[0] ?? "email and password";
+  return `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
+}
