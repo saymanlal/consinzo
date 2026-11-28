@@ -1,14 +1,115 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Code2, Cpu, Layers, Shield, Terminal } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Code2,
+  Cpu,
+  FlaskConical,
+  GraduationCap,
+  Hammer,
+  Layers,
+  Shield,
+  Swords,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { ECOSYSTEM_REGISTRY, SUPPORT_LEVEL_LABELS } from "@consinzo/ecosystem-registry";
-import { Badge, Card } from "@consinzo/ui";
+import { DifficultyBadge } from "@/components/difficulty-badge";
+import {
+  Container,
+  DarkBand,
+  Eyebrow,
+  LogoOrb,
+  SectionHeading,
+} from "@/components/marketing/blocks";
+import { CountUp, Reveal, TerminalDemo, type TerminalLine } from "@/components/marketing/motion";
 import { listPublishedChallenges } from "@/lib/challenges";
-import { PROTOCOL_LABS } from "@/lib/knowledge";
+import { DIFFICULTY_META, DIFFICULTY_TIERS, normalizeDifficulty } from "@/lib/difficulty";
+import { KNOWLEDGE_ENTRIES, PROTOCOL_LABS } from "@/lib/knowledge";
+
+export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
+
+const TERMINAL_LINES: TerminalLine[] = [
+  { text: "consinzo test erc20-token-vault", tone: "cmd" },
+  { text: "Compiling 2 files with solc 0.8.28 … done", tone: "muted" },
+  { text: "[PASS] testMetadata()", tone: "ok" },
+  { text: "[PASS] testMintAndTransfer()", tone: "ok" },
+  { text: "[PASS] testApproveAndTransferFrom()", tone: "ok" },
+  { text: "[PASS] testBurnReducesSupply()", tone: "ok" },
+  { text: "Public suite 4/4 · hidden suite evaluated on submit", tone: "accent" },
+  { text: "consinzo submit", tone: "cmd" },
+  { text: "Score = correctness + invariants + efficiency + quality", tone: "muted" },
+  { text: "✔ Verified pass — reference solution unlocked", tone: "ok" },
+];
+
+const PILLARS = [
+  {
+    icon: Hammer,
+    word: "Build",
+    text: "Write real contracts in a browser IDE against a starter project and a written specification.",
+  },
+  {
+    icon: FlaskConical,
+    word: "Test",
+    text: "Run the public test suite on a real compiler and VM. No multiple-choice, no mocked output.",
+  },
+  {
+    icon: Swords,
+    word: "Break",
+    text: "Security missions hand you vulnerable code. Reproduce the exploit, then patch it so it holds.",
+  },
+  {
+    icon: Trophy,
+    word: "Master",
+    text: "Submit for hidden-suite evaluation, earn points and badges, and climb the leaderboards.",
+  },
+];
+
+const MODULES = [
+  {
+    href: "/challenges",
+    icon: Code2,
+    title: "Challenge Codex",
+    text: "Engineering challenges from first contracts to protocol design, each with public and hidden suites.",
+  },
+  {
+    href: "/security",
+    icon: Shield,
+    title: "Security Arena",
+    text: "Exploit-and-patch missions across reentrancy, replay, oracle manipulation, upgrade auth and more.",
+  },
+  {
+    href: "/protocols",
+    icon: Layers,
+    title: "Protocol Lab",
+    text: "Interactive simulators for AMMs, tokenized vaults, auctions and flash loans, with their invariants.",
+  },
+  {
+    href: "/ecosystems",
+    icon: Cpu,
+    title: "Ecosystem Hub",
+    text: "Ten ecosystems with pinned toolchains and an honest support level for each one.",
+  },
+  {
+    href: "/knowledge",
+    icon: BookOpen,
+    title: "Knowledge Hub",
+    text: "Version-pinned reference notes with sources, linked to the challenges that exercise them.",
+  },
+  {
+    href: "/academy",
+    icon: GraduationCap,
+    title: "Academy",
+    text: "Guided tracks that order the challenges into a path, with progress you can see.",
+  },
+];
 
 export default function OverviewPage() {
   const challenges = listPublishedChallenges();
   const securityCount = challenges.filter((c) => c.is_security_mission).length;
-  const activeExecutionCount = ECOSYSTEM_REGISTRY.filter((e) => e.supportLevel >= 3).length;
+  const activeExecution = ECOSYSTEM_REGISTRY.filter((e) => e.supportLevel >= 3);
 
   const featuredSlugs = [
     "erc20-token-vault",
@@ -23,197 +124,355 @@ export default function OverviewPage() {
     .filter((c): c is NonNullable<typeof c> => Boolean(c));
   const featuredChallenges = featured.length >= 6 ? featured : challenges.slice(0, 6);
 
+  const tierCounts = DIFFICULTY_TIERS.map((tier) => ({
+    tier,
+    count: challenges.filter((c) => normalizeDifficulty(c.difficulty) === tier).length,
+  }));
+
+  const stats = [
+    { label: "Validated challenges", value: challenges.length, note: "public + hidden suites" },
+    { label: "Security missions", value: securityCount, note: "exploit and patch" },
+    {
+      label: "Executing ecosystems",
+      value: activeExecution.length,
+      note: activeExecution.map((e) => e.shortName).join(" + "),
+    },
+    { label: "Knowledge entries", value: KNOWLEDGE_ENTRIES.length, note: "sourced and versioned" },
+  ];
+
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-10 lg:px-6">
-      {/* Compact Engineering Header */}
-      <section className="border-b border-zinc-200 pb-10">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded border border-zinc-200 bg-white px-2.5 py-1 text-xs font-mono text-zinc-700">
-            <Terminal className="h-3.5 w-3.5 text-blue-700" />
-            <span>CONSINZO // THE ENGINEERING PLATFORM</span>
+    <DarkBand>
+      {/* ── Hero ── */}
+      <Container className="grid items-center gap-12 pb-16 pt-14 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:pb-24 lg:pt-28">
+        <div className="min-w-0">
+          <Reveal>
+            <Eyebrow>The Engineering Platform</Eyebrow>
+          </Reveal>
+          <Reveal delay={80}>
+            <h1 className="mt-6 text-[2.6rem] font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Build. Test.
+              <br />
+              <span className="cz-gradient-text">Break. Master.</span>
+            </h1>
+          </Reveal>
+          <Reveal delay={160}>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+              Smart-contract engineering you can actually run. Real{" "}
+              <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm text-zinc-200">
+                solc 0.8.28
+              </code>{" "}
+              compilation, EVM and NEAR test execution, hidden evaluation suites, and security
+              missions where you break the contract before you fix it.
+            </p>
+          </Reveal>
+          <Reveal delay={240}>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link href="/challenges" className="cz-btn cz-btn-primary">
+                <Code2 className="h-4 w-4" />
+                Open the Codex
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/workspace/erc20-token-vault" className="cz-btn cz-btn-ghost">
+                <Zap className="h-4 w-4 text-cyan-300" />
+                Try it without an account
+              </Link>
+              <Link href="/security" className="cz-btn cz-btn-ghost">
+                <Shield className="h-4 w-4 text-violet-300" />
+                Security Arena
+              </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={320}>
+            <p className="mt-5 text-xs text-zinc-500">
+              Guest mode runs public tests in your browser session. Sign in to submit, score and
+              earn badges.
+            </p>
+          </Reveal>
+        </div>
+
+        <Reveal delay={200} className="relative min-w-0">
+          <LogoOrb className="pointer-events-none absolute -right-10 -top-24 hidden w-72 opacity-70 lg:grid" />
+          <div className="relative lg:mt-24">
+            <TerminalDemo lines={TERMINAL_LINES} title="erc20-token-vault — example run" />
           </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl">
-            Build. Test. Break. Master.
-          </h1>
-          <p className="mt-3 text-base leading-relaxed text-zinc-600">
-            Practical smart-contract and protocol engineering environment featuring real{" "}
-            <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs">solc 0.8.28</code>{" "}
-            compilation, EthereumJS EVM &amp; NEAR TypeScript VM test execution, Foundry-compatible
-            cheatcodes, isolated hidden evaluation suites, and security exploit defense missions.
-          </p>
+        </Reveal>
+      </Container>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Link
-              href="/challenges"
-              className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
-            >
-              <Code2 className="h-4 w-4" />
-              Open Challenge Codex
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/workspace/erc20-token-vault"
-              className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
-            >
-              Launch ERC-20 Workspace
-            </Link>
-            <Link
-              href="/security"
-              className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
-            >
-              <Shield className="h-4 w-4" />
-              Security Arena
-            </Link>
-          </div>
-        </div>
+      {/* ── Verified inventory ── */}
+      <Container>
+        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {stats.map((s, i) => (
+            <Reveal key={s.label} delay={i * 70} className="cz-card p-5">
+              <dt className="text-xs text-zinc-400">{s.label}</dt>
+              <dd className="mt-2 font-mono text-3xl font-semibold text-white sm:text-4xl">
+                <CountUp value={s.value} />
+              </dd>
+              <p className="mt-1 text-xs text-zinc-500">{s.note}</p>
+            </Reveal>
+          ))}
+        </dl>
+        <p className="mt-3 text-xs text-zinc-600">
+          Counts are read from the live challenge registry at build time, not marketing estimates.
+        </p>
+      </Container>
 
-        {/* Verified Platform Inventory (no fabricated metrics) */}
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Card className="p-4">
-            <div className="text-xs font-medium text-zinc-500">Validated Challenges</div>
-            <div className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
-              {challenges.length}
-            </div>
-            <div className="mt-1 text-xs text-zinc-500">EVM &amp; NEAR public + hidden suites</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-xs font-medium text-zinc-500">Security Missions</div>
-            <div className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
-              {securityCount}
-            </div>
-            <div className="mt-1 text-xs text-zinc-500">Reentrancy, replay & inflation</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-xs font-medium text-zinc-500">Execution Ecosystems</div>
-            <div className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
-              {activeExecutionCount} / {ECOSYSTEM_REGISTRY.length}
-            </div>
-            <div className="mt-1 text-xs text-zinc-500">EVM L4 + NEAR L3 active; 8 mapped</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-xs font-medium text-zinc-500">Protocol Labs</div>
-            <div className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
-              {PROTOCOL_LABS.length}
-            </div>
-            <div className="mt-1 text-xs text-zinc-500">AMM, Vaults & Timelocks</div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Core Modules */}
-      <section className="py-10 border-b border-zinc-200">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-950">Featured Engineering Challenges</h2>
-          <Link href="/challenges" className="text-xs font-medium text-blue-700 hover:underline">
-            View all {challenges.length} challenges →
-          </Link>
-        </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {featuredChallenges.map((c) => (
-            <Card key={c.slug} className="flex flex-col justify-between p-5">
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <Badge tone="blue">{c.ecosystem}</Badge>
-                  <Badge
-                    tone={
-                      c.difficulty === "beginner"
-                        ? "green"
-                        : c.difficulty === "intermediate"
-                          ? "amber"
-                          : "red"
-                    }
-                  >
-                    {c.difficulty}
-                  </Badge>
-                </div>
-                <h3 className="mt-3 text-base font-semibold text-zinc-950">{c.title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-zinc-600 line-clamp-3">
-                  {c.description}
-                </p>
-              </div>
-              <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
-                <span className="font-mono text-xs text-zinc-500">
-                  {c.scoring.max_points} pts · {c.language}
-                </span>
-                <Link
-                  href={`/workspace/${c.slug}`}
-                  className="text-xs font-medium text-slate-900 hover:text-blue-700"
+      {/* ── Ecosystem marquee ── */}
+      <div className="mt-16 border-y border-white/10 py-5" aria-hidden>
+        <div className="cz-marquee">
+          {[0, 1].map((dup) => (
+            <div key={dup} className="cz-marquee-track">
+              {ECOSYSTEM_REGISTRY.map((eco) => (
+                <span
+                  key={`${dup}-${eco.id}`}
+                  className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-zinc-300"
                 >
-                  Open IDE →
-                </Link>
-              </div>
-            </Card>
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      eco.supportLevel >= 3 ? "bg-emerald-400" : "bg-zinc-600"
+                    }`}
+                  />
+                  {eco.name}
+                  <span className="font-mono text-zinc-500">
+                    {eco.primaryLanguages[0]} · L{eco.supportLevel}
+                  </span>
+                </span>
+              ))}
+            </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* Ecosystem Support Matrix */}
-      <section className="py-10">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-zinc-950">
-              Multi-Ecosystem Capability Matrix
-            </h2>
-            <p className="mt-1 text-xs text-zinc-500">
-              Support levels are updated strictly after compiler, runner, and integration test
-              verification.
-            </p>
-          </div>
-          <Link href="/ecosystems" className="text-xs font-medium text-blue-700 hover:underline">
+      {/* ── Four verbs ── */}
+      <Container className="py-20 sm:py-24">
+        <Reveal>
+          <SectionHeading
+            eyebrow="How it works"
+            title="Four verbs, one loop"
+            lead="Every challenge follows the same path, so the habit you build is the one audits and production demand."
+          />
+        </Reveal>
+        <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PILLARS.map((p, i) => (
+            <Reveal as="li" key={p.word} delay={i * 90} className="cz-card cz-card-hover p-6">
+              <div className="flex items-center justify-between">
+                <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5">
+                  <p.icon className="h-5 w-5 text-cyan-300" />
+                </span>
+                <span className="font-mono text-xs text-zinc-600">0{i + 1}</span>
+              </div>
+              <h3 className="mt-5 text-lg font-semibold text-white">{p.word}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">{p.text}</p>
+            </Reveal>
+          ))}
+        </ol>
+      </Container>
+
+      {/* ── Modules ── */}
+      <Container className="pb-20 sm:pb-24">
+        <Reveal>
+          <SectionHeading
+            eyebrow="The platform"
+            title="Everything in one workspace"
+            lead="Six connected modules. Pick a door; they all lead to code you run."
+          />
+        </Reveal>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MODULES.map((m, i) => (
+            <Reveal key={m.href} delay={(i % 3) * 90}>
+              <Link href={m.href} className="cz-card cz-card-hover cz-focus group block h-full p-6">
+                <m.icon className="h-6 w-6 text-violet-300" />
+                <h3 className="mt-4 flex items-center gap-2 text-base font-semibold text-white">
+                  {m.title}
+                  <ArrowRight className="h-4 w-4 -translate-x-1 text-cyan-300 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{m.text}</p>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+
+      {/* ── Difficulty ladder ── */}
+      <Container className="pb-20 sm:pb-24">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Difficulty ladder"
+            title="Six tiers, from first contract to legend"
+            lead="Filter the Codex by tier and climb at your own pace."
+          />
+        </Reveal>
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {tierCounts.map(({ tier, count }, i) => {
+            const meta = DIFFICULTY_META[tier];
+            return (
+              <Reveal key={tier} delay={(i % 3) * 80}>
+                <Link
+                  href={`/challenges?difficulty=${tier}`}
+                  className="cz-card cz-card-hover cz-focus flex h-full items-start gap-4 p-5"
+                >
+                  <span className="font-mono text-2xl font-semibold text-zinc-700">
+                    {meta.rank}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2">
+                      <DifficultyBadge difficulty={tier} surface="dark" />
+                      <span className="font-mono text-xs text-zinc-500">
+                        {count} {count === 1 ? "challenge" : "challenges"}
+                      </span>
+                    </span>
+                    <span className="mt-2 block text-sm leading-relaxed text-zinc-400">
+                      {meta.blurb}
+                    </span>
+                  </span>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
+      </Container>
+
+      {/* ── Featured ── */}
+      <Container className="pb-20 sm:pb-24">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading eyebrow="Start here" title="Featured challenges" />
+          <Link
+            href="/challenges"
+            className="cz-focus rounded text-sm font-medium text-cyan-300 hover:text-white"
+          >
+            View all {challenges.length} →
+          </Link>
+        </Reveal>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {featuredChallenges.map((c, i) => (
+            <Reveal key={c.slug} delay={(i % 3) * 90}>
+              <article className="cz-card cz-card-hover flex h-full flex-col justify-between p-6">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] text-zinc-300">
+                      {c.ecosystem}
+                    </span>
+                    <DifficultyBadge difficulty={c.difficulty} surface="dark" />
+                  </div>
+                  <h3 className="mt-4 text-base font-semibold text-white">
+                    <Link href={`/challenges/${c.slug}`} className="cz-focus rounded hover:underline">
+                      {c.title}
+                    </Link>
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-zinc-400">
+                    {c.description}
+                  </p>
+                </div>
+                <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                  <span className="font-mono text-xs text-zinc-500">
+                    {c.scoring.max_points} pts · {c.language}
+                  </span>
+                  <Link
+                    href={`/workspace/${c.slug}`}
+                    className="cz-focus rounded text-xs font-semibold text-white hover:text-cyan-300"
+                  >
+                    Open IDE →
+                  </Link>
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+
+      {/* ── Ecosystem matrix ── */}
+      <Container className="pb-20 sm:pb-24">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading
+            eyebrow="Ecosystems"
+            title="An honest capability matrix"
+            lead="A support level only moves after the compiler, runner and integration tests are verified."
+          />
+          <Link
+            href="/ecosystems"
+            className="cz-focus rounded text-sm font-medium text-cyan-300 hover:text-white"
+          >
             Inspect toolchains →
           </Link>
-        </div>
-        <div className="mt-4 overflow-x-auto rounded-lg border border-zinc-200 bg-white">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-zinc-200 bg-zinc-50 text-zinc-600">
-              <tr>
-                <th className="px-4 py-3 font-medium">Ecosystem</th>
-                <th className="px-4 py-3 font-medium">Languages</th>
-                <th className="px-4 py-3 font-medium">Support Level</th>
-                <th className="px-4 py-3 font-medium">Adapter</th>
-                <th className="px-4 py-3 font-medium">Execution Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {ECOSYSTEM_REGISTRY.map((eco) => {
-                const lvl = SUPPORT_LEVEL_LABELS[eco.supportLevel];
-                return (
-                  <tr key={eco.id} className="hover:bg-zinc-50/70">
-                    <td className="px-4 py-3 font-medium text-zinc-950">{eco.name}</td>
-                    <td className="px-4 py-3 font-mono text-zinc-600">
-                      {eco.primaryLanguages.join(", ")}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge tone={eco.supportLevel >= 3 ? "green" : eco.supportLevel === 1 ? "blue" : "neutral"}>
-                        L{eco.supportLevel}: {lvl.name}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-zinc-500">{eco.adapterId}</td>
-                    <td className="px-4 py-3 text-zinc-600">
-                      {eco.capabilities.localCliTest ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-700 font-medium">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          {eco.id === "near" ? "Verified NEAR TS VM" : "Verified solc + EVM"}
+        </Reveal>
+        <Reveal delay={100} className="cz-card mt-8 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead className="border-b border-white/10 text-xs text-zinc-500">
+                <tr>
+                  <th scope="col" className="px-5 py-3 font-medium">Ecosystem</th>
+                  <th scope="col" className="px-5 py-3 font-medium">Languages</th>
+                  <th scope="col" className="px-5 py-3 font-medium">Support level</th>
+                  <th scope="col" className="px-5 py-3 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {ECOSYSTEM_REGISTRY.map((eco) => {
+                  const lvl = SUPPORT_LEVEL_LABELS[eco.supportLevel];
+                  return (
+                    <tr key={eco.id} className="transition-colors hover:bg-white/[0.03]">
+                      <th scope="row" className="px-5 py-3 font-medium text-white">{eco.name}</th>
+                      <td className="px-5 py-3 font-mono text-xs text-zinc-400">
+                        {eco.primaryLanguages.join(", ")}
+                      </td>
+                      <td className="px-5 py-3">
+                        <span
+                          className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${
+                            eco.supportLevel >= 3
+                              ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                              : eco.supportLevel === 1
+                                ? "border-sky-400/30 bg-sky-400/10 text-sky-300"
+                                : "border-white/10 bg-white/5 text-zinc-400"
+                          }`}
+                        >
+                          L{eco.supportLevel} · {lvl.name}
                         </span>
-                      ) : eco.capabilities.editorSyntax ? (
-                        <span className="inline-flex items-center gap-1 text-zinc-600">
-                          <Cpu className="h-3.5 w-3.5" />
-                          Syntax only (runner roadmap)
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-zinc-400">
-                          <Layers className="h-3.5 w-3.5" />
-                          Reference & roadmap
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+                      </td>
+                      <td className="px-5 py-3 text-xs">
+                        {eco.capabilities.localCliTest ? (
+                          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-300">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Compiles and runs tests
+                          </span>
+                        ) : eco.capabilities.editorSyntax ? (
+                          <span className="text-zinc-400">Editor syntax only</span>
+                        ) : (
+                          <span className="text-zinc-600">Reference only</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+      </Container>
+
+      {/* ── CTA ── */}
+      <Container className="pb-24">
+        <Reveal className="cz-card relative overflow-hidden px-6 py-12 text-center sm:px-12 sm:py-16">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-48 w-2/3 rounded-full bg-cyan-400/20 blur-3xl"
+          />
+          <h2 className="relative text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            Your first passing test is one click away
+          </h2>
+          <p className="relative mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+            Open a workspace as a guest, or create an account with a wallet, Google, GitHub, email
+            or phone to keep your score. {PROTOCOL_LABS.length} protocol labs are waiting too.
+          </p>
+          <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/auth?mode=register" className="cz-btn cz-btn-primary">
+              Create account
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/workspace/erc20-token-vault" className="cz-btn cz-btn-ghost">
+              Continue as guest
+            </Link>
+          </div>
+        </Reveal>
+      </Container>
+    </DarkBand>
   );
 }
