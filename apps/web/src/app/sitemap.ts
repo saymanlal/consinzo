@@ -1,24 +1,12 @@
 import type { MetadataRoute } from "next";
 import { listPublishedChallenges } from "@/lib/challenges";
 import { KNOWLEDGE_ENTRIES } from "@/lib/knowledge";
+import { PUBLIC_ROUTES, getSiteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  const staticRoutes = [
-    "",
-    "/challenges",
-    "/security",
-    "/protocols",
-    "/ecosystems",
-    "/knowledge",
-    "/competitions",
-    "/academy",
-    "/docs",
-    "/about",
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
+  const baseUrl = getSiteUrl();
+  const staticRoutes = PUBLIC_ROUTES.map((route) => ({
+    url: `${baseUrl}${route.path}`,
     lastModified: new Date(),
   }));
 
